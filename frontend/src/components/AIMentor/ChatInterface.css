@@ -1,0 +1,122 @@
+/* ChatInterface styles */
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--header-height) - 64px);
+  gap: 16px;
+}
+
+/* Context bar */
+.chat__context-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+}
+
+.chat__context-icon { font-size: 0.9rem; }
+.chat__context-label { color: var(--clr-text-muted); font-weight: 600; }
+.chat__context-value { color: var(--clr-secondary); font-weight: 500; }
+
+/* Messages scroll area */
+.chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 4px;
+  scroll-behavior: smooth;
+}
+
+/* Suggestion chips */
+.chat__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chat__suggestion-chip {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text-secondary);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--duration) var(--ease-out);
+}
+
+.chat__suggestion-chip:hover {
+  background: var(--clr-primary-dim);
+  border-color: rgba(124, 58, 237, 0.4);
+  color: var(--clr-primary-light);
+}
+
+.chat__suggestion-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input area */
+.chat__input-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+}
+
+.chat__textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--clr-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.chat__textarea::placeholder { color: var(--clr-text-muted); }
+.chat__textarea:disabled { opacity: 0.6; }
+
+/* Send button */
+.chat__send-btn {
+  padding: 10px 16px;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.chat__send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.chat__send-btn--loading {
+  pointer-events: none;
+}
+
+/* Spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.chat__spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
