@@ -1,0 +1,150 @@
+/* LevelCard styles */
+.level-card-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.level-connector {
+  position: absolute;
+  left: 44px;
+  top: 100%;
+  width: 3px;
+  height: 32px;
+  background: linear-gradient(to bottom, var(--line-color, var(--clr-primary)), transparent);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.level-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  transition: all var(--duration) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Color accent left border */
+.level-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--level-color, var(--clr-primary));
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+/* Subtle glow on hover */
+.level-card:hover {
+  border-color: var(--clr-border-bright);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04), var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.level-card--locked {
+  opacity: 0.55;
+  filter: grayscale(0.5);
+}
+
+.level-card--complete {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.level-card--complete::before {
+  background: var(--clr-success);
+}
+
+/* Badge */
+.level-card__badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+.level-card__number {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--clr-text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Icon */
+.level-card__icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--clr-bg-elevated);
+  border: 1px solid var(--clr-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.6rem;
+}
+
+/* Content */
+.level-card__content { flex: 1; min-width: 0; }
+
+.level-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.level-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+}
+
+.level-card__lessons {
+  font-size: 0.8rem;
+  color: var(--clr-text-muted);
+  margin-bottom: 10px;
+}
+
+.level-card__progress-track {
+  height: 6px;
+  background: var(--clr-bg-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.level-card__progress-fill {
+  height: 100%;
+  background: var(--level-color, var(--clr-primary));
+  border-radius: 3px;
+  transition: width 0.6s var(--ease-out);
+}
+
+.level-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.level-card__pct {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--clr-text-muted);
+}
+
+.level-card__completed-date {
+  font-size: 0.7rem;
+  color: var(--clr-success);
+}

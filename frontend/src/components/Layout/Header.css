@@ -1,0 +1,62 @@
+/* Header styles */
+.header {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--clr-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--header-height);
+}
+
+.header__left { display: flex; flex-direction: column; gap: 1px; }
+
+.header__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.header__subtitle {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+}
+
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header__stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+}
+
+.header__stat--xp {
+  background: var(--clr-accent-dim);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.header__stat-icon { font-size: 1rem; }
+
+.header__stat-value {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--clr-text-primary);
+}
+
+.header__stat-label {
+  font-size: 0.7rem;
+  color: var(--clr-text-muted);
+}
