@@ -24,7 +24,6 @@ const PAGE_META: Record<NavPage, { title: string; subtitle: string }> = {
   hackathons: { title: 'Web3 Hackathons',     subtitle: 'Participate, build projects, and win prizes' },
   mentor:    { title: 'AI Mentor',             subtitle: 'Ask anything — powered by Claude & Hermes' },
   certificates: { title: 'My Certificates',   subtitle: 'Verifiable credentials for your Web3 achievements' },
-  kpis:      { title: 'Platform Core KPIs',   subtitle: 'Aggregate real-time metrics for Developer Academy' },
 };
 
 export const Header: React.FC<HeaderProps> = ({

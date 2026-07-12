@@ -18,7 +18,6 @@ const NAV_ITEMS: { id: NavPage; label: string; icon: string; description: string
   { id: 'hackathons',   label: 'Web3 Hackathons',  icon: '⚔️',  description: 'Build & innovate' },
   { id: 'mentor',       label: 'AI Mentor',        icon: '🤖',  description: 'Chat with AI' },
   { id: 'certificates', label: 'My Certificates',  icon: '🏆',  description: 'Earned credentials' },
-  { id: 'kpis',         label: 'Platform KPIs',    icon: '📈',  description: 'Real-time metrics' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({

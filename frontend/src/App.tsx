@@ -8,7 +8,6 @@ import { RoadmapPage, DashboardPage, MentorPage } from './pages';
 import { LessonsList } from './components/Roadmap/LessonsList';
 import { LessonView } from './components/Roadmap/LessonView';
 import { CertificatesView } from './components/Certificates/CertificatesView';
-import { KPIsView } from './components/Dashboard/KPIsView';
 import { Login } from './components/Auth/Login';
 import { ForumView } from './components/Forum/ForumView';
 import { HackathonsView } from './components/Hackathons/HackathonsView';
@@ -382,8 +381,7 @@ export default function App() {
         return <MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />;
       case 'certificates':
         return <CertificatesView userId={userId} />;
-      case 'kpis':
-        return <KPIsView userId={userId} />;
+
       default:
         return null;
     }
