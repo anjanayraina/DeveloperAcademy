@@ -353,17 +353,25 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId }) => {
 
             <div className="form-group">
               <label className="form-label">Category</label>
-              <select
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value as any)}
-                className="form-select"
-              >
-                <option value="Question">Question</option>
-                <option value="Discussion">Discussion</option>
-                <option value="Showcase">Showcase</option>
-                <option value="Help">Help</option>
-                <option value="Announcement">Announcement</option>
-              </select>
+              <div className="category-select-grid">
+                {[
+                  { id: 'Question', label: '❓ Question', desc: 'Ask a technical query or request code review' },
+                  { id: 'Discussion', label: '💬 Discussion', desc: 'Discuss Web3 trends, ideas, or architectural patterns' },
+                  { id: 'Showcase', label: '🚀 Showcase', desc: 'Share your completed project, dApp, or smart contract' },
+                  { id: 'Help', label: '🚨 Help', desc: 'Get assistance with compiling errors, setups, or bugs' },
+                  { id: 'Announcement', label: '📢 Announcement', desc: 'Broadcast platform updates, releases, or news' }
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`category-select-card ${newCategory === cat.id ? 'category-select-card--active' : ''}`}
+                    onClick={() => setNewCategory(cat.id as any)}
+                  >
+                    <div className="category-select-card__label">{cat.label}</div>
+                    <div className="category-select-card__desc">{cat.desc}</div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="form-group">

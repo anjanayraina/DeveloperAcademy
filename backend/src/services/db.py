@@ -56,10 +56,8 @@ async def connect_to_mongo():
     db_instance.db = db_instance.client[db_name]
     print(f"✅ Connected to MongoDB. Database: '{db_name}'")
     
-    # Seed the default demo user and new features
+    # Seed the default demo user
     await seed_demo_user()
-    await seed_forum_threads()
-    await seed_hackathons()
 
 async def close_mongo_connection():
     """Close the MongoDB client connection."""
