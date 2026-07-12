@@ -45,7 +45,59 @@ export interface ChatMessage {
   isStreaming?: boolean;
 }
 
-export type NavPage = 'roadmap' | 'dashboard' | 'mentor' | 'certificates' | 'kpis';
+export type NavPage = 'roadmap' | 'dashboard' | 'mentor' | 'certificates' | 'kpis' | 'forum' | 'hackathons';
+
+export interface ForumComment {
+  comment_id: string;
+  author: string;
+  content: string;
+  created_at: string;
+}
+
+export interface ForumThread {
+  thread_id: string;
+  title: string;
+  author: string;
+  category: 'Question' | 'Discussion' | 'Showcase' | 'Help' | 'Announcement';
+  content: string;
+  tags: string[];
+  replies_count: number;
+  views_count: number;
+  likes_count: number;
+  created_at: string;
+  comments: ForumComment[];
+}
+
+export interface HackathonMilestone {
+  title: string;
+  date: string;
+}
+
+export interface HackathonSubmission {
+  project_name: string;
+  tagline: string;
+  description: string;
+  video_link: string;
+  code_link: string;
+  submitted_at: string;
+  is_submitted: boolean;
+  team_size: number;
+}
+
+export interface Hackathon {
+  hackathon_id: string;
+  title: string;
+  description: string;
+  prize_pool: string;
+  start_date: string;
+  end_date: string;
+  status: 'upcoming' | 'ongoing' | 'completed';
+  rules: string[];
+  tracks: string[];
+  milestones: HackathonMilestone[];
+  is_registered: boolean;
+  submission?: HackathonSubmission;
+}
 
 export interface QuizQuestion {
   question: string;
