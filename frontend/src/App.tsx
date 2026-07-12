@@ -15,9 +15,38 @@ import './index.css';
 export default function App() {
   const [activePage, setActivePage] = useState<NavPage>('roadmap');
   
+  // Helpers to read/write session cookie
+  const getSessionCookie = () => {
+    const name = "user_session=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(name) === 0) {
+        try {
+          return JSON.parse(c.substring(name.length, c.length));
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
+  };
+
+  const setSessionCookie = (uid: string, type: 'github' | 'wallet' | 'demo') => {
+    document.cookie = `user_session=${JSON.stringify({ userId: uid, authType: type })}; path=/; max-age=86400; SameSite=Lax`;
+  };
+
+  const deleteSessionCookie = () => {
+    document.cookie = "user_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax";
+  };
+
+  // Initialize state from cookie if present
+  const initialSession = getSessionCookie();
+
   // Auth state
-  const [userId, setUserId] = useState<string>('');
-  const [authType, setAuthType] = useState<'github' | 'wallet' | 'demo' | null>(null);
+  const [userId, setUserId] = useState<string>(initialSession?.userId || '');
+  const [authType, setAuthType] = useState<'github' | 'wallet' | 'demo' | null>(initialSession?.authType || null);
   
   // Progress & curriculum states
   const [progress, setProgress] = useState<UserProgress | null>(null);
@@ -41,6 +70,7 @@ export default function App() {
         .then((resProgress) => {
           setUserId(resProgress.user_id);
           setAuthType('github');
+          setSessionCookie(resProgress.user_id, 'github');
           setProgress(resProgress);
           setSelectedLevel(null);
           setSelectedLessonId(null);
@@ -103,6 +133,7 @@ export default function App() {
       const resProgress = await authGithub(username.trim());
       setUserId(resProgress.user_id);
       setAuthType('github');
+      setSessionCookie(resProgress.user_id, 'github');
       setProgress(resProgress);
       setSelectedLevel(null);
       setSelectedLessonId(null);
@@ -137,6 +168,7 @@ export default function App() {
         const resProgress = await authWallet(address, message, signature);
         setUserId(resProgress.user_id);
         setAuthType('wallet');
+        setSessionCookie(resProgress.user_id, 'wallet');
         setProgress(resProgress);
         setSelectedLevel(null);
         setSelectedLessonId(null);
@@ -164,6 +196,7 @@ export default function App() {
       const resProgress = await authWallet(address.trim());
       setUserId(resProgress.user_id);
       setAuthType('wallet');
+      setSessionCookie(resProgress.user_id, 'wallet');
       setProgress(resProgress);
       setSelectedLevel(null);
       setSelectedLessonId(null);
@@ -177,6 +210,7 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    deleteSessionCookie();
     setUserId('');
     setAuthType(null);
     setSelectedLevel(null);
@@ -247,6 +281,7 @@ export default function App() {
         onLoginDemo={() => {
           setUserId('demo-user');
           setAuthType('demo');
+          setSessionCookie('demo-user', 'demo');
           setActivePage('roadmap');
         }}
         loading={loading}
