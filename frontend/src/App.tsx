@@ -1,5 +1,5 @@
 // ─── App — root component with state, layout, authentication and routing ───
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { NavPage, UserProgress, Course } from './types';
 import { fetchProgress, fetchCourses, authGithub, authWallet, fetchAuthConfig } from './api/client';
 import { Sidebar } from './components/Layout/Sidebar';
@@ -10,6 +10,8 @@ import { LessonView } from './components/Roadmap/LessonView';
 import { CertificatesView } from './components/Certificates/CertificatesView';
 import { KPIsView } from './components/Dashboard/KPIsView';
 import { Login } from './components/Auth/Login';
+import { ForumView } from './components/Forum/ForumView';
+import { HackathonsView } from './components/Hackathons/HackathonsView';
 import './index.css';
 
 export default function App() {
@@ -261,7 +263,18 @@ export default function App() {
           />
         );
       case 'dashboard':
-        return <DashboardPage progress={progress} loading={loading} />;
+        return (
+          <DashboardPage
+            progress={progress}
+            loading={loading}
+            userId={userId}
+            onProgressUpdate={handleProgressUpdate}
+          />
+        );
+      case 'forum':
+        return <ForumView userId={userId} />;
+      case 'hackathons':
+        return <HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} />;
       case 'mentor':
         return <MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />;
       case 'certificates':

@@ -14,6 +14,8 @@ interface SidebarProps {
 const NAV_ITEMS: { id: NavPage; label: string; icon: string; description: string }[] = [
   { id: 'roadmap',      label: 'Learning Roadmap', icon: '🗺️',  description: '6-level curriculum' },
   { id: 'dashboard',    label: 'My Dashboard',     icon: '📊',  description: 'Progress & XP' },
+  { id: 'forum',        label: 'Community Forum',  icon: '💬',  description: 'Connect & discuss' },
+  { id: 'hackathons',   label: 'Web3 Hackathons',  icon: '⚔️',  description: 'Build & innovate' },
   { id: 'mentor',       label: 'AI Mentor',        icon: '🤖',  description: 'Chat with AI' },
   { id: 'certificates', label: 'My Certificates',  icon: '🏆',  description: 'Earned credentials' },
   { id: 'kpis',         label: 'Platform KPIs',    icon: '📈',  description: 'Real-time metrics' },

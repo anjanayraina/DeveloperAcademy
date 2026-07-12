@@ -1,5 +1,5 @@
 // ─── LessonView — interactive split-pane workspace ──────────────────────────
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Lesson, UserProgress } from '../../types';
 import { fetchLesson, postQuizSubmit, postExerciseSubmit } from '../../api/client';
 import './LessonView.css';
@@ -28,7 +28,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
   // Exercise state
   const [code, setCode] = useState('');
-  const [exerciseResult, setExerciseResult] = useState<any>(null);
   const [submittingExercise, setSubmittingExercise] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState<string[]>([]);
 
@@ -43,7 +42,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
         // Reset states
         setSelectedAnswers({});
         setQuizResult(null);
-        setExerciseResult(null);
         setConsoleLogs([]);
       })
       .catch((err) => console.error("Error fetching lesson details:", err))
@@ -101,7 +99,6 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
     try {
       const result = await postExerciseSubmit(userId, lessonId, code);
-      setExerciseResult(result);
 
       if (result.passed) {
         setConsoleLogs((prev) => [

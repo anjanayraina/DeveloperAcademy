@@ -1,7 +1,6 @@
 // ─── CodeBlock — syntax highlighted code with copy button ─────────────────────
 import React, { useEffect, useRef, useState } from 'react';
 import hljs from 'highlight.js/lib/core';
-import solidity from 'highlight.js/lib/languages/markdown'; // use as fallback
 import javascript from 'highlight.js/lib/languages/javascript';
 import typescript from 'highlight.js/lib/languages/typescript';
 import python from 'highlight.js/lib/languages/python';

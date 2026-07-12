@@ -219,3 +219,104 @@ export async function postGithubSync(userId: string, githubUsername: string): Pr
   return res.json();
 }
 
+// ─── Forum API Calls ──────────────────────────────────────────────────────────
+import type { ForumThread, ForumComment, Hackathon } from '../types';
+
+export async function fetchForumThreads(category?: string, search?: string): Promise<ForumThread[]> {
+  let url = `${BASE}/forum/threads`;
+  const params = new URLSearchParams();
+  if (category) params.append('category', category);
+  if (search) params.append('search', search);
+  
+  const queryStr = params.toString();
+  if (queryStr) url += `?${queryStr}`;
+  
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch forum threads: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchForumThread(threadId: string): Promise<ForumThread> {
+  const res = await fetch(`${BASE}/forum/threads/${threadId}`);
+  if (!res.ok) throw new Error(`Failed to fetch thread: ${res.status}`);
+  return res.json();
+}
+
+export async function postForumThread(
+  title: string,
+  author: string,
+  category: string,
+  content: string,
+  tags: string[]
+): Promise<ForumThread> {
+  const res = await fetch(`${BASE}/forum/threads`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, author, category, content, tags }),
+  });
+  if (!res.ok) throw new Error(`Failed to create thread: ${res.status}`);
+  return res.json();
+}
+
+export async function postForumComment(
+  threadId: string,
+  author: string,
+  content: string
+): Promise<ForumComment> {
+  const res = await fetch(`${BASE}/forum/threads/${threadId}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ author, content }),
+  });
+  if (!res.ok) throw new Error(`Failed to create comment: ${res.status}`);
+  return res.json();
+}
+
+// ─── Hackathons API Calls ──────────────────────────────────────────────────────
+export async function fetchHackathons(userId?: string): Promise<Hackathon[]> {
+  let url = `${BASE}/hackathons`;
+  if (userId) url += `?user_id=${userId}`;
+  
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch hackathons: ${res.status}`);
+  return res.json();
+}
+
+export async function postHackathonRegister(hackathonId: string, userId: string): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/hackathons/${hackathonId}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId }),
+  });
+  if (!res.ok) throw new Error(`Failed to register for hackathon: ${res.status}`);
+  return res.json();
+}
+
+export async function postHackathonSubmit(
+  hackathonId: string,
+  userId: string,
+  projectName: string,
+  tagline: string,
+  description: string,
+  videoLink: string,
+  codeLink: string,
+  teamSize: number
+): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/hackathons/${hackathonId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_id: userId,
+      project_name: projectName,
+      tagline,
+      description,
+      video_link: videoLink,
+      code_link: codeLink,
+      team_size: teamSize
+    }),
+  });
+  if (!res.ok) throw new Error(`Failed to submit project: ${res.status}`);
+  return res.json();
+}
+
+

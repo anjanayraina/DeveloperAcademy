@@ -1,6 +1,6 @@
 // ─── LessonsList — lists lessons in a selected level ─────────────────────────
 import React from 'react';
-import type { Course, Lesson, UserProgress } from '../../types';
+import type { Course, UserProgress } from '../../types';
 import { LEVEL_COLORS } from '../../types';
 import './LessonsList.css';
 
@@ -34,7 +34,6 @@ export const LessonsList: React.FC<LessonsListProps> = ({
   // Determine if a lesson is completed
   const isLessonCompleted = (lessonId: string) => {
     if (!progress) return false;
-    const completedIds = progress.levels?.find(l => l.level_id === levelId)?.completed_lessons || 0;
     // We can also verify by looking at progress.completed_lesson_ids
     const completedList = (progress as any).completed_lesson_ids || [];
     return completedList.includes(lessonId);

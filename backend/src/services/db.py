@@ -29,6 +29,18 @@ def get_collection():
         raise RuntimeError("Database not initialized")
     return db_instance.db["developer_academy_users"]
 
+def get_forum_collection():
+    """Retrieve the forum threads collection."""
+    if db_instance.db is None:
+        raise RuntimeError("Database not initialized")
+    return db_instance.db["developer_academy_forum"]
+
+def get_hackathons_collection():
+    """Retrieve the hackathons collection."""
+    if db_instance.db is None:
+        raise RuntimeError("Database not initialized")
+    return db_instance.db["developer_academy_hackathons"]
+
 async def connect_to_mongo():
     """Initialize the MongoDB client connection."""
     print("🔌 Connecting to MongoDB...")
@@ -44,8 +56,10 @@ async def connect_to_mongo():
     db_instance.db = db_instance.client[db_name]
     print(f"✅ Connected to MongoDB. Database: '{db_name}'")
     
-    # Seed the default demo user to keep the frontend functional
+    # Seed the default demo user and new features
     await seed_demo_user()
+    await seed_forum_threads()
+    await seed_hackathons()
 
 async def close_mongo_connection():
     """Close the MongoDB client connection."""
@@ -81,7 +95,9 @@ def create_default_user_dict(user_id: str, auth_type: str) -> Dict[str, Any]:
         "quiz_attempts": [],
         "exercises_submitted": [],
         "github_activities": [],
-        "mentor_chat_sessions": []
+        "mentor_chat_sessions": [],
+        "hackathons_registered": [],
+        "hackathon_submissions": {}
     }
 
 async def get_or_create_user(user_id: str, auth_type: str = "demo") -> Dict[str, Any]:
@@ -91,6 +107,20 @@ async def get_or_create_user(user_id: str, auth_type: str = "demo") -> Dict[str,
     if not user:
         user = create_default_user_dict(user_id, auth_type)
         await coll.insert_one(user)
+    else:
+        # Backward compatibility for existing user records
+        updated = False
+        updates = {}
+        if "hackathons_registered" not in user:
+            user["hackathons_registered"] = []
+            updates["hackathons_registered"] = []
+            updated = True
+        if "hackathon_submissions" not in user:
+            user["hackathon_submissions"] = {}
+            updates["hackathon_submissions"] = {}
+            updated = True
+        if updated:
+            await coll.update_one({"_id": user_id}, {"$set": updates})
     return user
 
 async def save_user_progress(user_id: str, progress_update: Dict[str, Any]):
@@ -419,4 +449,154 @@ async def complete_lesson_for_user(user_id: str, level_id: int, lesson_id: str):
     current_lvl_obj = next((l for l in levels if l["level_id"] == level_id), None)
     if current_lvl_obj and current_lvl_obj["completed_lessons"] >= current_lvl_obj["total_lessons"]:
         await issue_certificate(user_id, level_id, current_lvl_obj["title"])
+
+async def seed_forum_threads():
+    """Seed initial threads if collection is empty."""
+    coll = get_forum_collection()
+    count = await coll.count_documents({})
+    if count == 0:
+        print("🌱 Seeding forum threads in MongoDB...")
+        threads = [
+            {
+                "_id": "thread-1",
+                "thread_id": "thread-1",
+                "title": "How to optimize gas in Solidity?",
+                "author": "AliceDev",
+                "category": "Question",
+                "content": "I am working on a DeFi protocol and the gas costs are higher than expected. What are some effective techniques to optimize gas usage in Solidity smart contracts? Any tips, resources, or examples would be greatly appreciated.",
+                "tags": ["solidity", "gas", "optimization", "performance"],
+                "replies_count": 2,
+                "views_count": 156,
+                "likes_count": 34,
+                "created_at": "2026-07-11T12:00:00Z",
+                "comments": [
+                    {
+                        "comment_id": "comment-1-1",
+                        "author": "BlockMaster",
+                        "content": "Here are key strategies:\n1. Use appropriate data types (uint256 vs uint8).\n2. Pack storage variables.\n3. Use calldata instead of memory for external functions.\n4. Optimize loops and avoid redundant computations.\n5. Use events instead of storing data.",
+                        "created_at": "2026-07-11T14:30:00Z"
+                    },
+                    {
+                        "comment_id": "comment-1-2",
+                        "author": "SmartBuilder",
+                        "content": "Also, consider caching state variables in memory when reading them multiple times inside a loop. That alone saves significant gas.",
+                        "created_at": "2026-07-11T15:45:00Z"
+                    }
+                ]
+            },
+            {
+                "_id": "thread-2",
+                "thread_id": "thread-2",
+                "title": "Best practices for smart contract security",
+                "author": "Web3Learner",
+                "category": "Discussion",
+                "content": "Let's share smart contract security check lists. I'll start: always use reentrancy guards, validate all input arguments, and perform thorough unit testing. What else should be standard practice?",
+                "tags": ["security", "solidity", "audit"],
+                "replies_count": 1,
+                "views_count": 89,
+                "likes_count": 18,
+                "created_at": "2026-07-10T09:15:00Z",
+                "comments": [
+                    {
+                        "comment_id": "comment-2-1",
+                        "author": "AliceDev",
+                        "content": "Don't forget to avoid using block.timestamp for randomness, as miners can manipulate it to some extent. Use Chainlink VRF for secure on-chain randomness instead!",
+                        "created_at": "2026-07-10T11:20:00Z"
+                    }
+                ]
+            },
+            {
+                "_id": "thread-3",
+                "thread_id": "thread-3",
+                "title": "My First DeFi Project - Feedback Needed!",
+                "author": "StakingPro",
+                "category": "Showcase",
+                "content": "Just finished building a staking contract where users receive reward tokens proportional to time locked. Please look at the code and let me know if there are structural issues.",
+                "tags": ["defi", "staking", "feedback"],
+                "replies_count": 0,
+                "views_count": 42,
+                "likes_count": 8,
+                "created_at": "2026-07-12T10:00:00Z",
+                "comments": []
+            }
+        ]
+        await coll.insert_many(threads)
+        print("🌱 Seeding forum threads complete.")
+
+async def seed_hackathons():
+    """Seed initial hackathons if collection is empty."""
+    coll = get_hackathons_collection()
+    count = await coll.count_documents({})
+    if count == 0:
+        print("🌱 Seeding hackathons in MongoDB...")
+        hacks = [
+            {
+                "_id": "hack-1",
+                "hackathon_id": "hack-1",
+                "title": "MOR Finance DeFi Innovation Hack",
+                "description": "Build the next generation of DeFi protocols that solve real-world problems. Build protocols, yield optimizers, or dApps that advance the DeFi ecosystem.",
+                "prize_pool": "$25,000",
+                "start_date": "2026-08-15",
+                "end_date": "2026-08-17",
+                "status": "ongoing",
+                "rules": [
+                    "Teams can have 1 to 5 members.",
+                    "Code must be submitted on a public GitHub repo before the deadline.",
+                    "All smart contracts must be deployed to a testnet.",
+                    "Include a 3-minute video presentation."
+                ],
+                "tracks": ["DeFi Protocols", "Yield Optimization", "Lending & Borrowing", "Derivatives"],
+                "milestones": [
+                    {"title": "Registration Opens", "date": "2026-07-15"},
+                    {"title": "Registration Closes", "date": "2026-08-14"},
+                    {"title": "Hackathon Starts", "date": "2026-08-15 9:00 AM UTC"},
+                    {"title": "Hackathon Ends", "date": "2026-08-17 9:00 AM UTC"},
+                    {"title": "Winners Announced", "date": "2026-08-20"}
+                ]
+            },
+            {
+                "_id": "hack-2",
+                "hackathon_id": "hack-2",
+                "title": "Web3 Student Challenge",
+                "description": "A beginner-friendly hackathon for students worldwide to build dApps using HTML, CSS, JavaScript, and Solidity.",
+                "prize_pool": "$15,000",
+                "start_date": "2026-09-01",
+                "end_date": "2026-09-15",
+                "status": "upcoming",
+                "rules": [
+                    "Must be a student or recent graduate.",
+                    "Individual submissions only.",
+                    "Submission must be fully functional."
+                ],
+                "tracks": ["Social dApps", "NFTs & Gaming", "Public Goods"],
+                "milestones": [
+                    {"title": "Registration Opens", "date": "2026-08-01"},
+                    {"title": "Hackathon Starts", "date": "2026-09-01"},
+                    {"title": "Hackathon Ends", "date": "2026-09-15"}
+                ]
+            },
+            {
+                "_id": "hack-3",
+                "hackathon_id": "hack-3",
+                "title": "NFT Builders Jam",
+                "description": "Focus on building new NFT utility, dynamic metadata, or gaming assets using the ERC-721 and ERC-1155 standards.",
+                "prize_pool": "$10,000",
+                "start_date": "2026-09-20",
+                "end_date": "2026-09-22",
+                "status": "upcoming",
+                "rules": [
+                    "Open to anyone.",
+                    "Up to 3 members per team.",
+                    "Must use ERC-721A or custom ERC-1155."
+                ],
+                "tracks": ["NFT Utilities", "On-chain Games", "Dynamic Metadata"],
+                "milestones": [
+                    {"title": "Registration Opens", "date": "2026-08-20"},
+                    {"title": "Hackathon Starts", "date": "2026-09-20"},
+                    {"title": "Hackathon Ends", "date": "2026-09-22"}
+                ]
+            }
+        ]
+        await coll.insert_many(hacks)
+        print("🌱 Seeding hackathons complete.")
 

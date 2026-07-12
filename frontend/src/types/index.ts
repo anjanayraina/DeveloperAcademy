@@ -17,6 +17,12 @@ export interface UserProgress {
   overall_pct: number;
   levels: LevelProgress[];
   last_active: string | null;
+  github_username?: string;
+  github_activities?: GithubActivity[];
+  quiz_attempts?: { lesson_id: string; level_id: number; score: number; attempted_at: string }[];
+  exercises_submitted?: { lesson_id: string; level_id: number; code: string; submitted_at: string }[];
+  hackathons_registered?: string[];
+  hackathon_submissions?: Record<string, HackathonSubmission>;
 }
 
 export interface ProgressUpdate {

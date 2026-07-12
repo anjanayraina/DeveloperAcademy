@@ -3,7 +3,7 @@ import React from 'react';
 import { RoadmapView } from '../components/Roadmap/RoadmapView';
 import { Dashboard }   from '../components/Dashboard/Dashboard';
 import { ChatInterface } from '../components/AIMentor/ChatInterface';
-import type { UserProgress, NavPage } from '../types';
+import type { UserProgress } from '../types';
 
 // ── Roadmap Page ──────────────────────────────────────────────────────────────
 interface RoadmapPageProps {
