@@ -1,6 +1,6 @@
 """
 Developer Academy Starter Script — runs both the frontend and backend concurrently.
-Usage: python run.py
+Usage: python run.py (inside backend folder)
 """
 import os
 import sys
@@ -19,18 +19,21 @@ def log_stream(stream, prefix):
         pass
 
 def main():
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-    backend_dir = os.path.join(root_dir, "backend")
+    # Root of this script is the backend directory
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    # Parent of backend directory contains frontend
+    root_dir = os.path.dirname(backend_dir)
     frontend_dir = os.path.join(root_dir, "frontend")
 
     # Path to the virtual environment python interpreter
     venv_python = os.path.join(backend_dir, ".venv", "Scripts", "python.exe")
     if not os.path.exists(venv_python):
-        # Fallback if virtual environment was built differently
+        # Fallback if virtual environment is not found
         venv_python = "python"
 
     print("🚀 Starting Developer Academy...")
-    print(f"📂 Workspace directory: {root_dir}")
+    print(f"📂 Backend directory: {backend_dir}")
+    print(f"📂 Frontend directory: {frontend_dir}")
     print("--------------------------------------------------")
 
     # Set UTF-8 encoding for Python on Windows to avoid emoji/encoding errors
