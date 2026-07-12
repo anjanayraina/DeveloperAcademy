@@ -1,39 +1,22 @@
 """
-Developer Academy Starter Script — runs both the frontend and backend concurrently.
+Developer Academy Backend Starter Script — runs the FastAPI backend.
 Usage: python run.py (inside backend folder)
 """
 import os
 import sys
 import subprocess
-import threading
 import signal
 
-def log_stream(stream, prefix):
-    """Read lines from stream and print them with a prefix."""
-    try:
-        for line in iter(stream.readline, b''):
-            decoded = line.decode('utf-8', errors='ignore').strip()
-            if decoded:
-                print(f"[{prefix}] {decoded}")
-    except Exception:
-        pass
-
 def main():
-    # Root of this script is the backend directory
     backend_dir = os.path.dirname(os.path.abspath(__file__))
-    # Parent of backend directory contains frontend
-    root_dir = os.path.dirname(backend_dir)
-    frontend_dir = os.path.join(root_dir, "frontend")
 
     # Path to the virtual environment python interpreter
     venv_python = os.path.join(backend_dir, ".venv", "Scripts", "python.exe")
     if not os.path.exists(venv_python):
-        # Fallback if virtual environment is not found
         venv_python = "python"
 
-    print("🚀 Starting Developer Academy...")
+    print("🚀 Starting Developer Academy Backend...")
     print(f"📂 Backend directory: {backend_dir}")
-    print(f"📂 Frontend directory: {frontend_dir}")
     print("--------------------------------------------------")
 
     # Set UTF-8 encoding for Python on Windows to avoid emoji/encoding errors
@@ -46,46 +29,18 @@ def main():
     backend_proc = subprocess.Popen(
         backend_cmd,
         cwd=backend_dir,
-        env=backend_env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=1
+        env=backend_env
     )
-
-    # Start Frontend (Use shell=True on Windows to call npm command file correctly)
-    frontend_cmd = "npm run dev"
-    print("👉 Starting Vite React frontend on http://localhost:5173")
-    frontend_proc = subprocess.Popen(
-        frontend_cmd,
-        shell=True,
-        cwd=frontend_dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=1
-    )
-
-    # Start logging threads for concurrent stream output
-    threads = [
-        threading.Thread(target=log_stream, args=(backend_proc.stdout, "BACKEND")),
-        threading.Thread(target=log_stream, args=(backend_proc.stderr, "BACKEND-ERR")),
-        threading.Thread(target=log_stream, args=(frontend_proc.stdout, "FRONTEND")),
-        threading.Thread(target=log_stream, args=(frontend_proc.stderr, "FRONTEND-ERR")),
-    ]
-
-    for t in threads:
-        t.daemon = True
-        t.start()
 
     print("--------------------------------------------------")
-    print("🔥 Both servers are running. Press Ctrl+C to stop them.")
+    print("🔥 Backend server is running. Press Ctrl+C to stop it.")
     print("--------------------------------------------------")
 
     # Clean termination handler
     def cleanup(sig, frame):
-        print("\n🛑 Stopping Developer Academy servers...")
+        print("\n🛑 Stopping Developer Academy backend...")
         try:
             backend_proc.terminate()
-            frontend_proc.terminate()
         except Exception:
             pass
         sys.exit(0)
@@ -93,10 +48,9 @@ def main():
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
 
-    # Wait for processes to exit
+    # Wait for process to exit
     try:
         backend_proc.wait()
-        frontend_proc.wait()
     except KeyboardInterrupt:
         cleanup(None, None)
 
