@@ -8,6 +8,7 @@ interface SidebarProps {
   onNavigate: (page: NavPage) => void;
   userId: string;
   authType: 'github' | 'wallet' | 'demo' | null;
+  onLogout: () => void;
 }
 
 const NAV_ITEMS: { id: NavPage; label: string; icon: string; description: string }[] = [
@@ -18,7 +19,13 @@ const NAV_ITEMS: { id: NavPage; label: string; icon: string; description: string
   { id: 'kpis',         label: 'Platform KPIs',    icon: '📈',  description: 'Real-time metrics' },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, userId, authType }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activePage,
+  onNavigate,
+  userId,
+  authType,
+  onLogout,
+}) => {
   const getAvatarText = () => {
     if (authType === 'github') {
       return userId.replace('gh-', '').slice(0, 2).toUpperCase();
@@ -80,12 +87,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, userId
 
       {/* Footer */}
       <div className="sidebar__footer">
-        <div className="sidebar__user">
-          <div className="sidebar__avatar">{getAvatarText()}</div>
-          <div>
-            <div className="sidebar__username" title={userId}>{getFormattedName()}</div>
-            <div className="sidebar__user-role">{getFormattedRole()}</div>
+        <div className="sidebar__user-container">
+          <div className="sidebar__user">
+            <div className="sidebar__avatar">{getAvatarText()}</div>
+            <div>
+              <div className="sidebar__username" title={userId}>{getFormattedName()}</div>
+              <div className="sidebar__user-role">{getFormattedRole()}</div>
+            </div>
           </div>
+          {authType && authType !== 'demo' && (
+            <button className="sidebar__logout-btn" onClick={onLogout} title="Log out">
+              🚪
+            </button>
+          )}
         </div>
       </div>
     </aside>

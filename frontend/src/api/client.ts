@@ -201,3 +201,21 @@ export async function fetchGithubActivity(userId: string): Promise<GithubActivit
   if (!res.ok) throw new Error(`Failed to fetch GitHub activity: ${res.status}`);
   return res.json();
 }
+
+export interface GitHubSyncResult {
+  user_progress: UserProgress;
+  new_commits_count: number;
+  total_commits_count: number;
+  xp_gained: number;
+}
+
+export async function postGithubSync(userId: string, githubUsername: string): Promise<GitHubSyncResult> {
+  const res = await fetch(`${BASE}/github/sync`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, github_username: githubUsername }),
+  });
+  if (!res.ok) throw new Error(`GitHub sync failed: ${res.status}`);
+  return res.json();
+}
+

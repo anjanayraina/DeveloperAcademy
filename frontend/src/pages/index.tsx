@@ -16,9 +16,14 @@ export const RoadmapPage: React.FC<RoadmapPageProps> = ({ progress, loading, onS
 );
 
 // ── Dashboard Page ────────────────────────────────────────────────────────────
-interface DashboardPageProps { progress: UserProgress | null; loading: boolean; }
-export const DashboardPage: React.FC<DashboardPageProps> = ({ progress, loading }) => (
-  <Dashboard progress={progress} loading={loading} />
+interface DashboardPageProps {
+  progress: UserProgress | null;
+  loading: boolean;
+  userId: string;
+  onProgressUpdate: (updatedProgress: UserProgress) => void;
+}
+export const DashboardPage: React.FC<DashboardPageProps> = ({ progress, loading, userId, onProgressUpdate }) => (
+  <Dashboard progress={progress} loading={loading} userId={userId} onProgressUpdate={onProgressUpdate} />
 );
 
 // ── Mentor Page ───────────────────────────────────────────────────────────────
