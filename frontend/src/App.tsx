@@ -48,7 +48,7 @@ export default function App() {
 
   // Auth state
   const [userId, setUserId] = useState<string>(initialSession?.userId || '');
-  const [authType, setAuthType] = useState<'github' | 'wallet' | 'demo' | null>(initialSession?.authType || null);
+  const [authType, setAuthType] = useState<'github' | 'wallet' | null>(initialSession?.authType || null);
   
   // Progress & curriculum states
   const [progress, setProgress] = useState<UserProgress | null>(null);
@@ -394,12 +394,6 @@ export default function App() {
       <Login
         onLoginGitHub={handleLoginGitHub}
         onLoginWallet={handleLoginWallet}
-        onLoginDemo={() => {
-          setUserId('demo-user');
-          setAuthType('demo');
-          setSessionCookie('demo-user', 'demo');
-          setActivePage('roadmap');
-        }}
         loading={loading}
       />
     );

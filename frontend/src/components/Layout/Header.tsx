@@ -8,7 +8,7 @@ interface HeaderProps {
   xp: number;
   streak: number;
   userId: string;
-  authType: 'github' | 'wallet' | 'demo' | null;
+  authType: 'github' | 'wallet' | null;
   progress: UserProgress | null;
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="header__right">
         {/* Auth section */}
         <div className="header__auth">
-          {authType && authType !== 'demo' ? (
+          {authType ? (
             <div className="auth-profile">
               <span className="auth-profile__icon">{authType === 'github' ? '🐱' : '🦊'}</span>
               <span className="auth-profile__name" title={userId}>{formatUser()}</span>

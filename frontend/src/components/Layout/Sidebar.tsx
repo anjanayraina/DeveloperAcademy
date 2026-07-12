@@ -7,7 +7,7 @@ interface SidebarProps {
   activePage: NavPage;
   onNavigate: (page: NavPage) => void;
   userId: string;
-  authType: 'github' | 'wallet' | 'demo' | null;
+  authType: 'github' | 'wallet' | null;
   onLogout: () => void;
 }
 
@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="sidebar__user-role">{getFormattedRole()}</div>
             </div>
           </div>
-          {authType && authType !== 'demo' && (
+          {authType && (
             <button className="sidebar__logout-btn" onClick={onLogout} title="Disconnect session">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

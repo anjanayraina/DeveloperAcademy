@@ -55,9 +55,7 @@ async def connect_to_mongo():
             db_name = path
     db_instance.db = db_instance.client[db_name]
     print(f"✅ Connected to MongoDB. Database: '{db_name}'")
-    
-    # Seed the default demo user
-    await seed_demo_user()
+
 
 async def close_mongo_connection():
     """Close the MongoDB client connection."""
@@ -349,58 +347,7 @@ async def get_kpis() -> Dict[str, Any]:
         "ai_mentor_sessions": ai_mentor_sessions
     }
 
-async def seed_demo_user():
-    """Ensure the demo user is seeded in MongoDB with initial progress."""
-    coll = get_collection()
-    demo = await coll.find_one({"_id": "demo-user"})
-    if not demo:
-        print("🌱 Seeding 'demo-user' in MongoDB...")
-        demo = create_default_user_dict("demo-user", "demo")
-        demo["xp"] = 1240
-        demo["streak_days"] = 7
-        
-        # Unlock and set initial progress
-        demo["levels"][0]["completed_lessons"] = 2
-        demo["levels"][0]["is_unlocked"] = True
-        demo["levels"][0]["completed_at"] = datetime.now(timezone.utc) - timedelta(days=2)
-        demo["levels"][1]["completed_lessons"] = 1
-        demo["levels"][1]["is_unlocked"] = True
-        demo["levels"][2]["is_unlocked"] = True
-        
-        # Calculate completion percentage (4 completed lessons out of 9 total lessons)
-        total_lessons = sum(l["total_lessons"] for l in demo["levels"])
-        demo["overall_pct"] = round(3 / total_lessons * 100, 1)
-        demo["current_level"] = 3
-        
-        # Add a couple of initial records
-        demo["completed_lesson_ids"] = ["1-1", "1-2", "2-1"]
-        demo["quiz_attempts"] = [
-            {"lesson_id": "1-1", "level_id": 1, "score": 100.0, "attempted_at": datetime.now(timezone.utc) - timedelta(days=2)},
-            {"lesson_id": "1-2", "level_id": 1, "score": 85.0, "attempted_at": datetime.now(timezone.utc) - timedelta(days=2)},
-            {"lesson_id": "2-1", "level_id": 2, "score": 90.0, "attempted_at": datetime.now(timezone.utc) - timedelta(days=1)}
-        ]
-        demo["exercises_submitted"] = [
-            {"lesson_id": "1-1", "level_id": 1, "code": "// code", "passed": True, "submitted_at": datetime.now(timezone.utc) - timedelta(days=2)},
-            {"lesson_id": "1-2", "level_id": 1, "code": "// code", "passed": True, "submitted_at": datetime.now(timezone.utc) - timedelta(days=2)}
-        ]
-        demo["certificates"] = [
-            {
-                "certificate_id": "cert-1-initial",
-                "level_id": 1,
-                "level_title": "Blockchain Fundamentals",
-                "issued_at": datetime.now(timezone.utc) - timedelta(days=2),
-                "recipient": "demo-user"
-            }
-        ]
-        demo["github_activities"] = [
-            {"commit_sha": "a1b2c3d4", "message": "feat: connect wallet provider", "committed_at": datetime.now(timezone.utc) - timedelta(days=1)}
-        ]
-        demo["mentor_chat_sessions"] = [
-            {"session_id": "sess-init", "messages_count": 4, "last_chat_at": datetime.now(timezone.utc) - timedelta(days=1)}
-        ]
-        
-        await coll.insert_one(demo)
-        print("🌱 Seeding complete.")
+
 
 async def complete_lesson_for_user(user_id: str, level_id: int, lesson_id: str):
     """

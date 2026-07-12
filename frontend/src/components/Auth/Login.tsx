@@ -5,14 +5,12 @@ import './Login.css';
 interface LoginProps {
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
-  onLoginDemo: () => void;
   loading: boolean;
 }
 
 export const Login: React.FC<LoginProps> = ({
   onLoginGitHub,
   onLoginWallet,
-  onLoginDemo,
   loading,
 }) => {
   return (
@@ -47,14 +45,6 @@ export const Login: React.FC<LoginProps> = ({
             
             <button className="btn btn--secondary login-btn login-btn--github" onClick={onLoginGitHub}>
               🐱 Continue with GitHub
-            </button>
-
-            <div className="login-divider">
-              <span>or</span>
-            </div>
-
-            <button className="btn btn--text login-btn--demo" onClick={onLoginDemo}>
-              Explore with Demo Account →
             </button>
           </div>
         )}
