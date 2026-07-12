@@ -9,14 +9,15 @@ import { LessonsList } from './components/Roadmap/LessonsList';
 import { LessonView } from './components/Roadmap/LessonView';
 import { CertificatesView } from './components/Certificates/CertificatesView';
 import { KPIsView } from './components/Dashboard/KPIsView';
+import { Login } from './components/Auth/Login';
 import './index.css';
 
 export default function App() {
   const [activePage, setActivePage] = useState<NavPage>('roadmap');
   
   // Auth state
-  const [userId, setUserId] = useState<string>('demo-user');
-  const [authType, setAuthType] = useState<'github' | 'wallet' | 'demo' | null>('demo');
+  const [userId, setUserId] = useState<string>('');
+  const [authType, setAuthType] = useState<'github' | 'wallet' | 'demo' | null>(null);
   
   // Progress & curriculum states
   const [progress, setProgress] = useState<UserProgress | null>(null);
@@ -62,6 +63,11 @@ export default function App() {
 
   // Fetch progress reactively when user identity changes
   useEffect(() => {
+    if (!userId) {
+      setProgress(null);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     fetchProgress(userId)
       .then(setProgress)
@@ -171,8 +177,8 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    setUserId('demo-user');
-    setAuthType('demo');
+    setUserId('');
+    setAuthType(null);
     setSelectedLevel(null);
     setSelectedLessonId(null);
     setActivePage('roadmap');
@@ -233,6 +239,21 @@ export default function App() {
     }
   };
 
+  if (!authType) {
+    return (
+      <Login
+        onLoginGitHub={handleLoginGitHub}
+        onLoginWallet={handleLoginWallet}
+        onLoginDemo={() => {
+          setUserId('demo-user');
+          setAuthType('demo');
+          setActivePage('roadmap');
+        }}
+        loading={loading}
+      />
+    );
+  }
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -240,6 +261,7 @@ export default function App() {
         onNavigate={handleNavigate}
         userId={userId}
         authType={authType}
+        onLogout={handleLogout}
       />
       <Header
         activePage={activePage}
