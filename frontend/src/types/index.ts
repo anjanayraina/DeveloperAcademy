@@ -45,7 +45,67 @@ export interface ChatMessage {
   isStreaming?: boolean;
 }
 
-export type NavPage = 'roadmap' | 'dashboard' | 'mentor';
+export type NavPage = 'roadmap' | 'dashboard' | 'mentor' | 'certificates' | 'kpis';
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correct_idx: number;
+}
+
+export interface CodingExercise {
+  instruction: string;
+  template: string;
+  required_keywords: string[];
+}
+
+export interface Lesson {
+  id: string;
+  level_id: number;
+  title: string;
+  duration: string;
+  xp: number;
+  content: string;
+  quiz: QuizQuestion[];
+  exercise?: CodingExercise;
+}
+
+export interface Course {
+  level_id: number;
+  title: string;
+  total_lessons: number;
+  lessons: Lesson[];
+}
+
+export interface Certificate {
+  certificate_id: string;
+  level_id: number;
+  level_title: string;
+  issued_at: string;
+  recipient: string;
+}
+
+export interface GithubActivity {
+  commit_sha: string;
+  message: string;
+  committed_at: string;
+}
+
+export interface PlatformKPIs {
+  registered_users: number;
+  active_learners: number;
+  course_completion: number;
+  avg_quiz_score: number;
+  coding_exercises: number;
+  certificates_issued: number;
+  github_activity: number;
+  ai_mentor_sessions: number;
+}
+
+export interface DashboardData {
+  user_progress: UserProgress;
+  kpis: PlatformKPIs;
+}
 
 export const LEVEL_COLORS: Record<number, string> = {
   1: '#7c3aed',

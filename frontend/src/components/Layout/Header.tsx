@@ -1,4 +1,4 @@
-// ─── Header component ─────────────────────────────────────────────────────────
+// ─── Header component with authentication integrations ────────────────────────
 import React from 'react';
 import type { NavPage } from '../../types';
 import './Header.css';
@@ -7,16 +7,44 @@ interface HeaderProps {
   activePage: NavPage;
   xp: number;
   streak: number;
+  userId: string;
+  authType: 'github' | 'wallet' | 'demo' | null;
+  onLoginGitHub: () => void;
+  onLoginWallet: () => void;
+  onLogout: () => void;
 }
 
 const PAGE_META: Record<NavPage, { title: string; subtitle: string }> = {
   roadmap:   { title: 'Learning Roadmap',    subtitle: 'Your path from zero to Web3 hero' },
   dashboard: { title: 'My Dashboard',         subtitle: 'Track your progress and achievements' },
   mentor:    { title: 'AI Mentor',             subtitle: 'Ask anything — powered by Claude & Hermes' },
+  certificates: { title: 'My Certificates',   subtitle: 'Verifiable credentials for your Web3 achievements' },
+  kpis:      { title: 'Platform Core KPIs',   subtitle: 'Aggregate real-time metrics for Developer Academy' },
 };
 
-export const Header: React.FC<HeaderProps> = ({ activePage, xp, streak }) => {
-  const { title, subtitle } = PAGE_META[activePage];
+export const Header: React.FC<HeaderProps> = ({
+  activePage,
+  xp,
+  streak,
+  userId,
+  authType,
+  onLoginGitHub,
+  onLoginWallet,
+  onLogout,
+}) => {
+  const { title, subtitle } = PAGE_META[activePage] || { title: 'Academy', subtitle: 'Learn Web3' };
+
+  const formatUser = () => {
+    if (authType === 'github') {
+      return `@${userId.replace('gh-', '')}`;
+    }
+    if (authType === 'wallet') {
+      const addr = userId.replace('wallet-', '');
+      return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+    }
+    return 'Demo User';
+  };
+
   return (
     <header className="header glass">
       <div className="header__left">
@@ -24,6 +52,29 @@ export const Header: React.FC<HeaderProps> = ({ activePage, xp, streak }) => {
         <p className="header__subtitle">{subtitle}</p>
       </div>
       <div className="header__right">
+        {/* Auth section */}
+        <div className="header__auth">
+          {authType && authType !== 'demo' ? (
+            <div className="auth-profile">
+              <span className="auth-profile__icon">{authType === 'github' ? '🐱' : '🦊'}</span>
+              <span className="auth-profile__name" title={userId}>{formatUser()}</span>
+              <button className="btn btn--text auth-profile__logout" onClick={onLogout} title="Log out">
+                🚪
+              </button>
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <button className="btn btn--secondary btn--sm" onClick={onLoginGitHub}>
+                🐱 GitHub
+              </button>
+              <button className="btn btn--primary btn--sm" onClick={onLoginWallet}>
+                🦊 Connect Wallet
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Stats */}
         <div className="header__stat" title="Current streak">
           <span className="header__stat-icon">🔥</span>
           <span className="header__stat-value">{streak}</span>

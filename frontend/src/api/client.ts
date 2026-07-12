@@ -1,5 +1,4 @@
-// ─── API client helpers ───────────────────────────────────────────────────────
-import type { UserProgress, ProgressUpdate, TemplateMetadata, CodeTemplate } from '../types';
+import type { UserProgress, ProgressUpdate, TemplateMetadata, CodeTemplate, Course, Lesson, DashboardData, Certificate, GithubActivity } from '../types';
 
 const BASE = '/api';
 
@@ -44,11 +43,12 @@ export async function* streamMentorChat(
   prompt: string,
   context: string,
   onChunk: (delta: string) => void,
+  userId = 'demo-user',
 ): AsyncGenerator<void, void, unknown> {
   const res = await fetch(`${BASE}/mentor/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, context }),
+    body: JSON.stringify({ prompt, context, user_id: userId }),
   });
 
   if (!res.ok || !res.body) {
@@ -80,4 +80,109 @@ export async function* streamMentorChat(
     }
     yield;
   }
+}
+
+// ─── Authentication ───────────────────────────────────────────────────────────
+export async function authGithub(username: string): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/auth/github`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username }),
+  });
+  if (!res.ok) throw new Error(`GitHub auth failed: ${res.status}`);
+  return res.json();
+}
+
+export async function authWallet(address: string): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/auth/wallet`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address }),
+  });
+  if (!res.ok) throw new Error(`Wallet auth failed: ${res.status}`);
+  return res.json();
+}
+
+// ─── Courses & Lessons ────────────────────────────────────────────────────────
+export async function fetchCourses(): Promise<Course[]> {
+  const res = await fetch(`${BASE}/courses`);
+  if (!res.ok) throw new Error(`Failed to fetch courses: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchLesson(lessonId: string): Promise<Lesson> {
+  const res = await fetch(`${BASE}/courses/lessons/${lessonId}`);
+  if (!res.ok) throw new Error(`Failed to fetch lesson: ${res.status}`);
+  return res.json();
+}
+
+// ─── Submissions ──────────────────────────────────────────────────────────────
+export interface QuizResult {
+  score: number;
+  passed: boolean;
+  correct_count: number;
+  total_questions: number;
+  results: {
+    question: string;
+    user_answer_idx: number;
+    correct_answer_idx: number;
+    is_correct: boolean;
+  }[];
+  user_progress: UserProgress;
+}
+
+export async function postQuizSubmit(
+  userId: string,
+  lessonId: string,
+  answers: number[],
+): Promise<QuizResult> {
+  const res = await fetch(`${BASE}/quiz/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, lesson_id: lessonId, answers }),
+  });
+  if (!res.ok) throw new Error(`Quiz submission failed: ${res.status}`);
+  return res.json();
+}
+
+export interface ExerciseResult {
+  passed: boolean;
+  feedback: string;
+  missing_keywords: string[];
+  user_progress: UserProgress;
+}
+
+export async function postExerciseSubmit(
+  userId: string,
+  lessonId: string,
+  code: string,
+): Promise<ExerciseResult> {
+  const res = await fetch(`${BASE}/exercise/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, lesson_id: lessonId, code }),
+  });
+  if (!res.ok) throw new Error(`Exercise submission failed: ${res.status}`);
+  return res.json();
+}
+
+// ─── Dashboard & Analytics ────────────────────────────────────────────────────
+export async function fetchDashboardData(userId: string): Promise<DashboardData> {
+  const res = await fetch(`${BASE}/dashboard/${userId}`);
+  if (!res.ok) throw new Error(`Failed to fetch dashboard data: ${res.status}`);
+  return res.json();
+}
+
+// ─── Certificates ─────────────────────────────────────────────────────────────
+export async function fetchCertificates(userId: string): Promise<Certificate[]> {
+  const res = await fetch(`${BASE}/certificates/${userId}`);
+  if (!res.ok) throw new Error(`Failed to fetch certificates: ${res.status}`);
+  return res.json();
+}
+
+// ─── GitHub Activity ──────────────────────────────────────────────────────────
+export async function fetchGithubActivity(userId: string): Promise<GithubActivity[]> {
+  const res = await fetch(`${BASE}/github/activity/${userId}`);
+  if (!res.ok) throw new Error(`Failed to fetch GitHub activity: ${res.status}`);
+  return res.json();
 }

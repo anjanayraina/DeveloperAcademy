@@ -6,9 +6,13 @@ import { ChatInterface } from '../components/AIMentor/ChatInterface';
 import type { UserProgress, NavPage } from '../types';
 
 // ── Roadmap Page ──────────────────────────────────────────────────────────────
-interface RoadmapPageProps { progress: UserProgress | null; loading: boolean; }
-export const RoadmapPage: React.FC<RoadmapPageProps> = ({ progress, loading }) => (
-  <RoadmapView progress={progress} loading={loading} />
+interface RoadmapPageProps {
+  progress: UserProgress | null;
+  loading: boolean;
+  onSelectLevel: (levelId: number) => void;
+}
+export const RoadmapPage: React.FC<RoadmapPageProps> = ({ progress, loading, onSelectLevel }) => (
+  <RoadmapView progress={progress} loading={loading} onSelectLevel={onSelectLevel} />
 );
 
 // ── Dashboard Page ────────────────────────────────────────────────────────────
@@ -18,8 +22,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ progress, loading 
 );
 
 // ── Mentor Page ───────────────────────────────────────────────────────────────
-interface MentorPageProps { currentLevel?: number; }
-export const MentorPage: React.FC<MentorPageProps> = ({ currentLevel = 1 }) => {
+interface MentorPageProps { currentLevel?: number; userId: string; }
+export const MentorPage: React.FC<MentorPageProps> = ({ currentLevel = 1, userId }) => {
   const LEVEL_TITLES: Record<number, string> = {
     1: 'Level 1 — Blockchain Fundamentals',
     2: 'Level 2 — Wallet Development',
@@ -29,6 +33,6 @@ export const MentorPage: React.FC<MentorPageProps> = ({ currentLevel = 1 }) => {
     6: 'Level 6 — MOR Finance Protocols',
   };
   return (
-    <ChatInterface mentorContext={LEVEL_TITLES[currentLevel] ?? 'General Curriculum'} />
+    <ChatInterface mentorContext={LEVEL_TITLES[currentLevel] ?? 'General Curriculum'} userId={userId} />
   );
 };

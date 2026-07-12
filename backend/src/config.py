@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     # App
     app_env: str = "development"
     cors_origins: List[str] = ["http://localhost:5173"]
+    mongodb_uri: str = "mongodb://localhost:27017/developer_academy"
 
     # LLM
     default_llm: str = "mock"  # "mock" | "claude" | "hermes"

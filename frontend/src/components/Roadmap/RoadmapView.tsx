@@ -7,9 +7,10 @@ import './RoadmapView.css';
 interface RoadmapViewProps {
   progress: UserProgress | null;
   loading: boolean;
+  onSelectLevel: (levelId: number) => void;
 }
 
-export const RoadmapView: React.FC<RoadmapViewProps> = ({ progress, loading }) => {
+export const RoadmapView: React.FC<RoadmapViewProps> = ({ progress, loading, onSelectLevel }) => {
   if (loading) {
     return (
       <div className="roadmap-loading">
@@ -62,6 +63,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ progress, loading }) =
             key={level.level_id}
             level={level}
             isLast={idx === progress.levels.length - 1}
+            onSelect={() => onSelectLevel(level.level_id)}
           />
         ))}
       </div>

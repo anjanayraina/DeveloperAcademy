@@ -1,4 +1,4 @@
-// ─── Sidebar navigation component ────────────────────────────────────────────
+// ─── Sidebar navigation component with dynamic session displays ──────────────
 import React from 'react';
 import type { NavPage } from '../../types';
 import './Sidebar.css';
@@ -6,15 +6,46 @@ import './Sidebar.css';
 interface SidebarProps {
   activePage: NavPage;
   onNavigate: (page: NavPage) => void;
+  userId: string;
+  authType: 'github' | 'wallet' | 'demo' | null;
 }
 
 const NAV_ITEMS: { id: NavPage; label: string; icon: string; description: string }[] = [
-  { id: 'roadmap',   label: 'Learning Roadmap', icon: '🗺️',  description: '6-level curriculum' },
-  { id: 'dashboard', label: 'My Dashboard',     icon: '📊',  description: 'Progress & XP' },
-  { id: 'mentor',    label: 'AI Mentor',         icon: '🤖',  description: 'Chat with AI' },
+  { id: 'roadmap',      label: 'Learning Roadmap', icon: '🗺️',  description: '6-level curriculum' },
+  { id: 'dashboard',    label: 'My Dashboard',     icon: '📊',  description: 'Progress & XP' },
+  { id: 'mentor',       label: 'AI Mentor',        icon: '🤖',  description: 'Chat with AI' },
+  { id: 'certificates', label: 'My Certificates',  icon: '🏆',  description: 'Earned credentials' },
+  { id: 'kpis',         label: 'Platform KPIs',    icon: '📈',  description: 'Real-time metrics' },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate, userId, authType }) => {
+  const getAvatarText = () => {
+    if (authType === 'github') {
+      return userId.replace('gh-', '').slice(0, 2).toUpperCase();
+    }
+    if (authType === 'wallet') {
+      return 'W3';
+    }
+    return 'DA';
+  };
+
+  const getFormattedName = () => {
+    if (authType === 'github') {
+      return `@${userId.replace('gh-', '')}`;
+    }
+    if (authType === 'wallet') {
+      const addr = userId.replace('wallet-', '');
+      return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+    }
+    return 'Demo User';
+  };
+
+  const getFormattedRole = () => {
+    if (authType === 'github') return 'GitHub Learner';
+    if (authType === 'wallet') return 'Web3 Architect';
+    return 'Junior Dev';
+  };
+
   return (
     <aside className="sidebar glass">
       {/* Logo */}
@@ -50,10 +81,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, onNavigate }) => {
       {/* Footer */}
       <div className="sidebar__footer">
         <div className="sidebar__user">
-          <div className="sidebar__avatar">DA</div>
+          <div className="sidebar__avatar">{getAvatarText()}</div>
           <div>
-            <div className="sidebar__username">Demo User</div>
-            <div className="sidebar__user-role">Junior Dev</div>
+            <div className="sidebar__username" title={userId}>{getFormattedName()}</div>
+            <div className="sidebar__user-role">{getFormattedRole()}</div>
           </div>
         </div>
       </div>

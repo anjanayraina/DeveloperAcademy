@@ -60,3 +60,59 @@
   font-size: 0.7rem;
   color: var(--clr-text-muted);
 }
+
+/* Auth classes */
+.header__auth {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+}
+
+.auth-profile__icon {
+  font-size: 0.95rem;
+}
+
+.auth-profile__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--clr-text-primary);
+}
+
+.auth-profile__logout {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.auth-profile__logout:hover {
+  opacity: 1;
+}
+
+.btn--sm {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+}
+

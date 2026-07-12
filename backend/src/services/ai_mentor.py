@@ -19,6 +19,7 @@ router = APIRouter()
 
 # ─── Request / Response models ────────────────────────────────────────────────
 class MentorChatRequest(BaseModel):
+    user_id: str = "demo-user"
     prompt: str
     context: str = ""          # e.g. "Level 3 - Smart Contract Development"
     provider: str | None = None  # override DEFAULT_LLM per-request
@@ -157,6 +158,14 @@ async def mentor_chat(req: MentorChatRequest):
     Each SSE event carries a JSON payload: { "delta": "<text chunk>" }
     A final event carries: [DONE]
     """
+    # Log chat session to MongoDB
+    from src.services.db import log_mentor_chat
+    session_id = f"session-{req.context[:15].strip().lower().replace(' ', '-') or 'default'}"
+    try:
+        await log_mentor_chat(req.user_id, session_id)
+    except Exception as e:
+        print(f"Error logging chat session to DB: {e}")
+
     provider = (req.provider or settings.default_llm).lower()
     system   = _build_system_prompt(req.context)
 

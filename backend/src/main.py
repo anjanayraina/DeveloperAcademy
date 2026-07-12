@@ -7,15 +7,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
-from src.api import progress, templates
+from src.api import progress, templates, auth, courses, quiz, exercise, dashboard, certificates, github
 from src.services.ai_mentor import router as mentor_router
+from src.services.db import connect_to_mongo, close_mongo_connection
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
     print(f"🚀  Developer Academy API starting — env={settings.app_env}")
+    await connect_to_mongo()
     yield
+    await close_mongo_connection()
     print("🛑  Developer Academy API shutting down")
 
 
@@ -36,6 +39,13 @@ app.add_middleware(
 )
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(courses.router, prefix="/api/courses", tags=["Courses"])
+app.include_router(quiz.router, prefix="/api/quiz", tags=["Quiz"])
+app.include_router(exercise.router, prefix="/api/exercise", tags=["Exercise"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(certificates.router, prefix="/api/certificates", tags=["Certificates"])
+app.include_router(github.router, prefix="/api/github", tags=["Github"])
 app.include_router(progress.router, prefix="/api/progress", tags=["Progress"])
 app.include_router(templates.router, prefix="/api/templates", tags=["Templates"])
 app.include_router(mentor_router, prefix="/api/mentor", tags=["AI Mentor"])

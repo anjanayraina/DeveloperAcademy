@@ -15,10 +15,12 @@ const SUGGESTED_PROMPTS = [
 
 interface ChatInterfaceProps {
   mentorContext?: string;
+  userId?: string;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   mentorContext = 'General Developer Academy curriculum',
+  userId = 'demo-user',
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -75,7 +77,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             m.id === assistantId ? { ...m, content: m.content + delta } : m,
           ),
         );
-      });
+      }, userId);
 
       // Consume the async generator
       for await (const _ of gen) { /* chunks delivered via onChunk callback */ }

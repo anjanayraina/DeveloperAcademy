@@ -1,4 +1,4 @@
-// ─── LevelCard — individual roadmap level card ────────────────────────────────
+// ─── LevelCard — individual roadmap level card with click selectors ──────────
 import React from 'react';
 import type { LevelProgress } from '../../types';
 import { LEVEL_COLORS, LEVEL_ICONS } from '../../types';
@@ -7,9 +7,10 @@ import './LevelCard.css';
 interface LevelCardProps {
   level: LevelProgress;
   isLast: boolean;
+  onSelect: () => void;
 }
 
-export const LevelCard: React.FC<LevelCardProps> = ({ level, isLast }) => {
+export const LevelCard: React.FC<LevelCardProps> = ({ level, isLast, onSelect }) => {
   const pct = level.total_lessons > 0
     ? Math.round((level.completed_lessons / level.total_lessons) * 100)
     : 0;
@@ -25,6 +26,7 @@ export const LevelCard: React.FC<LevelCardProps> = ({ level, isLast }) => {
       <div
         className={`level-card ${!level.is_unlocked ? 'level-card--locked' : ''} ${isComplete ? 'level-card--complete' : ''}`}
         style={{ '--level-color': color } as React.CSSProperties}
+        onClick={level.is_unlocked ? onSelect : undefined}
       >
         {/* Level badge */}
         <div className="level-card__badge">
