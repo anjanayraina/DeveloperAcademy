@@ -83,21 +83,36 @@ export async function* streamMentorChat(
 }
 
 // ─── Authentication ───────────────────────────────────────────────────────────
-export async function authGithub(username: string): Promise<UserProgress> {
+export interface AuthConfig {
+  github_client_id: string;
+  github_redirect_uri: string;
+}
+
+export async function fetchAuthConfig(): Promise<AuthConfig> {
+  const res = await fetch(`${BASE}/auth/config`);
+  if (!res.ok) throw new Error(`Failed to fetch auth config: ${res.status}`);
+  return res.json();
+}
+
+export async function authGithub(username?: string, code?: string): Promise<UserProgress> {
   const res = await fetch(`${BASE}/auth/github`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username }),
+    body: JSON.stringify({ username, code }),
   });
   if (!res.ok) throw new Error(`GitHub auth failed: ${res.status}`);
   return res.json();
 }
 
-export async function authWallet(address: string): Promise<UserProgress> {
+export async function authWallet(
+  address: string,
+  message?: string,
+  signature?: string,
+): Promise<UserProgress> {
   const res = await fetch(`${BASE}/auth/wallet`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ address }),
+    body: JSON.stringify({ address, message, signature }),
   });
   if (!res.ok) throw new Error(`Wallet auth failed: ${res.status}`);
   return res.json();

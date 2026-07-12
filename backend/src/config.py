@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     cors_origins: List[str] = ["http://localhost:5173"]
     mongodb_uri: str = "mongodb://localhost:27017/developer_academy"
 
+    # GitHub OAuth
+    github_client_id: str = ""
+    github_client_secret: str = ""
+    github_redirect_uri: str = "http://localhost:5173"
+
     # LLM
     default_llm: str = "mock"  # "mock" | "claude" | "hermes"
     claude_api_key: str = ""

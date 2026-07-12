@@ -9,4 +9,6 @@ python-multipart==0.0.20
 motor==3.7.1
 pymongo==4.17.0
 dnspython==2.8.0
+eth-account==0.13.7
+
 
