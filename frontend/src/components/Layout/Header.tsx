@@ -1,6 +1,6 @@
 // ─── Header component with authentication integrations ────────────────────────
 import React from 'react';
-import type { NavPage } from '../../types';
+import type { NavPage, UserProgress } from '../../types';
 import './Header.css';
 
 interface HeaderProps {
@@ -9,9 +9,12 @@ interface HeaderProps {
   streak: number;
   userId: string;
   authType: 'github' | 'wallet' | 'demo' | null;
+  progress: UserProgress | null;
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
   onLogout: () => void;
+  onLinkGitHub?: () => void;
+  onLinkWallet?: () => void;
 }
 
 const PAGE_META: Record<NavPage, { title: string; subtitle: string }> = {
@@ -30,9 +33,12 @@ export const Header: React.FC<HeaderProps> = ({
   streak,
   userId,
   authType,
+  progress,
   onLoginGitHub,
   onLoginWallet,
   onLogout,
+  onLinkGitHub,
+  onLinkWallet,
 }) => {
   const { title, subtitle } = PAGE_META[activePage] || { title: 'Academy', subtitle: 'Learn Web3' };
 
@@ -60,6 +66,16 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="auth-profile">
               <span className="auth-profile__icon">{authType === 'github' ? '🐱' : '🦊'}</span>
               <span className="auth-profile__name" title={userId}>{formatUser()}</span>
+              {authType === 'wallet' && !progress?.github_username && (
+                <button className="btn btn--secondary btn--xs header-link-btn" onClick={onLinkGitHub} title="Link GitHub account" style={{ fontSize: '0.7rem', padding: '3px 8px', marginLeft: 8 }}>
+                  🐱 Link GitHub
+                </button>
+              )}
+              {authType === 'github' && !progress?.wallet_address && (
+                <button className="btn btn--secondary btn--xs header-link-btn" onClick={onLinkWallet} title="Link Crypto wallet" style={{ fontSize: '0.7rem', padding: '3px 8px', marginLeft: 8 }}>
+                  🦊 Link Wallet
+                </button>
+              )}
               <button className="auth-profile__logout" onClick={onLogout} title="Disconnect session">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

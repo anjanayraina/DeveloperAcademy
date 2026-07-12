@@ -68,21 +68,42 @@ export default function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
       
       setLoading(true);
-      authGithub(undefined, code)
-        .then((resProgress) => {
-          setUserId(resProgress.user_id);
-          setAuthType('github');
-          setSessionCookie(resProgress.user_id, 'github');
-          setProgress(resProgress);
-          setSelectedLevel(null);
-          setSelectedLessonId(null);
-          setActivePage('roadmap');
-        })
-        .catch((err) => {
-          console.error("GitHub OAuth callback error:", err);
-          alert("GitHub OAuth authentication failed. Please configure GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.");
-        })
-        .finally(() => setLoading(false));
+      const session = getSessionCookie();
+      if (session && session.authType === 'wallet') {
+        // Link GitHub to active wallet user session
+        import('./api/client').then(({ linkGithub }) => {
+          linkGithub(session.userId, code)
+            .then((resProgress) => {
+              setUserId(resProgress.user_id);
+              setAuthType(session.authType);
+              setSessionCookie(resProgress.user_id, session.authType);
+              setProgress(resProgress);
+              alert("GitHub account linked successfully to your wallet profile!");
+            })
+            .catch((err) => {
+              console.error("Link GitHub error:", err);
+              alert(err.message || "Failed to link GitHub to wallet.");
+            })
+            .finally(() => setLoading(false));
+        });
+      } else {
+        // Standard GitHub Auth
+        authGithub(undefined, code)
+          .then((resProgress) => {
+            setUserId(resProgress.user_id);
+            setAuthType('github');
+            setSessionCookie(resProgress.user_id, 'github');
+            setProgress(resProgress);
+            setSelectedLevel(null);
+            setSelectedLessonId(null);
+            setActivePage('roadmap');
+          })
+          .catch((err) => {
+            console.error("GitHub OAuth callback error:", err);
+            alert("GitHub OAuth authentication failed. Please configure GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.");
+          })
+          .finally(() => setLoading(false));
+      }
     }
   }, []);
 
@@ -211,6 +232,88 @@ export default function App() {
     }
   };
 
+  const handleLinkGitHub = async () => {
+    try {
+      setLoading(true);
+      const config = await fetchAuthConfig();
+      if (config.github_client_id && config.github_client_id.trim()) {
+        // Redirect to GitHub OAuth Authorization Page for linking
+        const redirectUrl = `https://github.com/login/oauth/authorize?client_id=${config.github_client_id}&redirect_uri=${encodeURIComponent(config.github_redirect_uri)}&scope=user`;
+        window.location.href = redirectUrl;
+        return;
+      }
+    } catch (err) {
+      console.warn("Could not retrieve public auth config, falling back to mock link:", err);
+    } finally {
+      setLoading(false);
+    }
+
+    const username = prompt("Enter your GitHub username to link (Fallback Mock Mode):");
+    if (!username || !username.trim()) return;
+
+    try {
+      setLoading(true);
+      const { linkGithub } = await import('./api/client');
+      const resProgress = await linkGithub(userId, undefined, username.trim());
+      setProgress(resProgress);
+      alert(`GitHub account @${username.trim()} linked successfully!`);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to link GitHub to wallet profile.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLinkWallet = async () => {
+    const win = window as any;
+    let address = "";
+    let signature = "mock_signature";
+    let message = `Link wallet to Developer Academy`;
+
+    if (win.ethereum) {
+      try {
+        setLoading(true);
+        const accounts = await win.ethereum.request({ method: 'eth_requestAccounts' });
+        address = accounts[0];
+        message = `Welcome to Developer Academy!\n\nSign this message to link this wallet address to your profile.\nNonce: ${Math.floor(Math.random() * 1000000)}`;
+        signature = await win.ethereum.request({
+          method: 'personal_sign',
+          params: [message, address],
+        });
+      } catch (err) {
+        console.error("Link wallet signature failed, attempting mock link:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (!address) {
+      const input = prompt(
+        "Enter Ethereum Wallet Address to link (Fallback Mock Mode):",
+        "0x" + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+      );
+      if (!input || !input.trim() || !input.startsWith("0x") || input.length !== 42) {
+        alert("Invalid Ethereum address format.");
+        return;
+      }
+      address = input.trim();
+    }
+
+    try {
+      setLoading(true);
+      const { linkWallet } = await import('./api/client');
+      const resProgress = await linkWallet(userId, address, message, signature);
+      setProgress(resProgress);
+      alert(`Wallet ${address} linked successfully!`);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to link wallet to GitHub profile.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     deleteSessionCookie();
     setUserId('');
@@ -317,9 +420,12 @@ export default function App() {
         streak={progress?.streak_days ?? 0}
         userId={userId}
         authType={authType}
+        progress={progress}
         onLoginGitHub={handleLoginGitHub}
         onLoginWallet={handleLoginWallet}
         onLogout={handleLogout}
+        onLinkGitHub={handleLinkGitHub}
+        onLinkWallet={handleLinkWallet}
       />
       <main className="app-main" id="main-content">
         {renderPage()}

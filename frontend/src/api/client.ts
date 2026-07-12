@@ -319,4 +319,36 @@ export async function postHackathonSubmit(
   return res.json();
 }
 
+export async function linkGithub(userId: string, code?: string, username?: string): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/auth/link-github`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, code, username }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || `GitHub link failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function linkWallet(
+  userId: string,
+  address: string,
+  message?: string,
+  signature?: string
+): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/auth/link-wallet`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, address, message, signature }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || `Wallet link failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+
 

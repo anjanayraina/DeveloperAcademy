@@ -101,14 +101,31 @@ def create_default_user_dict(user_id: str, auth_type: str) -> Dict[str, Any]:
     }
 
 async def get_or_create_user(user_id: str, auth_type: str = "demo") -> Dict[str, Any]:
-    """Retrieve an existing user, or create one if not found."""
+    """Retrieve an existing user by direct ID, linked GitHub, or linked wallet, or create one if not found."""
     coll = get_collection()
+    
+    # 1. Try finding by matching _id directly
     user = await coll.find_one({"_id": user_id})
+    
+    # 2. If not found, try searching on linked fields
+    if not user:
+        if user_id.startswith("wallet-"):
+            addr = user_id.replace("wallet-", "").lower()
+            user = await coll.find_one({"wallet_address": addr})
+        elif user_id.startswith("gh-"):
+            uname = user_id.replace("gh-", "")
+            user = await coll.find_one({"github_username": uname})
+            
+    # 3. Create if still not found
     if not user:
         user = create_default_user_dict(user_id, auth_type)
+        if user_id.startswith("wallet-"):
+            user["wallet_address"] = user_id.replace("wallet-", "").lower()
+        elif user_id.startswith("gh-"):
+            user["github_username"] = user_id.replace("gh-", "")
         await coll.insert_one(user)
     else:
-        # Backward compatibility for existing user records
+        # Backward compatibility / link updates
         updated = False
         updates = {}
         if "hackathons_registered" not in user:
@@ -119,8 +136,17 @@ async def get_or_create_user(user_id: str, auth_type: str = "demo") -> Dict[str,
             user["hackathon_submissions"] = {}
             updates["hackathon_submissions"] = {}
             updated = True
+        if user_id.startswith("wallet-") and "wallet_address" not in user:
+            user["wallet_address"] = user_id.replace("wallet-", "").lower()
+            updates["wallet_address"] = user_id.replace("wallet-", "").lower()
+            updated = True
+        elif user_id.startswith("gh-") and "github_username" not in user:
+            user["github_username"] = user_id.replace("gh-", "")
+            updates["github_username"] = user_id.replace("gh-", "")
+            updated = True
         if updated:
-            await coll.update_one({"_id": user_id}, {"$set": updates})
+            await coll.update_one({"_id": user["_id"]}, {"$set": updates})
+            
     return user
 
 async def save_user_progress(user_id: str, progress_update: Dict[str, Any]):
