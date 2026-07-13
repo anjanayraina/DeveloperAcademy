@@ -3,10 +3,10 @@ GitHub API Router — retrieves and logs mock or real public GitHub commits for 
 """
 import random
 import httpx
-from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from src.services.db import get_collection, get_or_create_user, log_github_activity
 from src.models.progress import GitHubSyncRequest
+from src.services.auth_helper import verify_token
 
 router = APIRouter()
 
@@ -37,9 +37,11 @@ async def get_github_activity(user_id: str):
     return updated_user.get("github_activities", [])
 
 @router.post("/sync")
-async def sync_github(req: GitHubSyncRequest):
+async def sync_github(req: GitHubSyncRequest, verified_id: str = Depends(verify_token)):
     """Link a user's GitHub username, fetch their public commits from GitHub API, and save them in MongoDB."""
     user_id = req.user_id
+    if user_id != verified_id:
+        raise HTTPException(status_code=403, detail="Forbidden: You cannot sync GitHub statistics for another user account.")
     username = req.github_username.strip()
     if not username:
         raise HTTPException(status_code=400, detail="GitHub username cannot be empty")

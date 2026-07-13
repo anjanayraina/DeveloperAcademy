@@ -6,13 +6,14 @@ import './HackathonsView.css';
 interface HackathonsViewProps {
   userId: string;
   onProgressUpdate: (updatedProgress: UserProgress) => void;
+  token: string;
 }
 
 type HackathonSubPage = 'list' | 'detail' | 'submission';
 type HackathonTab = 'upcoming' | 'ongoing' | 'completed';
 type DetailTab = 'overview' | 'rules' | 'tracks' | 'timeline';
 
-export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgressUpdate }) => {
+export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgressUpdate, token }) => {
   const [subPage, setSubPage] = useState<HackathonSubPage>('list');
   const [activeTab, setActiveTab] = useState<HackathonTab>('ongoing');
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>('overview');
@@ -29,17 +30,14 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
   const [projCode, setProjCode] = useState('');
   const [teamSize, setTeamSize] = useState(4);
 
-  const loadHackathons = () => {
+  // Sync hackathons list
+  useEffect(() => {
     setLoading(true);
     fetchHackathons(userId)
       .then(setHackathons)
-      .catch((err) => console.error("Error loading hackathons:", err))
+      .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadHackathons();
-  }, [userId]);
+  }, [userId, subPage]);
 
   const handleSelectHack = (hack: Hackathon) => {
     setSelectedHack(hack);
@@ -51,7 +49,7 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
     e.stopPropagation();
     try {
       setLoading(true);
-      const updatedProgress = await postHackathonRegister(hackId, userId);
+      const updatedProgress = await postHackathonRegister(hackId, userId, token);
       onProgressUpdate(updatedProgress);
       // Reload hackathons
       const hacks = await fetchHackathons(userId);
@@ -100,7 +98,8 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
         projDesc.trim(),
         projVideo.trim(),
         projCode.trim(),
-        teamSize
+        teamSize,
+        token
       );
       onProgressUpdate(updatedProgress);
       

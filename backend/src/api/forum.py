@@ -4,9 +4,10 @@ Forum API Router — coordinates discussion threads, replies, and posts in Mongo
 import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from src.services.db import get_forum_collection
 from src.models.forum import CreateThreadRequest, CreateCommentRequest
+from src.services.auth_helper import verify_token
 
 router = APIRouter()
 
@@ -55,7 +56,7 @@ async def get_thread(thread_id: str):
     return thread
 
 @router.post("/threads")
-async def create_thread(req: CreateThreadRequest):
+async def create_thread(req: CreateThreadRequest, user_id: str = Depends(verify_token)):
     """Submit a new discussion thread to the forum."""
     if not req.title.strip() or not req.content.strip():
         raise HTTPException(status_code=400, detail="Title and content are required")
@@ -67,7 +68,7 @@ async def create_thread(req: CreateThreadRequest):
         "_id": tid,
         "thread_id": tid,
         "title": req.title.strip(),
-        "author": req.author.strip(),
+        "author": user_id,
         "category": req.category,
         "content": req.content.strip(),
         "tags": [t.strip().lower() for t in req.tags if t.strip()],
@@ -82,7 +83,7 @@ async def create_thread(req: CreateThreadRequest):
     return new_thread
 
 @router.post("/threads/{thread_id}/comments")
-async def create_comment(thread_id: str, req: CreateCommentRequest):
+async def create_comment(thread_id: str, req: CreateCommentRequest, user_id: str = Depends(verify_token)):
     """Post a reply comment inside a discussion thread."""
     if not req.content.strip():
         raise HTTPException(status_code=400, detail="Comment content cannot be empty")
@@ -95,7 +96,7 @@ async def create_comment(thread_id: str, req: CreateCommentRequest):
     cid = f"comment-{uuid.uuid4().hex[:8]}"
     new_comment = {
         "comment_id": cid,
-        "author": req.author.strip(),
+        "author": user_id,
         "content": req.content.strip(),
         "created_at": datetime.now(timezone.utc).isoformat()
     }

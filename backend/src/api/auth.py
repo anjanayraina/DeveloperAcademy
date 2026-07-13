@@ -75,37 +75,42 @@ async def auth_github(req: GithubAuthRequest):
         user = create_default_user_dict(username, "github")
         user["github_username"] = username
         await coll.insert_one(user)
-    return user
+    
+    from src.services.auth_helper import create_access_token
+    token = create_access_token(user["_id"])
+    return {"token": token, "user": user}
 
 @router.post("/wallet")
 async def auth_wallet(req: WalletAuthRequest):
-    """Authenticate via Crypto wallet address. Integrates real ECDSA signature verification."""
-    address = req.address.strip().lower()
-    if not address.startswith("0x") or len(address) != 42:
-        raise HTTPException(status_code=400, detail="Invalid Ethereum address format")
-    
-    # Verify cryptographic signature if provided
-    if req.message and req.signature:
-        try:
-            message_hash = encode_defunct(text=req.message)
-            recovered_address = Account.recover_message(message_hash, signature=req.signature)
-            if recovered_address.lower() != address:
-                raise HTTPException(status_code=400, detail="Wallet signature verification failed.")
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Cryptographic signature check failed: {e}")
-            
-    from src.services.db import get_collection
-    coll = get_collection()
-    user = await coll.find_one({"wallet_address": address})
-    if not user:
-        user = await coll.find_one({"_id": f"wallet-{address}"})
-    if user:
-        return user
-    else:
-        raise HTTPException(
-            status_code=400,
-            detail="This wallet is not linked to any registered Developer Academy account. Please sign up with GitHub first, then link your wallet from the dashboard."
-        )
+  """Authenticate via Crypto wallet address. Integrates real ECDSA signature verification."""
+  address = req.address.strip().lower()
+  if not address.startswith("0x") or len(address) != 42:
+      raise HTTPException(status_code=400, detail="Invalid Ethereum address format")
+  
+  # Verify cryptographic signature if provided
+  if req.message and req.signature:
+      try:
+          message_hash = encode_defunct(text=req.message)
+          recovered_address = Account.recover_message(message_hash, signature=req.signature)
+          if recovered_address.lower() != address:
+              raise HTTPException(status_code=400, detail="Wallet signature verification failed.")
+      except Exception as e:
+          raise HTTPException(status_code=400, detail=f"Cryptographic signature check failed: {e}")
+          
+  from src.services.db import get_collection
+  coll = get_collection()
+  user = await coll.find_one({"wallet_address": address})
+  if not user:
+      user = await coll.find_one({"_id": f"wallet-{address}"})
+  if user:
+      from src.services.auth_helper import create_access_token
+      token = create_access_token(user["_id"])
+      return {"token": token, "user": user}
+  else:
+      raise HTTPException(
+          status_code=400,
+          detail="This wallet is not linked to any registered Developer Academy account. Please sign up with GitHub first, then link your wallet from the dashboard."
+      )
 
 @router.get("/config")
 async def get_auth_config():

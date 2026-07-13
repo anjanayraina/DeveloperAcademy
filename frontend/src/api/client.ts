@@ -94,7 +94,12 @@ export async function fetchAuthConfig(): Promise<AuthConfig> {
   return res.json();
 }
 
-export async function authGithub(username?: string, code?: string): Promise<UserProgress> {
+export interface AuthResponse {
+  token: string;
+  user: UserProgress;
+}
+
+export async function authGithub(username?: string, code?: string): Promise<AuthResponse> {
   const res = await fetch(`${BASE}/auth/github`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -108,7 +113,7 @@ export async function authWallet(
   address: string,
   message?: string,
   signature?: string,
-): Promise<UserProgress> {
+): Promise<AuthResponse> {
   const res = await fetch(`${BASE}/auth/wallet`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -153,10 +158,14 @@ export async function postQuizSubmit(
   userId: string,
   lessonId: string,
   answers: number[],
+  token?: string,
 ): Promise<QuizResult> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  
   const res = await fetch(`${BASE}/quiz/submit`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ user_id: userId, lesson_id: lessonId, answers }),
   });
   if (!res.ok) throw new Error(`Quiz submission failed: ${res.status}`);
@@ -174,10 +183,14 @@ export async function postExerciseSubmit(
   userId: string,
   lessonId: string,
   code: string,
+  token?: string,
 ): Promise<ExerciseResult> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE}/exercise/submit`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ user_id: userId, lesson_id: lessonId, code }),
   });
   if (!res.ok) throw new Error(`Exercise submission failed: ${res.status}`);
@@ -212,10 +225,13 @@ export interface GitHubSyncResult {
   xp_gained: number;
 }
 
-export async function postGithubSync(userId: string, githubUsername: string): Promise<GitHubSyncResult> {
+export async function postGithubSync(userId: string, githubUsername: string, token?: string): Promise<GitHubSyncResult> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE}/github/sync`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ user_id: userId, github_username: githubUsername }),
   });
   if (!res.ok) throw new Error(`GitHub sync failed: ${res.status}`);
@@ -250,11 +266,15 @@ export async function postForumThread(
   author: string,
   category: string,
   content: string,
-  tags: string[]
+  tags: string[],
+  token?: string
 ): Promise<ForumThread> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE}/forum/threads`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ title, author, category, content, tags }),
   });
   if (!res.ok) throw new Error(`Failed to create thread: ${res.status}`);
@@ -264,11 +284,15 @@ export async function postForumThread(
 export async function postForumComment(
   threadId: string,
   author: string,
-  content: string
+  content: string,
+  token?: string
 ): Promise<ForumComment> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE}/forum/threads/${threadId}/comments`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ author, content }),
   });
   if (!res.ok) throw new Error(`Failed to create comment: ${res.status}`);
@@ -285,10 +309,13 @@ export async function fetchHackathons(userId?: string): Promise<Hackathon[]> {
   return res.json();
 }
 
-export async function postHackathonRegister(hackathonId: string, userId: string): Promise<UserProgress> {
+export async function postHackathonRegister(hackathonId: string, userId: string, token?: string): Promise<UserProgress> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE}/hackathons/${hackathonId}/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ user_id: userId }),
   });
   if (!res.ok) throw new Error(`Failed to register for hackathon: ${res.status}`);
@@ -303,11 +330,15 @@ export async function postHackathonSubmit(
   description: string,
   videoLink: string,
   codeLink: string,
-  teamSize: number
+  teamSize: number,
+  token?: string
 ): Promise<UserProgress> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   const res = await fetch(`${BASE}/hackathons/${hackathonId}/submit`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       user_id: userId,
       project_name: projectName,

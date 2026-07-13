@@ -9,6 +9,7 @@ interface LessonViewProps {
   userId: string;
   onBack: () => void;
   onProgressUpdate: (updatedProgress: UserProgress) => void;
+  token: string;
 }
 
 export const LessonView: React.FC<LessonViewProps> = ({
@@ -16,6 +17,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
   userId,
   onBack,
   onProgressUpdate,
+  token,
 }) => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
     setSubmittingQuiz(true);
     try {
-      const result = await postQuizSubmit(userId, lessonId, answersList);
+      const result = await postQuizSubmit(userId, lessonId, answersList, token);
       setQuizResult(result);
       if (result.user_progress) {
         onProgressUpdate(result.user_progress);
@@ -98,7 +100,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
     try {
-      const result = await postExerciseSubmit(userId, lessonId, code);
+      const result = await postExerciseSubmit(userId, lessonId, code, token);
 
       if (result.passed) {
         setConsoleLogs((prev) => [

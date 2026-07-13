@@ -34,8 +34,8 @@ export default function App() {
     return null;
   };
 
-  const setSessionCookie = (uid: string, type: 'github' | 'wallet' | 'demo') => {
-    document.cookie = `user_session=${JSON.stringify({ userId: uid, authType: type })}; path=/; max-age=86400; SameSite=Lax`;
+  const setSessionCookie = (uid: string, type: 'github' | 'wallet' | 'demo', token: string) => {
+    document.cookie = `user_session=${JSON.stringify({ userId: uid, authType: type, token })}; path=/; max-age=86400; SameSite=Lax`;
   };
 
   const deleteSessionCookie = () => {
@@ -49,6 +49,7 @@ export default function App() {
   const [userId, setUserId] = useState<string>(initialSession?.userId || '');
   const [authType, setAuthType] = useState<'github' | 'wallet' | null>(initialSession?.authType || null);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [jwtToken, setJwtToken] = useState<string | null>(initialSession?.token || null);
   
   // Progress & curriculum states
   const [progress, setProgress] = useState<UserProgress | null>(null);
@@ -76,7 +77,7 @@ export default function App() {
             .then((resProgress) => {
               setUserId(resProgress.user_id);
               setAuthType(session.authType);
-              setSessionCookie(resProgress.user_id, session.authType);
+              setSessionCookie(resProgress.user_id, session.authType, session.token || jwtToken || '');
               setProgress(resProgress);
               alert("GitHub account linked successfully to your wallet profile!");
             })
@@ -89,11 +90,12 @@ export default function App() {
       } else {
         // Standard GitHub Auth
         authGithub(undefined, code)
-          .then((resProgress) => {
-            setUserId(resProgress.user_id);
+          .then(({ token, user }) => {
+            setUserId(user.user_id);
             setAuthType('github');
-            setSessionCookie(resProgress.user_id, 'github');
-            setProgress(resProgress);
+            setJwtToken(token);
+            setSessionCookie(user.user_id, 'github', token);
+            setProgress(user);
             setSelectedLevel(null);
             setSelectedLessonId(null);
             setActivePage('roadmap');
@@ -154,11 +156,12 @@ export default function App() {
 
     try {
       setLoading(true);
-      const resProgress = await authGithub(username.trim());
-      setUserId(resProgress.user_id);
+      const { token, user } = await authGithub(username.trim());
+      setUserId(user.user_id);
       setAuthType('github');
-      setSessionCookie(resProgress.user_id, 'github');
-      setProgress(resProgress);
+      setJwtToken(token);
+      setSessionCookie(user.user_id, 'github', token);
+      setProgress(user);
       setSelectedLevel(null);
       setSelectedLessonId(null);
       setActivePage('roadmap');
@@ -190,11 +193,12 @@ export default function App() {
         });
         
         // 4. Submit to Backend for Cryptographic Verification
-        const resProgress = await authWallet(address, message, signature);
-        setUserId(resProgress.user_id);
+        const { token, user } = await authWallet(address, message, signature);
+        setUserId(user.user_id);
         setAuthType('wallet');
-        setSessionCookie(resProgress.user_id, 'wallet');
-        setProgress(resProgress);
+        setJwtToken(token);
+        setSessionCookie(user.user_id, 'wallet', token);
+        setProgress(user);
         setSelectedLevel(null);
         setSelectedLessonId(null);
         setActivePage('roadmap');
@@ -220,11 +224,12 @@ export default function App() {
 
     try {
       setLoading(true);
-      const resProgress = await authWallet(address.trim());
-      setUserId(resProgress.user_id);
+      const { token, user } = await authWallet(address.trim());
+      setUserId(user.user_id);
       setAuthType('wallet');
-      setSessionCookie(resProgress.user_id, 'wallet');
-      setProgress(resProgress);
+      setJwtToken(token);
+      setSessionCookie(user.user_id, 'wallet', token);
+      setProgress(user);
       setSelectedLevel(null);
       setSelectedLessonId(null);
       setActivePage('roadmap');
@@ -322,6 +327,7 @@ export default function App() {
     deleteSessionCookie();
     setUserId('');
     setAuthType(null);
+    setJwtToken(null);
     setSelectedLevel(null);
     setSelectedLessonId(null);
     setActivePage('roadmap');
@@ -348,6 +354,7 @@ export default function App() {
               userId={userId}
               onBack={() => setSelectedLessonId(null)}
               onProgressUpdate={handleProgressUpdate}
+              token={jwtToken || ''}
             />
           );
         }
@@ -376,12 +383,13 @@ export default function App() {
             loading={loading}
             userId={userId}
             onProgressUpdate={handleProgressUpdate}
+            token={jwtToken || ''}
           />
         );
       case 'forum':
-        return <ForumView userId={userId} />;
+        return <ForumView userId={userId} token={jwtToken || ''} />;
       case 'hackathons':
-        return <HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} />;
+        return <HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} token={jwtToken || ''} />;
       case 'mentor':
         return <MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />;
       case 'certificates':

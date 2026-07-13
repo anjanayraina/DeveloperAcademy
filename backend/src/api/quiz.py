@@ -2,16 +2,19 @@
 Quiz API Routers — handles submission, evaluation, grading, and XP awards for quizzes.
 """
 from typing import List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from src.services.lessons import LESSONS_DB
 from src.services.db import log_quiz_attempt, complete_lesson_for_user, get_or_create_user
 from src.models.progress import QuizSubmission
+from src.services.auth_helper import verify_token
 
 router = APIRouter()
 
 @router.post("/submit")
-async def submit_quiz(sub: QuizSubmission):
+async def submit_quiz(sub: QuizSubmission, verified_id: str = Depends(verify_token)):
     """Evaluate quiz answers, record score, and advance progress if passed."""
+    if sub.user_id != verified_id:
+        raise HTTPException(status_code=403, detail="Forbidden: You cannot submit quiz attempts for another user account.")
     lesson_id = sub.lesson_id
     if lesson_id not in LESSONS_DB:
         raise HTTPException(status_code=404, detail=f"Lesson '{lesson_id}' not found")

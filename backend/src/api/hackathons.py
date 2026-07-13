@@ -3,9 +3,10 @@ Hackathons API Router — handles hackathon event retrievals, user registrations
 """
 from datetime import datetime, timezone
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from src.services.db import get_collection, get_hackathons_collection, get_or_create_user
 from src.models.hackathon import RegisterRequest, SubmitProjectRequest
+from src.services.auth_helper import verify_token
 
 router = APIRouter()
 
@@ -37,9 +38,11 @@ async def get_hackathons(user_id: Optional[str] = Query(None)):
     return hacks
 
 @router.post("/{hackathon_id}/register")
-async def register_hackathon(hackathon_id: str, req: RegisterRequest):
+async def register_hackathon(hackathon_id: str, req: RegisterRequest, verified_id: str = Depends(verify_token)):
     """Register a user for a specific hackathon."""
     user_id = req.user_id
+    if user_id != verified_id:
+        raise HTTPException(status_code=403, detail="Forbidden: You cannot perform registration for another user account.")
     user = await get_or_create_user(user_id)
     
     # Check if already registered
@@ -58,9 +61,11 @@ async def register_hackathon(hackathon_id: str, req: RegisterRequest):
     return updated_user
 
 @router.post("/{hackathon_id}/submit")
-async def submit_project(hackathon_id: str, req: SubmitProjectRequest):
+async def submit_project(hackathon_id: str, req: SubmitProjectRequest, verified_id: str = Depends(verify_token)):
     """Submit a project solution for a hackathon, and award 200 XP."""
     user_id = req.user_id
+    if user_id != verified_id:
+        raise HTTPException(status_code=403, detail="Forbidden: You cannot submit projects for another user account.")
     user = await get_or_create_user(user_id)
     
     # Verify user is registered first

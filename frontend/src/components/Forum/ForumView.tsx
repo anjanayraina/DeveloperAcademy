@@ -5,11 +5,12 @@ import './ForumView.css';
 
 interface ForumViewProps {
   userId: string;
+  token: string;
 }
 
 type ForumSubPage = 'home' | 'thread' | 'create';
 
-export const ForumView: React.FC<ForumViewProps> = ({ userId }) => {
+export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
   const [subPage, setSubPage] = useState<ForumSubPage>('home');
   const [threads, setThreads] = useState<ForumThread[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,27 +27,21 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId }) => {
   const [newContent, setNewContent] = useState('');
   const [newTags, setNewTags] = useState('');
 
-  // Load threads
-  const loadThreads = () => {
-    setLoading(true);
-    fetchForumThreads(activeCategory, searchQuery)
-      .then(setThreads)
-      .catch((err) => console.error("Error loading forum threads:", err))
-      .finally(() => setLoading(false));
-  };
-
+  // Sync threads on filter changes
   useEffect(() => {
-    if (subPage === 'home') {
-      loadThreads();
-    }
-  }, [activePageChangesTriggered(), activeCategory, searchQuery, subPage]);
-
-  // Dummy helper to trigger effect correctly
-  function activePageChangesTriggered() { return 0; }
+    setLoading(true);
+    fetchForumThreads(
+      activeCategory === 'All Topics' ? undefined : activeCategory,
+      searchQuery.trim() || undefined
+    )
+      .then(setThreads)
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [activeCategory, searchQuery, subPage]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loadThreads();
+    // Re-triggering via state dependency happens naturally
   };
 
   const handleSelectThread = async (threadId: string) => {
@@ -69,7 +64,7 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId }) => {
       const authorName = userId.startsWith("wallet-") 
         ? `${userId.replace("wallet-", "").slice(0, 6)}...`
         : `@${userId.replace("gh-", "")}`;
-      await postForumComment(selectedThread.thread_id, authorName, replyContent.trim());
+      await postForumComment(selectedThread.thread_id, authorName, replyContent.trim(), token);
       setReplyContent('');
       // Reload thread
       const thread = await fetchForumThread(selectedThread.thread_id);
@@ -88,7 +83,7 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId }) => {
         ? `${userId.replace("wallet-", "").slice(0, 6)}...`
         : `@${userId.replace("gh-", "")}`;
       const tagsArray = newTags.split(',').map(t => t.trim()).filter(Boolean);
-      await postForumThread(newTitle.trim(), authorName, newCategory, newContent.trim(), tagsArray);
+      await postForumThread(newTitle.trim(), authorName, newCategory, newContent.trim(), tagsArray, token);
       
       // Reset form
       setNewTitle('');

@@ -21,9 +21,10 @@ interface DashboardPageProps {
   loading: boolean;
   userId: string;
   onProgressUpdate: (updatedProgress: UserProgress) => void;
+  token: string;
 }
-export const DashboardPage: React.FC<DashboardPageProps> = ({ progress, loading, userId, onProgressUpdate }) => (
-  <Dashboard progress={progress} loading={loading} userId={userId} onProgressUpdate={onProgressUpdate} />
+export const DashboardPage: React.FC<DashboardPageProps> = ({ progress, loading, userId, onProgressUpdate, token }) => (
+  <Dashboard progress={progress} loading={loading} userId={userId} onProgressUpdate={onProgressUpdate} token={token} />
 );
 
 // ── Mentor Page ───────────────────────────────────────────────────────────────

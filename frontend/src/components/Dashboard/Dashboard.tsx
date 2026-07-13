@@ -10,6 +10,7 @@ interface DashboardProps {
   loading: boolean;
   userId: string;
   onProgressUpdate: (updatedProgress: UserProgress) => void;
+  token: string;
 }
 
 type AnalyticsTab = 'overview' | 'courses' | 'skills';
@@ -19,6 +20,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   loading,
   userId,
   onProgressUpdate,
+  token,
 }) => {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview');
   
@@ -180,7 +182,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!githubUsername.trim()) return;
     try {
       setSyncing(true);
-      const res = await postGithubSync(userId, githubUsername.trim());
+      const res = await postGithubSync(userId, githubUsername.trim(), token);
       onProgressUpdate(res.user_progress);
       alert(`GitHub Synced successfully!\nAdded ${res.new_commits_count} commits.\nXP Gained: ${res.xp_gained} XP!`);
     } catch (err) {
@@ -327,7 +329,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <button className="btn btn--secondary btn--sm" style={{marginLeft: 'auto'}} onClick={() => {
                       setGithubUsername(progress.github_username || '');
                       setSyncing(true);
-                      postGithubSync(userId, progress.github_username || '').then(res => {
+                      postGithubSync(userId, progress.github_username || '', token).then(res => {
                         onProgressUpdate(res.user_progress);
                         alert("Commits synced successfully!");
                       }).catch(e => console.error(e)).finally(() => setSyncing(false));

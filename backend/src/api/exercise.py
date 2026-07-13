@@ -2,16 +2,19 @@
 Exercise API Router — handles Solidity code submissions, checks required syntax/keywords,
 awards XP, and records submissions in the database.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from src.services.lessons import LESSONS_DB
 from src.services.db import log_exercise_submission, get_or_create_user
 from src.models.progress import ExerciseSubmission
+from src.services.auth_helper import verify_token
 
 router = APIRouter()
 
 @router.post("/submit")
-async def submit_exercise(sub: ExerciseSubmission):
+async def submit_exercise(sub: ExerciseSubmission, verified_id: str = Depends(verify_token)):
     """Check code structure, log submission, and update XP/progress."""
+    if sub.user_id != verified_id:
+        raise HTTPException(status_code=403, detail="Forbidden: You cannot submit exercises for another user account.")
     lesson_id = sub.lesson_id
     if lesson_id not in LESSONS_DB:
         raise HTTPException(status_code=404, detail=f"Lesson '{lesson_id}' not found")
