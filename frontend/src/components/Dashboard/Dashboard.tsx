@@ -136,7 +136,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
     : 0;
 
   const lessonsCompletedCount = progress.levels.reduce((a, l) => a + l.completed_lessons, 0);
-  const timeSpent = Math.max(2, Math.round(lessonsCompletedCount * 0.4 + (progress.xp / 100)));
+  const quizCount = progress.quiz_attempts?.length || 0;
+  const exerciseCount = progress.exercises_submitted?.length || 0;
+  
+  // Calculate total learning time dynamically based on logs:
+  // - 30 minutes per completed lesson
+  // - 15 minutes per quiz attempt
+  // - 20 minutes per exercise compilation
+  const timeSpentMinutes = (lessonsCompletedCount * 30) + (quizCount * 15) + (exerciseCount * 20);
+  const timeSpent = Math.round((timeSpentMinutes / 60) * 10) / 10;
 
   const getLowestProgressLevelName = () => {
     const pcts = [
