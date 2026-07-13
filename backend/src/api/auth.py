@@ -1,6 +1,4 @@
-"""
-Authentication API Routers — handles real GitHub OAuth exchange and Wallet signature verification.
-"""
+import re
 import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -65,8 +63,18 @@ async def auth_github(req: GithubAuthRequest):
     if not username:
         raise HTTPException(status_code=400, detail="Authentication credentials could not be verified.")
 
-    user_id = f"gh-{username}"
-    user = await get_or_create_user(user_id, auth_type="github")
+    from src.services.db import get_collection, create_default_user_dict
+    coll = get_collection()
+    user = await coll.find_one({"github_username": username})
+    if not user:
+        user = await coll.find_one({"_id": f"gh-{username}"})
+    if not user:
+        user = await coll.find_one({"_id": username})
+    if not user:
+        # Auto-signup new user using GitHub username
+        user = create_default_user_dict(username, "github")
+        user["github_username"] = username
+        await coll.insert_one(user)
     return user
 
 @router.post("/wallet")
@@ -86,9 +94,18 @@ async def auth_wallet(req: WalletAuthRequest):
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Cryptographic signature check failed: {e}")
             
-    user_id = f"wallet-{address}"
-    user = await get_or_create_user(user_id, auth_type="wallet")
-    return user
+    from src.services.db import get_collection
+    coll = get_collection()
+    user = await coll.find_one({"wallet_address": address})
+    if not user:
+        user = await coll.find_one({"_id": f"wallet-{address}"})
+    if user:
+        return user
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="This wallet is not linked to any registered Developer Academy account. Please sign up with GitHub first, then link your wallet from the dashboard."
+        )
 
 @router.get("/config")
 async def get_auth_config():
@@ -97,6 +114,8 @@ async def get_auth_config():
         "github_client_id": settings.github_client_id,
         "github_redirect_uri": settings.github_redirect_uri
     }
+
+
 
 
 

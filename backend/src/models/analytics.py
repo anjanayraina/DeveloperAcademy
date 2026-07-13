@@ -27,5 +27,5 @@ class LearningAnalytics(BaseModel):
     quiz_attempts: List[QuizAttempt] = []
     weak_topics: List[WeakTopic] = []
     avg_quiz_score: Optional[float] = None
-    learning_velocity: Optional[float] = None  # lessons/day
+    learning_velocity: Optional[float] = None  
     last_computed_at: Optional[datetime] = None

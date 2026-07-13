@@ -22,3 +22,6 @@ class LinkWalletRequest(BaseModel):
     address: str
     message: str | None = None
     signature: str | None = None
+
+
+

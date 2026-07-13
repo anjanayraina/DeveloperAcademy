@@ -196,8 +196,10 @@ export default function App() {
         setSelectedLessonId(null);
         setActivePage('roadmap');
         return;
-      } catch (err) {
-        console.error("Wallet signature auth failed, attempting fallback connection:", err);
+      } catch (err: any) {
+        console.error("Wallet signature auth failed:", err);
+        alert(err.message || "Failed to authenticate wallet.");
+        return;
       } finally {
         setLoading(false);
       }
@@ -223,9 +225,9 @@ export default function App() {
       setSelectedLevel(null);
       setSelectedLessonId(null);
       setActivePage('roadmap');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Failed to connect wallet.");
+      alert(err.message || "Failed to connect wallet.");
     } finally {
       setLoading(false);
     }

@@ -43,7 +43,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
     if (authType === 'wallet') {
       const addr = userId.replace('wallet-', '');
-      return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+      if (addr.startsWith('0x') && addr.length === 42) {
+        return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+      }
+      return addr;
     }
     return 'Demo User';
   };
