@@ -128,20 +128,48 @@ export const LessonView: React.FC<LessonViewProps> = ({
     }
   };
 
+  const parseInlineMarkdown = (line: string): React.ReactNode[] => {
+    const tokenRegex = /(\*\*.*?\*\*|`.*?`|\[.*?\]\(.*?\))/g;
+    const parts = line.split(tokenRegex);
+    
+    return parts.map((part, idx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={idx}>{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return <code key={idx} className="lesson-md-inline-code">{part.slice(1, -1)}</code>;
+      }
+      if (part.startsWith('[') && part.includes('](')) {
+        const textEnd = part.indexOf(']');
+        const linkText = part.slice(1, textEnd);
+        const url = part.slice(textEnd + 2, -1);
+        return (
+          <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="lesson-md-link">
+            {linkText}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   // Simple parser to render reading markdown contents
   const renderMarkdown = (text: string) => {
     return text.split('\n').map((line, idx) => {
       if (line.startsWith('# ')) {
-        return <h2 key={idx} className="lesson-md-h1">{line.replace('# ', '')}</h2>;
+        return <h1 key={idx} className="lesson-md-h1">{parseInlineMarkdown(line.slice(2))}</h1>;
+      }
+      if (line.startsWith('## ')) {
+        return <h2 key={idx} className="lesson-md-h2">{parseInlineMarkdown(line.slice(3))}</h2>;
       }
       if (line.startsWith('### ')) {
-        return <h3 key={idx} className="lesson-md-h3">{line.replace('### ', '')}</h3>;
+        return <h3 key={idx} className="lesson-md-h3">{parseInlineMarkdown(line.slice(4))}</h3>;
       }
       if (line.startsWith('- ')) {
-        return <li key={idx} className="lesson-md-li">{line.replace('- ', '')}</li>;
+        return <li key={idx} className="lesson-md-li">{parseInlineMarkdown(line.slice(2))}</li>;
       }
       if (line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ')) {
-        return <li key={idx} className="lesson-md-ol-li">{line.slice(3)}</li>;
+        return <li key={idx} className="lesson-md-ol-li">{parseInlineMarkdown(line.slice(3))}</li>;
       }
       if (line.trim().startsWith('```')) {
         return null; // hide fences, code contents will be raw text
@@ -149,7 +177,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
       if (line.trim() === '') {
         return <div key={idx} className="lesson-md-space" />;
       }
-      return <p key={idx} className="lesson-md-p">{line}</p>;
+      return <p key={idx} className="lesson-md-p">{parseInlineMarkdown(line)}</p>;
     });
   };
 
