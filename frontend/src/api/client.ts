@@ -261,6 +261,17 @@ export async function fetchForumThread(threadId: string): Promise<ForumThread> {
   return res.json();
 }
 
+export interface ForumStats {
+  trending_tags: { tag: string; count: number }[];
+  top_contributors: { username: string; avatar: string; xp: number }[];
+}
+
+export async function fetchForumStats(): Promise<ForumStats> {
+  const res = await fetch(`${BASE}/forum/stats`);
+  if (!res.ok) throw new Error(`Failed to fetch forum stats: ${res.status}`);
+  return res.json();
+}
+
 export async function postForumThread(
   title: string,
   author: string,

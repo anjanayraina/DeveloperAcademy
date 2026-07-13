@@ -1,5 +1,6 @@
 // ─── App — root component with state, layout, authentication and routing ───
 import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import type { NavPage, UserProgress, Course } from './types';
 import { fetchProgress, fetchCourses, authGithub, authWallet, fetchAuthConfig } from './api/client';
 import { Sidebar } from './components/Layout/Sidebar';
@@ -14,7 +15,19 @@ import { HackathonsView } from './components/Hackathons/HackathonsView';
 import './index.css';
 
 export default function App() {
-  const [activePage, setActivePage] = useState<NavPage>('roadmap');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const getActivePage = (): 'roadmap' | 'dashboard' | 'forum' | 'hackathons' | 'certificates' | 'mentor' => {
+    const path = location.pathname;
+    if (path.startsWith('/dashboard')) return 'dashboard';
+    if (path.startsWith('/forum')) return 'forum';
+    if (path.startsWith('/hackathons')) return 'hackathons';
+    if (path.startsWith('/mentor')) return 'mentor';
+    if (path.startsWith('/certificates')) return 'certificates';
+    return 'roadmap';
+  };
+  const activePage = getActivePage();
   
   // Helpers to read/write session cookie
   const getSessionCookie = () => {
@@ -98,7 +111,7 @@ export default function App() {
             setProgress(user);
             setSelectedLevel(null);
             setSelectedLessonId(null);
-            setActivePage('roadmap');
+            navigate('/');
           })
           .catch((err) => {
             console.error("GitHub OAuth callback error:", err);
@@ -164,7 +177,7 @@ export default function App() {
       setProgress(user);
       setSelectedLevel(null);
       setSelectedLessonId(null);
-      setActivePage('roadmap');
+      navigate('/');
     } catch (err) {
       console.error(err);
       alert("Failed to authenticate with GitHub.");
@@ -201,7 +214,7 @@ export default function App() {
         setProgress(user);
         setSelectedLevel(null);
         setSelectedLessonId(null);
-        setActivePage('roadmap');
+        navigate('/');
         return;
       } catch (err: any) {
         console.error("Wallet signature auth failed:", err);
@@ -232,7 +245,7 @@ export default function App() {
       setProgress(user);
       setSelectedLevel(null);
       setSelectedLessonId(null);
-      setActivePage('roadmap');
+      navigate('/');
     } catch (err: any) {
       console.error(err);
       setLoginError(err.message || "Failed to connect wallet.");
@@ -330,7 +343,7 @@ export default function App() {
     setJwtToken(null);
     setSelectedLevel(null);
     setSelectedLessonId(null);
-    setActivePage('roadmap');
+    navigate('/login');
   };
 
   const handleProgressUpdate = (updatedProgress: UserProgress) => {
@@ -341,66 +354,13 @@ export default function App() {
     // Reset drilldowns when navigating to top-level pages
     setSelectedLevel(null);
     setSelectedLessonId(null);
-    setActivePage(page);
-  };
-
-  const renderPage = () => {
-    switch (activePage) {
-      case 'roadmap':
-        if (selectedLessonId) {
-          return (
-            <LessonView
-              lessonId={selectedLessonId}
-              userId={userId}
-              onBack={() => setSelectedLessonId(null)}
-              onProgressUpdate={handleProgressUpdate}
-              token={jwtToken || ''}
-            />
-          );
-        }
-        if (selectedLevel != null) {
-          return (
-            <LessonsList
-              levelId={selectedLevel}
-              courses={courses}
-              progress={progress}
-              onBack={() => setSelectedLevel(null)}
-              onSelectLesson={setSelectedLessonId}
-            />
-          );
-        }
-        return (
-          <RoadmapPage
-            progress={progress}
-            loading={loading}
-            onSelectLevel={setSelectedLevel}
-          />
-        );
-      case 'dashboard':
-        return (
-          <DashboardPage
-            progress={progress}
-            loading={loading}
-            userId={userId}
-            onProgressUpdate={handleProgressUpdate}
-            token={jwtToken || ''}
-          />
-        );
-      case 'forum':
-        return <ForumView userId={userId} token={jwtToken || ''} />;
-      case 'hackathons':
-        return <HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} token={jwtToken || ''} />;
-      case 'mentor':
-        return <MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />;
-      case 'certificates':
-        return <CertificatesView userId={userId} />;
-
-      default:
-        return null;
-    }
+    navigate(page === 'roadmap' ? '/' : `/${page}`);
   };
 
   if (!authType) {
+    if (location.pathname !== '/login') {
+      return <Navigate to="/login" replace />;
+    }
     return (
       <Login
         onLoginGitHub={handleLoginGitHub}
@@ -409,6 +369,10 @@ export default function App() {
         loading={loading}
       />
     );
+  }
+
+  if (location.pathname === '/login') {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -434,7 +398,47 @@ export default function App() {
         onLinkWallet={handleLinkWallet}
       />
       <main className="app-main" id="main-content">
-        {renderPage()}
+        <Routes>
+          <Route path="/" element={
+            selectedLessonId ? (
+              <LessonView
+                lessonId={selectedLessonId}
+                userId={userId}
+                onBack={() => setSelectedLessonId(null)}
+                onProgressUpdate={handleProgressUpdate}
+                token={jwtToken || ''}
+              />
+            ) : selectedLevel != null ? (
+               <LessonsList
+                 levelId={selectedLevel}
+                 courses={courses}
+                 progress={progress}
+                 onBack={() => setSelectedLevel(null)}
+                 onSelectLesson={setSelectedLessonId}
+               />
+            ) : (
+              <RoadmapPage
+                progress={progress}
+                loading={loading}
+                onSelectLevel={setSelectedLevel}
+              />
+            )
+          } />
+          <Route path="/dashboard" element={
+            <DashboardPage
+              progress={progress}
+              loading={loading}
+              userId={userId}
+              onProgressUpdate={handleProgressUpdate}
+              token={jwtToken || ''}
+            />
+          } />
+          <Route path="/forum" element={<ForumView userId={userId} token={jwtToken || ''} />} />
+          <Route path="/hackathons" element={<HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} token={jwtToken || ''} />} />
+          <Route path="/mentor" element={<MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />} />
+          <Route path="/certificates" element={<CertificatesView userId={userId} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
     </div>
   );

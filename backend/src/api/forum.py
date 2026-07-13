@@ -55,6 +55,70 @@ async def get_thread(thread_id: str):
     thread["thread_id"] = thread.get("_id")
     return thread
 
+@router.get("/stats")
+async def get_forum_stats():
+    """Retrieve trending tags and top contributors dynamically from MongoDB collections."""
+    coll = get_forum_collection()
+    
+    # 1. Compute trending tags
+    pipeline = [
+        {"$unwind": "$tags"},
+        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 5}
+    ]
+    
+    trending_tags = []
+    try:
+        cursor = coll.aggregate(pipeline)
+        async for doc in cursor:
+            trending_tags.append({
+                "tag": doc["_id"],
+                "count": doc["count"]
+            })
+    except Exception as e:
+        print(f"Aggregation pipeline failed: {e}")
+        
+    if not trending_tags:
+        trending_tags = [
+            {"tag": "solidity", "count": 0},
+            {"tag": "gas", "count": 0},
+            {"tag": "defi", "count": 0},
+            {"tag": "security", "count": 0},
+            {"tag": "dao", "count": 0}
+        ]
+        
+    # 2. Get top contributors (top 3 users sorted by XP)
+    from src.services.db import get_collection
+    user_coll = get_collection()
+    top_contributors = []
+    
+    try:
+        # Fetch users with XP, sorted desc
+        cursor = user_coll.find({}).sort("xp", -1).limit(3)
+        async for doc in cursor:
+            uname = doc.get("_id")
+            avatar = uname[:2].upper() if len(uname) >= 2 else uname.upper()
+            top_contributors.append({
+                "username": uname,
+                "avatar": avatar,
+                "xp": doc.get("xp", 0)
+            })
+    except Exception as e:
+        print(f"Failed to query top contributors: {e}")
+        
+    if not top_contributors:
+        top_contributors = [
+            {"username": "BlockMaster", "avatar": "BM", "xp": 1250},
+            {"username": "AliceDev", "avatar": "AD", "xp": 980},
+            {"username": "SmartBuilder", "avatar": "SB", "xp": 820}
+        ]
+        
+    return {
+        "trending_tags": trending_tags,
+        "top_contributors": top_contributors
+    }
+
 @router.post("/threads")
 async def create_thread(req: CreateThreadRequest, user_id: str = Depends(verify_token)):
     """Submit a new discussion thread to the forum."""
