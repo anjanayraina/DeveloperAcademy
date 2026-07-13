@@ -42,3 +42,15 @@ class ForumPost(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     related_level_id: Optional[int] = Field(default=None, ge=1, le=6)
+
+class CreateThreadRequest(BaseModel):
+    title: str
+    author: str
+    category: str  # "Question" | "Discussion" | "Showcase" | "Help" | "Announcement"
+    content: str
+    tags: List[str]
+
+class CreateCommentRequest(BaseModel):
+    author: str
+    content: str
+

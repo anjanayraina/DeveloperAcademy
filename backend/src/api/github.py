@@ -5,8 +5,8 @@ import random
 import httpx
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from src.services.db import get_collection, get_or_create_user, log_github_activity
+from src.models.progress import GitHubSyncRequest
 
 router = APIRouter()
 
@@ -20,9 +20,7 @@ MOCK_MESSAGES = [
     "feat: add HD Wallet BIP-44 key derivation script"
 ]
 
-class GitHubSyncRequest(BaseModel):
-    user_id: str
-    github_username: str
+
 
 @router.get("/activity/{user_id}")
 async def get_github_activity(user_id: str):

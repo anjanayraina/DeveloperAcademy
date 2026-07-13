@@ -3,16 +3,11 @@ Exercise API Router — handles Solidity code submissions, checks required synta
 awards XP, and records submissions in the database.
 """
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from src.services.lessons import LESSONS_DB
 from src.services.db import log_exercise_submission, get_or_create_user
+from src.models.progress import ExerciseSubmission
 
 router = APIRouter()
-
-class ExerciseSubmission(BaseModel):
-    user_id: str
-    lesson_id: str
-    code: str
 
 @router.post("/submit")
 async def submit_exercise(sub: ExerciseSubmission):

@@ -38,6 +38,135 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   if (!progress) return null;
 
+  // ─── Dynamic Analytics Computations ──────────────────────────────────────────
+  
+  // Level Percentages (L1 to L6)
+  const getLevelPct = (levelId: number) => {
+    const lvl = progress.levels.find(l => l.level_id === levelId);
+    if (!lvl || lvl.total_lessons === 0) return 0;
+    return Math.round((lvl.completed_lessons / lvl.total_lessons) * 100);
+  };
+
+  const lvl1 = getLevelPct(1);
+  const lvl2 = getLevelPct(2);
+  const lvl3 = getLevelPct(3);
+  const lvl4 = getLevelPct(4);
+  const lvl5 = getLevelPct(5);
+  const lvl6 = getLevelPct(6);
+
+  // Skill mappings (weights calculated from lesson levels)
+  const soliditySkill = Math.round((lvl2 + lvl3) / 2) || 10;
+  const smartContractsSkill = Math.round((lvl2 + lvl3 + lvl5) / 3) || 10;
+  const defiSkill = Math.round((lvl4 + lvl5) / 2) || 10;
+  const web3Skill = lvl1 || 10;
+  const securitySkill = Math.round((lvl3 + lvl6) / 2) || 10;
+  const daoSkill = lvl6 || 10;
+
+  const getSkillBadge = (pct: number) => {
+    if (pct < 20) return "Beginner";
+    if (pct < 50) return "Intermediate";
+    if (pct < 80) return "Advanced";
+    return "Expert";
+  };
+
+  // SVG Radar Chart (Hexagon Vertices Coordinates Generator)
+  const getRadarPoint = (angleRad: number, pct: number) => {
+    const radius = 10 + (pct / 100) * 70; // Map 0%-100% to radius 10px-80px
+    const x = 100 + radius * Math.cos(angleRad);
+    const y = 100 + radius * Math.sin(angleRad);
+    return `${Math.round(x)},${Math.round(y)}`;
+  };
+
+  const p1 = getRadarPoint(-Math.PI / 2, soliditySkill);      // Solidity (top)
+  const p2 = getRadarPoint(-Math.PI / 6, smartContractsSkill);  // Smart Contracts
+  const p3 = getRadarPoint(Math.PI / 6, defiSkill);            // DeFi
+  const p4 = getRadarPoint(Math.PI / 2, web3Skill);            // Web3.js
+  const p5 = getRadarPoint(5 * Math.PI / 6, securitySkill);     // Security
+  const p6 = getRadarPoint(7 * Math.PI / 6, daoSkill);          // DAO
+
+  const radarPoints = `${p1} ${p2} ${p3} ${p4} ${p5} ${p6}`;
+
+  // Dynamic Line Chart Path (Calculates cumulative XP growth over time)
+  const getDynamicLinePath = () => {
+    const attempts = progress.quiz_attempts || [];
+    const exercises = progress.exercises_submitted || [];
+    const commits = progress.github_activities || [];
+    
+    const events = [
+      ...attempts.map(a => ({ type: 'quiz', date: new Date(a.attempted_at), xp: 50 })),
+      ...exercises.map(e => ({ type: 'exercise', date: new Date(e.submitted_at), xp: 100 })),
+      ...commits.map(c => ({ type: 'commit', date: new Date(c.committed_at), xp: 20 }))
+    ].sort((a, b) => a.date.getTime() - b.date.getTime());
+    
+    if (events.length === 0) {
+      return {
+        linePath: "M 20 130 C 140 120, 260 110, 380 90",
+        areaPath: "M 20 130 C 140 120, 260 110, 380 90 L 380 150 L 20 150 Z"
+      };
+    }
+    
+    let currentXp = 0;
+    const xpPoints = [{ x: 20, y: 130 }];
+    const totalXp = Math.max(100, progress.xp);
+    
+    events.forEach((ev, idx) => {
+      currentXp += ev.xp;
+      const x = 20 + ((idx + 1) / events.length) * 360;
+      const ratio = Math.min(1, currentXp / totalXp);
+      const y = 140 - ratio * 110; // Maps to Y coordinates 140px to 30px
+      xpPoints.push({ x, y });
+    });
+    
+    let linePath = `M ${xpPoints[0].x} ${xpPoints[0].y}`;
+    for (let i = 1; i < xpPoints.length; i++) {
+      linePath += ` L ${Math.round(xpPoints[i].x)} ${Math.round(xpPoints[i].y)}`;
+    }
+    
+    const areaPath = `${linePath} L ${Math.round(xpPoints[xpPoints.length - 1].x)} 150 L 20 150 Z`;
+    
+    return { linePath, areaPath };
+  };
+
+  const { linePath, areaPath } = getDynamicLinePath();
+
+  // Course Stats
+  const attempts = progress.quiz_attempts || [];
+  const avgQuizScore = attempts.length > 0
+    ? Math.round(attempts.reduce((acc, cur) => acc + cur.score, 0) / attempts.length)
+    : 0;
+
+  const lessonsCompletedCount = progress.levels.reduce((a, l) => a + l.completed_lessons, 0);
+  const timeSpent = Math.max(2, Math.round(lessonsCompletedCount * 0.4 + (progress.xp / 100)));
+
+  const getLowestProgressLevelName = () => {
+    const pcts = [
+      { name: "Blockchain Fundamentals (L1)", pct: lvl1 },
+      { name: "Solidity Basics (L2)", pct: lvl2 },
+      { name: "Solidity Advanced (L3)", pct: lvl3 },
+      { name: "DeFi Foundations (L4)", pct: lvl4 },
+      { name: "DeFi Advanced (L5)", pct: lvl5 },
+      { name: "DAO Foundations (L6)", pct: lvl6 }
+    ].filter(item => item.pct < 100);
+    
+    if (pcts.length === 0) return "None (All Level 6 Mastered!)";
+    pcts.sort((a, b) => a.pct - b.pct);
+    return pcts[0].name;
+  };
+  const improvementArea = getLowestProgressLevelName();
+
+  const getBestLearningTime = () => {
+    const hours = attempts.map(a => new Date(a.attempted_at).getHours());
+    if (hours.length === 0) return "Day Learner: 12PM - 4PM";
+    const eveningCount = hours.filter(h => h >= 17).length;
+    const morningCount = hours.filter(h => h < 12).length;
+    if (eveningCount > morningCount) return "Evening Learner: 6PM - 10PM";
+    if (morningCount > eveningCount) return "Early Bird: 8AM - 11AM";
+    return "Day Learner: 12PM - 4PM";
+  };
+  const bestLearningTime = getBestLearningTime();
+
+  // ─── Event handlers ─────────────────────────────────────────────────────────
+
   const handleSyncGitHub = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!githubUsername.trim()) return;
@@ -132,15 +261,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <div className="stat-card">
               <div className="stat-card__icon">📚</div>
-              <div className="stat-card__val">
-                {progress.levels.reduce((a, l) => a + l.completed_lessons, 0)}
-              </div>
+              <div className="stat-card__val">{lessonsCompletedCount}</div>
               <div className="stat-card__lbl">Lessons Completed</div>
             </div>
             <div className="stat-card">
               <div className="stat-card__icon">🏆</div>
               <div className="stat-card__val">
-                {progress.levels.filter(l => l.completed_lessons >= l.total_lessons).length}
+                {progress.levels.filter(l => l.completed_lessons >= l.total_lessons && l.total_lessons > 0).length}
               </div>
               <div className="stat-card__lbl">Levels Cleared</div>
             </div>
@@ -161,18 +288,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </linearGradient>
                     </defs>
                     <path
-                      d="M 20 130 C 80 110, 140 120, 200 80 C 260 40, 320 60, 380 20"
+                      d={linePath}
                       fill="none"
                       stroke="var(--clr-primary-light)"
                       strokeWidth="3.5"
                       strokeLinecap="round"
                     />
                     <path
-                      d="M 20 130 C 80 110, 140 120, 200 80 C 260 40, 320 60, 380 20 L 380 150 L 20 150 Z"
+                      d={areaPath}
                       fill="url(#chart-grad)"
                     />
-                    <circle cx="200" cy="80" r="5" fill="white" stroke="var(--clr-primary-light)" strokeWidth="2" />
-                    <circle cx="380" cy="20" r="5" fill="white" stroke="var(--clr-primary-light)" strokeWidth="2" />
                     {/* Y Axis Gridlines */}
                     <line x1="20" y1="140" x2="380" y2="140" stroke="rgba(255,255,255,0.05)" />
                     <line x1="20" y1="80" x2="380" y2="80" stroke="rgba(255,255,255,0.05)" />
@@ -187,14 +312,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', marginBottom: 16 }}>
                   Link your account to track commits, pulls, and unlock custom XP rewards.
                 </p>
-                {(progress as any).github_username ? (
+                {progress.github_username ? (
                   <div className="github-linked-state">
                     <span className="github-linked-label">Linked Username:</span>
-                    <strong className="github-linked-val">@{(progress as any).github_username}</strong>
+                    <strong className="github-linked-val">@{progress.github_username}</strong>
                     <button className="btn btn--secondary btn--sm" style={{marginLeft: 'auto'}} onClick={() => {
-                      setGithubUsername((progress as any).github_username);
+                      setGithubUsername(progress.github_username || '');
                       setSyncing(true);
-                      postGithubSync(userId, (progress as any).github_username).then(res => {
+                      postGithubSync(userId, progress.github_username || '').then(res => {
                         onProgressUpdate(res.user_progress);
                         alert("Commits synced successfully!");
                       }).catch(e => console.error(e)).finally(() => setSyncing(false));
@@ -228,23 +353,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <div className="skills-progress-list">
                   <div className="skill-row">
                     <span className="skill-lbl">Solidity</span>
-                    <ProgressBar value={78} color="var(--clr-primary)" height={6} showPct={false} />
-                    <span className="skill-badge">Advanced</span>
+                    <ProgressBar value={soliditySkill} color="var(--clr-primary)" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(soliditySkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">Smart Contracts</span>
-                    <ProgressBar value={82} color="#0891b2" height={6} showPct={false} />
-                    <span className="skill-badge">Advanced</span>
+                    <ProgressBar value={smartContractsSkill} color="#0891b2" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(smartContractsSkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">DeFi Protocol</span>
-                    <ProgressBar value={65} color="#059669" height={6} showPct={false} />
-                    <span className="skill-badge">Intermediate</span>
+                    <ProgressBar value={defiSkill} color="#059669" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(defiSkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">Web3.js</span>
-                    <ProgressBar value={70} color="#d97706" height={6} showPct={false} />
-                    <span className="skill-badge">Advanced</span>
+                    <ProgressBar value={web3Skill} color="#d97706" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(web3Skill)}</span>
                   </div>
                 </div>
               </div>
@@ -279,18 +404,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="courses-stats-grid">
             <div className="c-stat-card glass">
               <span className="c-stat-lbl">Average Quiz Score</span>
-              <span className="c-stat-val">91.7%</span>
-              <span className="c-stat-trend text--success">↑ +12% from last month</span>
+              <span className="c-stat-val">{avgQuizScore}%</span>
+              <span className="c-stat-trend text--success">↑ Based on {attempts.length} attempts</span>
             </div>
             <div className="c-stat-card glass">
               <span className="c-stat-lbl">Completion Rate</span>
               <span className="c-stat-val">{progress.overall_pct}%</span>
-              <span className="c-stat-trend text--success">↑ +8% from last week</span>
+              <span className="c-stat-trend text--success">Total roadmap percentage</span>
             </div>
             <div className="c-stat-card glass">
               <span className="c-stat-lbl">Time Spent Learning</span>
-              <span className="c-stat-val">34h</span>
-              <span className="c-stat-trend text--success">↑ +10% from last month</span>
+              <span className="c-stat-val">{timeSpent}h</span>
+              <span className="c-stat-trend text--success">Total learning estimation</span>
             </div>
             <div className="c-stat-card glass">
               <span className="c-stat-lbl">Day Streak</span>
@@ -306,30 +431,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <h3 className="panel-title">Progress Over Time</h3>
                 <div className="svg-chart-container">
                   <svg className="svg-line-chart" viewBox="0 0 400 160">
-                    {/* Line 1 - Quizzes */}
                     <path
-                      d="M 20 120 C 80 110, 140 90, 200 60 C 260 50, 320 30, 380 10"
+                      d={linePath}
                       fill="none"
                       stroke="#a855f7"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
-                    {/* Line 2 - Exercises */}
-                    <path
-                      d="M 20 140 C 80 130, 140 120, 200 90 C 260 80, 320 50, 380 30"
-                      fill="none"
-                      stroke="#3b82f6"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <legend>
-                      <circle cx="200" cy="60" r="4" fill="#a855f7" />
-                      <circle cx="200" cy="90" r="4" fill="#3b82f6" />
-                    </legend>
+                    <line x1="20" y1="140" x2="380" y2="140" stroke="rgba(255,255,255,0.05)" />
+                    <line x1="20" y1="80" x2="380" y2="80" stroke="rgba(255,255,255,0.05)" />
                   </svg>
                   <div className="chart-legend-labels">
-                    <span style={{color: '#a855f7'}}>● Quiz Average</span>
-                    <span style={{color: '#3b82f6'}}>● Coding Exercises</span>
+                    <span style={{color: '#a855f7'}}>● Dynamic XP Progress Path</span>
                   </div>
                 </div>
               </div>
@@ -344,7 +457,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <span className="insight-icon">⏰</span>
                     <div>
                       <div className="insight-name">Best Learning Time</div>
-                      <div className="insight-desc">7PM - 10PM (You're most active then!)</div>
+                      <div className="insight-desc">{bestLearningTime}</div>
                     </div>
                   </div>
                   <div className="insight-card">
@@ -358,7 +471,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <span className="insight-icon">⚠️</span>
                     <div>
                       <div className="insight-name">Improvement Area</div>
-                      <div className="insight-desc">DAO Architectures (Focus more here)</div>
+                      <div className="insight-desc">{improvementArea}</div>
                     </div>
                   </div>
                 </div>
@@ -394,7 +507,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                     {/* Skill radar filled polygon */}
                     <polygon
-                      points="100,32 152,65 142,125 100,145 61,120 48,75"
+                      points={radarPoints}
                       fill="rgba(168, 85, 247, 0.25)"
                       stroke="#c084fc"
                       strokeWidth="2"
@@ -419,33 +532,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <div className="skills-progress-list">
                   <div className="skill-row">
                     <span className="skill-lbl">Solidity</span>
-                    <ProgressBar value={78} color="var(--clr-primary)" height={6} showPct={false} />
-                    <span className="skill-badge">Advanced</span>
+                    <ProgressBar value={soliditySkill} color="var(--clr-primary)" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(soliditySkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">Smart Contracts</span>
-                    <ProgressBar value={82} color="#0891b2" height={6} showPct={false} />
-                    <span className="skill-badge">Advanced</span>
+                    <ProgressBar value={smartContractsSkill} color="#0891b2" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(smartContractsSkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">DeFi Protocol</span>
-                    <ProgressBar value={65} color="#059669" height={6} showPct={false} />
-                    <span className="skill-badge">Intermediate</span>
+                    <ProgressBar value={defiSkill} color="#059669" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(defiSkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">Web3.js</span>
-                    <ProgressBar value={70} color="#d97706" height={6} showPct={false} />
-                    <span className="skill-badge">Advanced</span>
+                    <ProgressBar value={web3Skill} color="#d97706" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(web3Skill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">Security</span>
-                    <ProgressBar value={60} color="#dc2626" height={6} showPct={false} />
-                    <span className="skill-badge">Intermediate</span>
+                    <ProgressBar value={securitySkill} color="#dc2626" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(securitySkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">DAO Architecture</span>
-                    <ProgressBar value={45} color="#475569" height={6} showPct={false} />
-                    <span className="skill-badge">Beginner</span>
+                    <ProgressBar value={daoSkill} color="#475569" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(daoSkill)}</span>
                   </div>
                 </div>
               </div>

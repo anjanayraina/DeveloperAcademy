@@ -4,23 +4,9 @@ Templates are stored as inline strings for the MVP; move to disk/DB later.
 """
 from typing import List
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from src.models.templates import TemplateMetadata, CodeTemplate
 
 router = APIRouter()
-
-
-# ─── Template registry ────────────────────────────────────────────────────────
-class TemplateMetadata(BaseModel):
-    id: str
-    title: str
-    description: str
-    language: str
-    level_id: int
-    tags: List[str] = []
-
-
-class CodeTemplate(TemplateMetadata):
-    code: str
 
 
 _TEMPLATES: dict[str, CodeTemplate] = {

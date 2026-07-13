@@ -4,22 +4,10 @@ Hackathons API Router — handles hackathon event retrievals, user registrations
 from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
 from src.services.db import get_collection, get_hackathons_collection, get_or_create_user
+from src.models.hackathon import RegisterRequest, SubmitProjectRequest
 
 router = APIRouter()
-
-class RegisterRequest(BaseModel):
-    user_id: str
-
-class SubmitProjectRequest(BaseModel):
-    user_id: str
-    project_name: str
-    tagline: str
-    description: str
-    video_link: str
-    code_link: str
-    team_size: int = 1
 
 @router.get("")
 async def get_hackathons(user_id: Optional[str] = Query(None)):

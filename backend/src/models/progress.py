@@ -35,3 +35,18 @@ class ProgressUpdate(BaseModel):
     level_id: int = Field(..., ge=1, le=6)
     completed_lessons: int = Field(..., ge=0)
     xp_gained: int = Field(default=0, ge=0)
+
+class ExerciseSubmission(BaseModel):
+    user_id: str
+    lesson_id: str
+    code: str
+
+class QuizSubmission(BaseModel):
+    user_id: str
+    lesson_id: str
+    answers: List[int]
+
+class GitHubSyncRequest(BaseModel):
+    user_id: str
+    github_username: str
+

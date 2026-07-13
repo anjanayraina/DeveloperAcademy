@@ -5,21 +5,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
 from src.services.db import get_forum_collection
+from src.models.forum import CreateThreadRequest, CreateCommentRequest
 
 router = APIRouter()
-
-class CreateThreadRequest(BaseModel):
-    title: str
-    author: str
-    category: str  # "Question" | "Discussion" | "Showcase" | "Help" | "Announcement"
-    content: str
-    tags: List[str]
-
-class CreateCommentRequest(BaseModel):
-    author: str
-    content: str
 
 @router.get("/threads")
 async def get_threads(

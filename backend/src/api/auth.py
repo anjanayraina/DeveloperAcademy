@@ -8,17 +8,9 @@ from src.config import settings
 from src.services.db import get_or_create_user
 from eth_account import Account
 from eth_account.messages import encode_defunct
+from src.models.auth import GithubAuthRequest, WalletAuthRequest, LinkGithubRequest, LinkWalletRequest
 
 router = APIRouter()
-
-class GithubAuthRequest(BaseModel):
-    username: str | None = None
-    code: str | None = None
-
-class WalletAuthRequest(BaseModel):
-    address: str
-    message: str | None = None
-    signature: str | None = None
 
 @router.post("/github")
 async def auth_github(req: GithubAuthRequest):
@@ -106,16 +98,7 @@ async def get_auth_config():
         "github_redirect_uri": settings.github_redirect_uri
     }
 
-class LinkGithubRequest(BaseModel):
-    user_id: str
-    code: str | None = None
-    username: str | None = None
 
-class LinkWalletRequest(BaseModel):
-    user_id: str
-    address: str
-    message: str | None = None
-    signature: str | None = None
 
 @router.post("/link-github")
 async def link_github(req: LinkGithubRequest):

@@ -44,3 +44,16 @@ class Hackathon(BaseModel):
     ends_at: datetime
     is_active: bool = False
     entries: List[HackathonEntry] = []
+
+class RegisterRequest(BaseModel):
+    user_id: str
+
+class SubmitProjectRequest(BaseModel):
+    user_id: str
+    project_name: str
+    tagline: str
+    description: str
+    video_link: str
+    code_link: str
+    team_size: int = 1
+

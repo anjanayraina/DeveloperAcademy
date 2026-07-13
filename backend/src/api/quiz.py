@@ -3,16 +3,11 @@ Quiz API Routers — handles submission, evaluation, grading, and XP awards for 
 """
 from typing import List
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from src.services.lessons import LESSONS_DB
 from src.services.db import log_quiz_attempt, complete_lesson_for_user, get_or_create_user
+from src.models.progress import QuizSubmission
 
 router = APIRouter()
-
-class QuizSubmission(BaseModel):
-    user_id: str
-    lesson_id: str
-    answers: List[int] # List of chosen option indexes
 
 @router.post("/submit")
 async def submit_quiz(sub: QuizSubmission):
