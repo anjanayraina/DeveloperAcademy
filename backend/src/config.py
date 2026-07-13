@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     github_redirect_uri: str = "http://localhost:5173"
 
     # LLM
-    default_llm: str = "mock"  # "mock" | "claude" | "hermes"
+    default_llm: str = "mock" 
     claude_api_key: str = ""
     hermes_api_url: str = "http://localhost:11434/v1"
     hermes_model: str = "hermes-3-llama-3.1-8b"

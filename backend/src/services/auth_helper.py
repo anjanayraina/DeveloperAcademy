@@ -1,6 +1,3 @@
-"""
-JWT Authentication Helper — generates and decodes access tokens for secure endpoints.
-"""
 import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi import Header, HTTPException, status
