@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 from fastapi import Header, HTTPException, status
 from src.config import settings
 
-SECRET_KEY = getattr(settings, "secret_key", "developer-academy-super-secret-key-1337-signature-verify")
-ALGORITHM = "HS256"
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.jwt_algorithm
 
 def create_access_token(user_id: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(hours=24)
