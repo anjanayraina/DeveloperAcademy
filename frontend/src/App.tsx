@@ -48,6 +48,7 @@ export default function App() {
   // Auth state
   const [userId, setUserId] = useState<string>(initialSession?.userId || '');
   const [authType, setAuthType] = useState<'github' | 'wallet' | null>(initialSession?.authType || null);
+  const [loginError, setLoginError] = useState<string | null>(null);
   
   // Progress & curriculum states
   const [progress, setProgress] = useState<UserProgress | null>(null);
@@ -132,6 +133,7 @@ export default function App() {
 
   const handleLoginGitHub = async () => {
     try {
+      setLoginError(null);
       setLoading(true);
       const config = await fetchAuthConfig();
       if (config.github_client_id && config.github_client_id.trim()) {
@@ -169,6 +171,7 @@ export default function App() {
   };
 
   const handleLoginWallet = async () => {
+    setLoginError(null);
     const win = window as any;
     if (win.ethereum) {
       try {
@@ -198,7 +201,7 @@ export default function App() {
         return;
       } catch (err: any) {
         console.error("Wallet signature auth failed:", err);
-        alert(err.message || "Failed to authenticate wallet.");
+        setLoginError(err.message || "Failed to authenticate wallet.");
         return;
       } finally {
         setLoading(false);
@@ -227,7 +230,7 @@ export default function App() {
       setActivePage('roadmap');
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Failed to connect wallet.");
+      setLoginError(err.message || "Failed to connect wallet.");
     } finally {
       setLoading(false);
     }
@@ -394,6 +397,7 @@ export default function App() {
       <Login
         onLoginGitHub={handleLoginGitHub}
         onLoginWallet={handleLoginWallet}
+        error={loginError}
         loading={loading}
       />
     );

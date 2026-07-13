@@ -5,12 +5,14 @@ import './Login.css';
 interface LoginProps {
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
+  error: string | null;
   loading: boolean;
 }
 
 export const Login: React.FC<LoginProps> = ({
   onLoginGitHub,
   onLoginWallet,
+  error,
   loading,
 }) => {
   return (
@@ -46,6 +48,13 @@ export const Login: React.FC<LoginProps> = ({
             <button className="btn btn--secondary login-btn login-btn--github" onClick={onLoginGitHub}>
               🐱 Continue with GitHub
             </button>
+
+            {error && (
+              <div className="login-error-banner animate-fade-up">
+                <span className="login-error-banner__icon">⚠️</span>
+                <span className="login-error-banner__text">{error}</span>
+              </div>
+            )}
           </div>
         )}
 

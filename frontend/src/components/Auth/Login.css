@@ -184,6 +184,33 @@
   font-size: 0.9rem;
 }
 
+/* Styled Inline Error Banner */
+.login-error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(243, 139, 168, 0.1);
+  border: 1px solid rgba(243, 139, 168, 0.25);
+  border-radius: var(--radius-md, 8px);
+  padding: 14px 16px;
+  text-align: left;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(243, 139, 168, 0.05);
+}
+
+.login-error-banner__icon {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.login-error-banner__text {
+  font-size: 0.82rem;
+  color: #f38ba8;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+
 /* Registration Flow Styles */
 .reg-container {
   display: flex;
