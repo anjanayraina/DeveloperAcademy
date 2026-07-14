@@ -9,15 +9,21 @@
 }
 
 .lessons-list-back {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--clr-text-muted);
-  margin-bottom: 12px;
+  color: var(--clr-text-muted) !important;
+  margin-bottom: 24px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
 }
 
 .lessons-list-back:hover {
-  color: var(--clr-text-primary);
+  color: var(--clr-text-primary) !important;
 }
 
 .lessons-list-title {

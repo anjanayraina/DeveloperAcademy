@@ -161,6 +161,15 @@ async def get_or_create_user(user_id: str, auth_type: str = "demo") -> Dict[str,
             user["levels"] = user.get("levels", []) + [new_lvl_7]
             updates["levels"] = user["levels"]
             updated = True
+        
+        # Self-healing: ensure Level 7 has total_lessons=20
+        levels_list = user.get("levels", [])
+        for lvl in levels_list:
+            if lvl["level_id"] == 7 and lvl.get("total_lessons") != 20:
+                lvl["total_lessons"] = 20
+                updates["levels"] = levels_list
+                updated = True
+
         if updated:
             await coll.update_one({"_id": user["_id"]}, {"$set": updates})
             

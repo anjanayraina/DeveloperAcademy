@@ -36,6 +36,7 @@ async def update_active_track(user_id: str = Query(...), track: str = Query(...)
         if lvl["level_id"] == 7:
             lvl["title"] = f"{track.capitalize()} Track"
             lvl["completed_lessons"] = 0
+            lvl["total_lessons"] = 20
             lvl["completed_at"] = None
             
     await coll.update_one(

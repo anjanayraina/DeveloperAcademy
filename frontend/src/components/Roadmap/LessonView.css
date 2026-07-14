@@ -229,6 +229,7 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--clr-border);
   background: var(--clr-bg);
+  color: #e2e8f0;
   text-align: left;
   cursor: pointer;
   transition: all 0.2s;
@@ -254,6 +255,20 @@
   border-color: var(--clr-danger) !important;
   background: rgba(239, 68, 68, 0.08) !important;
   color: var(--clr-danger);
+}
+
+.quiz-option:disabled {
+  color: #e2e8f0;
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+.quiz-option--correct:disabled {
+  color: var(--clr-success) !important;
+}
+
+.quiz-option--incorrect:disabled {
+  color: var(--clr-danger) !important;
 }
 
 .option-marker {
