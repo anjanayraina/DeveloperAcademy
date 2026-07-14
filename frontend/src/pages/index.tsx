@@ -10,9 +10,19 @@ interface RoadmapPageProps {
   progress: UserProgress | null;
   loading: boolean;
   onSelectLevel: (levelId: number) => void;
+  userId: string;
+  token: string;
+  onProgressUpdate: (updatedProgress: UserProgress) => void;
 }
-export const RoadmapPage: React.FC<RoadmapPageProps> = ({ progress, loading, onSelectLevel }) => (
-  <RoadmapView progress={progress} loading={loading} onSelectLevel={onSelectLevel} />
+export const RoadmapPage: React.FC<RoadmapPageProps> = ({ progress, loading, onSelectLevel, userId, token, onProgressUpdate }) => (
+  <RoadmapView
+    progress={progress}
+    loading={loading}
+    onSelectLevel={onSelectLevel}
+    userId={userId}
+    token={token}
+    onProgressUpdate={onProgressUpdate}
+  />
 );
 
 // ── Dashboard Page ────────────────────────────────────────────────────────────

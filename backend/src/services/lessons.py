@@ -376,8 +376,120 @@ Morpheus is a decentralized network that connects AI Compute Providers, Smart Ag
     )
 }
 
-def get_courses_list() -> List[Course]:
-    """Compile courses from levels metadata and lesson details."""
+TRACK_TOPICS = {
+    "ethereum": [
+        "Ethereum Architecture", "ERC-20 Standard", "ERC-721 Standard", "ERC-1155 Standard",
+        "Account Abstraction", "Ethereum Security", "Ethereum Public Goods", "Smart Contract Development"
+    ],
+    "arbitrum": [
+        "Arbitrum Deployment", "Nitro Architecture", "Arbitrum Orbit L3s", "Arbitrum DeFi Protocols",
+        "Stylus (Rust/C++) Development", "Building on Arbitrum", "Arbitrum Hackathons"
+    ],
+    "optimism": [
+        "OP Stack Architecture", "Superchain Interoperability", "Optimism Governance",
+        "Retroactive Public Goods Funding", "Optimism Deployment", "Optimism Developer Tooling"
+    ],
+    "polygon": [
+        "Polygon PoS Chain", "Polygon CDK Framework", "zkEVM Rollups", "Polygon Smart Contracts",
+        "Polygon Consumer dApps"
+    ],
+    "base": [
+        "Base Ecosystem & MOR", "Onchain Applications", "Coinbase Wallet Integrations",
+        "Base Smart Contract Deployment", "Base Hackathons & Grants"
+    ],
+    "solana": [
+        "Solana High-Throughput Architecture", "Solana Accounts Model", "Anchor Framework & Rust",
+        "Solana Program Security", "Solana DeFi Pools"
+    ],
+    "avalanche": [
+        "Avalanche Subnet Deployments", "Avalanche Consensus Engine", "Avalanche Virtual Machine (AVM)",
+        "Avalanche Warp Messaging (AWM)", "Avalanche DeFi Integration"
+    ]
+}
+
+def get_track_lessons(track_id: str) -> List[Lesson]:
+    track_id = track_id.lower()
+    topics = TRACK_TOPICS.get(track_id, TRACK_TOPICS["ethereum"])
+    lessons = []
+    
+    # 1. Add core lessons
+    for idx, topic in enumerate(topics):
+        lesson_num = idx + 1
+        lessons.append(
+            Lesson(
+                id=f"7-{lesson_num}",
+                level_id=7,
+                title=topic,
+                duration="12 mins",
+                xp=150,
+                content=f"""# {topic}
+                
+This is an official module on the **{track_id.upper()} Ecosystem Track**.
+
+### Core Objective:
+In this module, you will learn the architecture, smart contract conventions, and deployment workflows for **{topic}**. 
+
+### Concepts Covered:
+1. **Infrastructure**: Setup local test nodes and RPC bindings.
+2. **Implementation**: Code optimization and standards.
+3. **Security**: Common vulnerabilities and verification tools.
+""",
+                quiz=[
+                    QuizQuestion(
+                        question=f"Which of the following is true about {topic}?",
+                        options=[
+                            "It represents a specialized ecosystem feature and implementation standard.",
+                            "It is a generic database scaling protocol completely unrelated to blockchains.",
+                            "It requires writing client-side assembly layouts only.",
+                            "It cannot be deployed to local test networks."
+                        ],
+                        correct_idx=0
+                    )
+                ],
+                exercise=CodingExercise(
+                    instruction=f"Write a comment referencing the {topic.lower()} standard. Include the keyword '{track_id}'.",
+                    template=f"// Ecosystem: {track_id}\n",
+                    required_keywords=[track_id]
+                )
+            )
+        )
+        
+    # 2. Add mock filler lessons up to 20 total
+    for idx in range(len(topics), 20):
+        lesson_num = idx + 1
+        sub_topic = f"{track_id.capitalize()} Deep Dive Module {lesson_num - len(topics)}"
+        lessons.append(
+            Lesson(
+                id=f"7-{lesson_num}",
+                level_id=7,
+                title=sub_topic,
+                duration="10 mins",
+                xp=100,
+                content=f"""# {sub_topic}
+
+Explore auxiliary protocols, developer documentation, and ecosystem grants for {track_id.capitalize()} development.
+""",
+                quiz=[
+                    QuizQuestion(
+                        question=f"What is the purpose of the {sub_topic} module?",
+                        options=[
+                            "To gain deeper familiarity with developer integrations.",
+                            "To compile general layout styling rules."
+                        ],
+                        correct_idx=0
+                    )
+                ],
+                exercise=CodingExercise(
+                    instruction="Write a comment with the word 'completed'.",
+                    template="// Status:\n",
+                    required_keywords=["completed"]
+                )
+            )
+        )
+    return lessons
+
+def get_courses_list(track: str = "ethereum") -> List[Course]:
+    """Compile courses from levels metadata and lesson details, incorporating dynamic track lessons."""
     levels_meta = [
         {"id": 1, "title": "Blockchain Fundamentals"},
         {"id": 2, "title": "Wallet Development"},
@@ -385,11 +497,15 @@ def get_courses_list() -> List[Course]:
         {"id": 4, "title": "DeFi Fundamentals"},
         {"id": 5, "title": "DAO Governance"},
         {"id": 6, "title": "MOR Finance Protocols"},
+        {"id": 7, "title": f"{track.capitalize()} Track"},
     ]
     courses = []
     for lm in levels_meta:
         level_id = lm["id"]
-        lessons = [l for l in LESSONS_DB.values() if l.level_id == level_id]
+        if level_id == 7:
+            lessons = get_track_lessons(track)
+        else:
+            lessons = [l for l in LESSONS_DB.values() if l.level_id == level_id]
         courses.append(
             Course(
                 level_id=level_id,

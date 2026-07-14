@@ -10,6 +10,7 @@ interface LessonViewProps {
   onBack: () => void;
   onProgressUpdate: (updatedProgress: UserProgress) => void;
   token: string;
+  activeTrack?: string;
 }
 
 export const LessonView: React.FC<LessonViewProps> = ({
@@ -18,6 +19,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
   onBack,
   onProgressUpdate,
   token,
+  activeTrack = 'ethereum',
 }) => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
   useEffect(() => {
     setLoading(true);
-    fetchLesson(lessonId)
+    fetchLesson(lessonId, activeTrack)
       .then((data) => {
         setLesson(data);
         if (data.exercise) {

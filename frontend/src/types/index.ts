@@ -15,6 +15,7 @@ export interface UserProgress {
   streak_days: number;
   current_level: number;
   overall_pct: number;
+  active_track?: string;
   levels: LevelProgress[];
   last_active: string | null;
   github_username?: string;

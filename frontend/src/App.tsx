@@ -125,12 +125,13 @@ export default function App() {
     }
   }, []);
 
-  // Load curriculum metadata once on mount
+  // Load curriculum metadata reactively when user active track changes
   useEffect(() => {
-    fetchCourses()
+    const track = progress?.active_track || 'ethereum';
+    fetchCourses(track)
       .then(setCourses)
       .catch((err) => console.error("Error fetching courses:", err));
-  }, []);
+  }, [progress?.active_track]);
 
   // Fetch progress reactively when user identity changes
   useEffect(() => {
@@ -417,6 +418,7 @@ export default function App() {
                 onBack={() => setSelectedLessonId(null)}
                 onProgressUpdate={handleProgressUpdate}
                 token={jwtToken || ''}
+                activeTrack={progress?.active_track || 'ethereum'}
               />
             ) : selectedLevel != null ? (
                <LessonsList
@@ -431,6 +433,9 @@ export default function App() {
                 progress={progress}
                 loading={loading}
                 onSelectLevel={setSelectedLevel}
+                userId={userId}
+                token={jwtToken || ''}
+                onProgressUpdate={handleProgressUpdate}
               />
             )
           } />

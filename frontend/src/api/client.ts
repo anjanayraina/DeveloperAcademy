@@ -128,15 +128,24 @@ export async function authWallet(
 }
 
 // ─── Courses & Lessons ────────────────────────────────────────────────────────
-export async function fetchCourses(): Promise<Course[]> {
-  const res = await fetch(`${BASE}/courses`);
+export async function fetchCourses(track = 'ethereum'): Promise<Course[]> {
+  const res = await fetch(`${BASE}/courses?track=${track}`);
   if (!res.ok) throw new Error(`Failed to fetch courses: ${res.status}`);
   return res.json();
 }
 
-export async function fetchLesson(lessonId: string): Promise<Lesson> {
-  const res = await fetch(`${BASE}/courses/lessons/${lessonId}`);
+export async function fetchLesson(lessonId: string, track = 'ethereum'): Promise<Lesson> {
+  const res = await fetch(`${BASE}/courses/lessons/${lessonId}?track=${track}`);
   if (!res.ok) throw new Error(`Failed to fetch lesson: ${res.status}`);
+  return res.json();
+}
+
+export async function postActiveTrack(userId: string, track: string, token: string): Promise<UserProgress> {
+  const res = await fetch(`${BASE}/progress/track?user_id=${userId}&track=${track}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error(`Failed to update active track: ${res.status}`);
   return res.json();
 }
 

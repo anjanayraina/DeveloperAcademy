@@ -3,7 +3,7 @@ Progress Tracking API — GET and POST user progress.
 Integrates with the MongoDB database store.
 """
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from src.services.db import get_or_create_user, save_user_progress, complete_lesson_for_user
 
 router = APIRouter()
@@ -65,3 +65,24 @@ async def reset_progress(user_id: str):
     await coll.delete_one({"_id": user_id})
     new_user = await get_or_create_user(user_id)
     return {"status": "ok", "user_progress": new_user}
+
+@router.post("/track")
+async def update_active_track(user_id: str, track: str):
+    """Update active learning track for a user (Ethereum, Arbitrum, etc.)."""
+    from src.services.db import get_collection, get_or_create_user
+    coll = get_collection()
+    user = await get_or_create_user(user_id)
+    track = track.lower()
+    
+    levels = user.get("levels", [])
+    for lvl in levels:
+        if lvl["level_id"] == 7:
+            lvl["title"] = f"{track.capitalize()} Track"
+            lvl["completed_lessons"] = 0
+            lvl["completed_at"] = None
+            
+    await coll.update_one(
+        {"_id": user_id},
+        {"$set": {"active_track": track, "levels": levels}}
+    )
+    return await get_or_create_user(user_id)

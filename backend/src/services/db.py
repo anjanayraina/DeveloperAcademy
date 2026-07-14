@@ -15,6 +15,7 @@ LEVEL_META = [
     {"level_id": 4, "title": "DeFi Fundamentals",        "total_lessons": 1},
     {"level_id": 5, "title": "DAO Governance",            "total_lessons": 1},
     {"level_id": 6, "title": "MOR Finance Protocols",    "total_lessons": 1},
+    {"level_id": 7, "title": "Ecosystem Track",           "total_lessons": 20},
 ]
 
 class Database:
@@ -86,6 +87,7 @@ def create_default_user_dict(user_id: str, auth_type: str) -> Dict[str, Any]:
         "streak_days": 0,
         "current_level": 1,
         "overall_pct": 0.0,
+        "active_track": "ethereum",
         "levels": levels,
         "last_active": datetime.now(timezone.utc),
         "registered_at": datetime.now(timezone.utc),
@@ -141,6 +143,23 @@ async def get_or_create_user(user_id: str, auth_type: str = "demo") -> Dict[str,
         elif user_id.startswith("gh-") and "github_username" not in user:
             user["github_username"] = user_id.replace("gh-", "")
             updates["github_username"] = user_id.replace("gh-", "")
+            updated = True
+        if "active_track" not in user:
+            user["active_track"] = "ethereum"
+            updates["active_track"] = "ethereum"
+            updated = True
+        if not any(l["level_id"] == 7 for l in user.get("levels", [])):
+            lvl_meta_7 = next(m for m in LEVEL_META if m["level_id"] == 7)
+            new_lvl_7 = {
+                "level_id": 7,
+                "title": f"{user.get('active_track', 'ethereum').capitalize()} Track",
+                "completed_lessons": 0,
+                "total_lessons": lvl_meta_7["total_lessons"],
+                "is_unlocked": False,
+                "completed_at": None,
+            }
+            user["levels"] = user.get("levels", []) + [new_lvl_7]
+            updates["levels"] = user["levels"]
             updated = True
         if updated:
             await coll.update_one({"_id": user["_id"]}, {"$set": updates})
