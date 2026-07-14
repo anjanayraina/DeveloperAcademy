@@ -1,0 +1,13 @@
+.about-page {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+  .about-page {
+    padding: 20px !important;
+  }
+  .about-page div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}

@@ -12,19 +12,22 @@ import { CertificatesView } from './components/Certificates/CertificatesView';
 import { Login } from './components/Auth/Login';
 import { ForumView } from './components/Forum/ForumView';
 import { HackathonsView } from './components/Hackathons/HackathonsView';
+import { LandingPage } from './components/Auth/LandingPage';
+import { AboutPage } from './components/About/AboutPage';
 import './index.css';
 
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getActivePage = (): 'roadmap' | 'dashboard' | 'forum' | 'hackathons' | 'certificates' | 'mentor' => {
+  const getActivePage = (): NavPage => {
     const path = location.pathname;
     if (path.startsWith('/dashboard')) return 'dashboard';
     if (path.startsWith('/forum')) return 'forum';
     if (path.startsWith('/hackathons')) return 'hackathons';
     if (path.startsWith('/mentor')) return 'mentor';
     if (path.startsWith('/certificates')) return 'certificates';
+    if (path.startsWith('/about')) return 'about';
     return 'roadmap';
   };
   const activePage = getActivePage();
@@ -358,15 +361,22 @@ export default function App() {
   };
 
   if (!authType) {
-    if (location.pathname !== '/login') {
-      return <Navigate to="/login" replace />;
+    if (location.pathname === '/login') {
+      return (
+        <Login
+          onLoginGitHub={handleLoginGitHub}
+          onLoginWallet={handleLoginWallet}
+          error={loginError}
+          loading={loading}
+        />
+      );
     }
     return (
-      <Login
+      <LandingPage
         onLoginGitHub={handleLoginGitHub}
         onLoginWallet={handleLoginWallet}
-        error={loginError}
         loading={loading}
+        error={loginError}
       />
     );
   }
@@ -437,6 +447,7 @@ export default function App() {
           <Route path="/hackathons" element={<HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} token={jwtToken || ''} />} />
           <Route path="/mentor" element={<MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />} />
           <Route path="/certificates" element={<CertificatesView userId={userId} />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
