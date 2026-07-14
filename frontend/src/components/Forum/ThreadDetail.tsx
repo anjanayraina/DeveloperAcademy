@@ -46,9 +46,30 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({
             <h1 className="thread-detail-title" style={{ margin: 0, flex: 1 }}>{thread.title}</h1>
             {thread.author === currentUserId && onDeleteThread && (
               <button
-                className="btn btn--danger btn--sm"
+                className="forum-delete-btn"
                 onClick={() => onDeleteThread(thread.thread_id)}
-                style={{ padding: '6px 12px', fontSize: '0.75rem', flexShrink: 0, backgroundColor: '#ef4444', border: 'none', color: '#white' }}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  flexShrink: 0,
+                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '6px',
+                  color: '#f87171',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.16)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  e.currentTarget.style.color = '#ef4444';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                  e.currentTarget.style.color = '#f87171';
+                }}
               >
                 🗑️ Delete Thread
               </button>
@@ -86,9 +107,29 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({
                 </div>
                 {comment.author === currentUserId && onDeleteComment && (
                   <button
-                    className="btn btn--text"
+                    className="forum-delete-btn"
                     onClick={() => onDeleteComment(comment.comment_id)}
-                    style={{ color: '#ef4444', fontSize: '0.75rem', padding: '2px 8px', cursor: 'pointer', background: 'transparent', border: 'none' }}
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '4px',
+                      color: 'var(--clr-text-muted)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                      e.currentTarget.style.color = '#f87171';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                      e.currentTarget.style.color = 'var(--clr-text-muted)';
+                    }}
                   >
                     🗑️ Delete
                   </button>
