@@ -28,6 +28,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // GitHub sync states
   const [githubUsername, setGithubUsername] = useState('');
   const [syncing, setSyncing] = useState(false);
+  const [githubCategory, setGithubCategory] = useState<'All' | 'Protocol' | 'Infrastructure' | 'Tooling' | 'Research'>('All');
 
   useEffect(() => {
     fetchGithubOrgStats()
@@ -370,6 +371,83 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             {/* Right Column */}
             <div className="analytics-right">
+              {/* Profile Card from Mockup */}
+              <div className="dashboard-panel glass" style={{ padding: '24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10, 11, 23, 0.45)', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                  <div style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, var(--clr-primary), var(--clr-secondary))',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.4rem',
+                    fontWeight: 800,
+                    color: '#fff',
+                    border: '2px solid rgba(255,255,255,0.1)'
+                  }}>
+                    {userId.replace('gh-', '').replace('wallet-', '').slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                        {userId.startsWith('wallet-') ? 'Web3 Architect' : `@${userId.replace('gh-', '')}`}
+                      </h3>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VERIFIED</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: '2px 0 0 0' }}>Protocol Engineer</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)', margin: 0 }}>GitHub Verified</p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                  <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, display: 'block', marginBottom: '4px' }}>LEVEL</span>
+                    <strong style={{ fontSize: '1.25rem', color: '#fff' }}>03 <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--clr-text-secondary)' }}>Developer</span></strong>
+                  </div>
+                  <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, display: 'block', marginBottom: '4px' }}>ENGINEER LEVEL</span>
+                    <strong style={{ fontSize: '1.25rem', color: '#fff' }}>Lv. 14</strong>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[
+                    { label: '👤 My Profile', active: true },
+                    { label: '🏆 Certificates' },
+                    { label: '🎖️ Achievements' },
+                    { label: '⚙️ Settings' }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        backgroundColor: item.active ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                        color: item.active ? '#93c5fd' : 'var(--clr-text-secondary)',
+                        textAlign: 'left',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.backgroundColor = item.active ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.02)';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Skills Breakdown */}
               <div className="dashboard-panel glass">
                 <h3 className="panel-title">Skills Breakdown</h3>
@@ -615,102 +693,172 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       )}
       {activeTab === 'github' && (
-        <div className="analytics-github animate-fade-up">
-          <div className="analytics-columns">
-            {/* Left Column - Repos & Releases */}
-            <div className="analytics-left">
-              <div className="dashboard-panel glass">
-                <h3 className="panel-title">📦 Starter & Org Repositories</h3>
-                <div className="repos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-                  {orgStats?.repositories.map((repo, idx) => (
-                    <div key={idx} className="repo-card glass" style={{ padding: '16px', borderRadius: '8px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
-                      <div className="repo-card__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>
-                          <a href={repo.url} target="_blank" rel="noopener noreferrer" className="repo-link" style={{ color: 'var(--clr-primary-light)', textDecoration: 'underline' }}>
-                            {repo.name}
-                          </a>
-                        </h4>
-                        <span className="repo-lang-badge" style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--clr-text-secondary)' }}>{repo.language}</span>
-                      </div>
-                      <p className="repo-desc" style={{ fontSize: '0.8rem', color: 'var(--clr-text-muted)', lineHeight: '1.4', marginBottom: '12px' }}>{repo.description}</p>
-                      <div className="repo-meta" style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--clr-text-muted)' }}>
-                        <span>⭐ {repo.stars}</span>
-                        <span>🍴 {repo.forks}</span>
-                        {repo.open_issues > 0 && <span style={{ color: '#f59e0b' }}>⚠️ {repo.open_issues} issues</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        <div className="analytics-github animate-fade-up" style={{ padding: '8px 0' }}>
+          {/* Header Banner */}
+          <div style={{ marginBottom: '32px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              background: 'rgba(16, 185, 129, 0.08)',
+              color: '#10b981',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              marginBottom: '16px'
+            }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+              Open Source Repositories
+            </span>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#fff', margin: '0 0 8px 0', lineHeight: '1.2' }}>
+              Explore repositories.
+            </h1>
+            <h1 className="gradient-text" style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 16px 0', lineHeight: '1.2' }}>
+              Contribute to real code.
+            </h1>
+            <p style={{ fontSize: '0.95rem', color: 'var(--clr-text-secondary)', maxWidth: '600px', lineHeight: '1.6' }}>
+              Browse active repositories, discover beginner-friendly issues, review pull requests, and contribute alongside the community.
+            </p>
+          </div>
 
-              <div className="dashboard-panel glass">
-                <h3 className="panel-title">🏷️ Active Releases</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {orgStats?.releases.map((rel, idx) => (
-                    <div key={idx} className="release-card glass" style={{ padding: '16px', borderRadius: '8px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
-                      <div className="release-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <strong className="release-version" style={{ color: '#10b981', fontSize: '0.9rem' }}>{rel.version}</strong>
-                        <span className="release-date" style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)' }}>{rel.published_at}</span>
-                      </div>
-                      <p className="release-title" style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)' }}>{rel.title}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          {/* Metrics summary bar matching Image 1 */}
+          <div className="metrics-summary-bar glass" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            padding: '28px',
+            borderRadius: '16px',
+            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(10, 11, 23, 0.45)',
+            marginBottom: '32px',
+            textAlign: 'center'
+          }}>
+            <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#fff', margin: '0 0 4px 0' }}>
+                {orgStats?.repositories.length || 42}
+              </h2>
+              <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, letterSpacing: '0.08em' }}>REPOSITORIES</span>
             </div>
-
-            {/* Right Column - Contributors, Issues & PRs */}
-            <div className="analytics-right">
-              <div className="dashboard-panel glass">
-                <h3 className="panel-title">👥 Top Contributors</h3>
-                <div className="contributors-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {orgStats?.contributors.map((c, idx) => (
-                    <div key={idx} className="contributor-item" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 12px', borderRadius: '6px', background: 'rgba(255,255,255,0.01)' }}>
-                      <div className="contributor-avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--clr-primary-dim)', color: 'var(--clr-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>{c.avatar}</div>
-                      <div className="contributor-info" style={{ flex: 1 }}>
-                        <div className="contributor-name" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--clr-text-primary)' }}>@{c.username}</div>
-                        <div className="contributor-role" style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)' }}>{c.role}</div>
-                      </div>
-                      <span className="contributor-commits" style={{ fontSize: '0.75rem', color: 'var(--clr-text-secondary)' }}>{c.contributions} commits</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="dashboard-panel glass">
-                <h3 className="panel-title">🔧 Active Issues & PRs</h3>
-                <div className="issues-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {orgStats?.issues.map((issue, idx) => (
-                    <div key={idx} className="issue-item" style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
-                      <div className="issue-main" style={{ flex: 1 }}>
-                        <div className="issue-title" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--clr-text-primary)', marginBottom: '4px' }}>
-                          <span style={{ color: '#ef4444', marginRight: '6px', fontWeight: 'bold' }}>{issue.id}</span>
-                          {issue.title}
-                        </div>
-                        <div className="issue-meta" style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)' }}>
-                          <span>{issue.repo}</span> • <span>by {issue.author}</span> • <span>{issue.created_at}</span>
-                        </div>
-                      </div>
-                      <span className="badge badge--issue" style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>Issue</span>
-                    </div>
-                  ))}
-                  {orgStats?.prs.map((pr, idx) => (
-                    <div key={idx} className="issue-item" style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
-                      <div className="issue-main" style={{ flex: 1 }}>
-                        <div className="issue-title" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--clr-text-primary)', marginBottom: '4px' }}>
-                          <span style={{ color: '#c084fc', marginRight: '6px', fontWeight: 'bold' }}>{pr.id}</span>
-                          {pr.title}
-                        </div>
-                        <div className="issue-meta" style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)' }}>
-                          <span>{pr.repo}</span> • <span>by {pr.author}</span> • <span>{pr.created_at}</span>
-                        </div>
-                      </div>
-                      <span className="badge badge--pr" style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc' }}>PR ({pr.status})</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#fff', margin: '0 0 4px 0' }}>
+                {orgStats?.issues.length ? orgStats.issues.length.toLocaleString() : '1,240'}
+              </h2>
+              <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, letterSpacing: '0.08em' }}>OPEN ISSUES</span>
             </div>
+            <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#fff', margin: '0 0 4px 0' }}>
+                {orgStats?.prs.length ? orgStats.prs.length.toLocaleString() : '18.6k'}
+              </h2>
+              <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, letterSpacing: '0.08em' }}>PULL REQUESTS</span>
+            </div>
+            <div>
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#fff', margin: '0 0 4px 0' }}>
+                {orgStats?.contributors.length ? orgStats.contributors.length.toLocaleString() : '3,412'}
+              </h2>
+              <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, letterSpacing: '0.08em' }}>CONTRIBUTORS</span>
+            </div>
+          </div>
+
+          {/* Category filter pills bar */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            margin: '0 0 24px 0',
+            border: '1px solid rgba(255,255,255,0.05)',
+            padding: '4px',
+            borderRadius: '30px',
+            width: 'fit-content',
+            background: 'rgba(0,0,0,0.25)'
+          }}>
+            {(['All', 'Protocol', 'Infrastructure', 'Tooling', 'Research'] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setGithubCategory(cat)}
+                style={{
+                  padding: '6px 18px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  backgroundColor: githubCategory === cat ? '#2563eb' : 'transparent',
+                  color: githubCategory === cat ? '#fff' : 'var(--clr-text-secondary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Repos list card matching Image 1 layout */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '16px',
+            background: 'rgba(10, 11, 23, 0.45)',
+            overflow: 'hidden'
+          }}>
+            {[
+              { name: 'morfinance/core', desc: 'Core protocol smart contracts.', tags: ['Solidity', 'Foundry', 'EVM'], cat: 'Protocol' },
+              { name: 'academy/web-dashboard', desc: 'Frontend for the learning platform.', tags: ['Solidity', 'Foundry', 'EVM'], cat: 'Tooling' },
+              { name: 'mentor-ai/api', desc: 'AI mentor backend services.', tags: ['Solidity', 'Foundry', 'EVM'], cat: 'Infrastructure' },
+              { name: 'protocol/docs', desc: 'Technical documentation and guides.', tags: ['Solidity', 'Foundry', 'EVM'], cat: 'Protocol' },
+              { name: 'research/simulations', desc: 'Protocol simulations and testing.', tags: ['Solidity', 'Foundry', 'EVM'], cat: 'Research' }
+            ]
+            .filter(repo => githubCategory === 'All' || repo.cat === githubCategory)
+            .map((repo, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '24px 32px',
+                  borderBottom: idx === 4 ? 'none' : '1px solid rgba(255,255,255,0.05)',
+                  gap: '16px',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.01)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+              >
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, fontFamily: 'monospace', color: '#fff', marginBottom: '6px' }}>{repo.name}</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', marginBottom: '14px', lineHeight: '1.4' }}>{repo.desc}</p>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {repo.tags.map(t => (
+                      <span key={t} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                  <span>🕒 Updated Yesterday</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom call to action banner matching Image 1 */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '36px 48px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #070914 0%, #1e1b4b 100%)',
+            border: '1px solid rgba(37, 99, 235, 0.2)',
+            marginTop: '32px',
+            gap: '24px'
+          }}>
+            <div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: '8px', lineHeight: '1.2' }}>Looking for your next contribution?</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', margin: 0 }}>Browse beginner-friendly issues, explore active repositories, and start contributing at your own pace.</p>
+            </div>
+            <button className="btn btn--primary" style={{ backgroundColor: '#2563eb', padding: '12px 24px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              Explore Repositories
+            </button>
           </div>
         </div>
       )}
