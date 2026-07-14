@@ -442,5 +442,29 @@ export async function fetchGithubOrgStats(): Promise<GithubOrgStats> {
   return res.json();
 }
 
+export async function deleteThread(threadId: string, token: string): Promise<any> {
+  const res = await fetch(`${BASE}/forum/threads/${threadId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || `Failed to delete thread: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function deleteComment(threadId: string, commentId: string, token: string): Promise<any> {
+  const res = await fetch(`${BASE}/forum/threads/${threadId}/comments/${commentId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || `Failed to delete comment: ${res.status}`);
+  }
+  return res.json();
+}
+
 
 

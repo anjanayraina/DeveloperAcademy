@@ -9,6 +9,9 @@ interface ThreadDetailProps {
   onBack: () => void;
   formatAuthor: (author: string) => string;
   getCategoryColor: (cat: string) => string;
+  currentUserId?: string;
+  onDeleteThread?: (threadId: string) => void;
+  onDeleteComment?: (commentId: string) => void;
 }
 
 export const ThreadDetail: React.FC<ThreadDetailProps> = ({
@@ -19,6 +22,9 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({
   onBack,
   formatAuthor,
   getCategoryColor,
+  currentUserId,
+  onDeleteThread,
+  onDeleteComment,
 }) => {
   return (
     <div className="thread-view-container">
@@ -36,7 +42,18 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({
           >
             {thread.category}
           </span>
-          <h1 className="thread-detail-title">{thread.title}</h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginTop: '8px', marginBottom: '8px' }}>
+            <h1 className="thread-detail-title" style={{ margin: 0, flex: 1 }}>{thread.title}</h1>
+            {thread.author === currentUserId && onDeleteThread && (
+              <button
+                className="btn btn--danger btn--sm"
+                onClick={() => onDeleteThread(thread.thread_id)}
+                style={{ padding: '6px 12px', fontSize: '0.75rem', flexShrink: 0, backgroundColor: '#ef4444', border: 'none', color: '#white' }}
+              >
+                🗑️ Delete Thread
+              </button>
+            )}
+          </div>
           <div className="thread-meta-info">
             <span>Posted by <strong>{formatAuthor(thread.author)}</strong></span>
             <span>•</span>
@@ -61,10 +78,21 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({
 
         <div className="comments-list">
           {thread.comments.map((comment) => (
-            <div key={comment.comment_id} className="comment-card glass">
-              <div className="comment-header">
-                <span className="comment-author">{formatAuthor(comment.author)}</span>
-                <span className="comment-date">{new Date(comment.created_at).toLocaleString()}</span>
+            <div key={comment.comment_id} className="comment-card glass" style={{ position: 'relative' }}>
+              <div className="comment-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span className="comment-author">{formatAuthor(comment.author)}</span>
+                  <span className="comment-date">{new Date(comment.created_at).toLocaleString()}</span>
+                </div>
+                {comment.author === currentUserId && onDeleteComment && (
+                  <button
+                    className="btn btn--text"
+                    onClick={() => onDeleteComment(comment.comment_id)}
+                    style={{ color: '#ef4444', fontSize: '0.75rem', padding: '2px 8px', cursor: 'pointer', background: 'transparent', border: 'none' }}
+                  >
+                    🗑️ Delete
+                  </button>
+                )}
               </div>
               <div className="comment-body">
                 {comment.content}

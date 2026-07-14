@@ -174,3 +174,40 @@ async def create_comment(thread_id: str, req: CreateCommentRequest, user_id: str
     )
     
     return new_comment
+
+@router.delete("/threads/{thread_id}")
+async def delete_thread(thread_id: str, user_id: str = Depends(verify_token)):
+    """Delete a discussion thread. Only the author can delete it."""
+    coll = get_forum_collection()
+    thread = await coll.find_one({"_id": thread_id})
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread not found")
+    if thread.get("author") != user_id:
+        raise HTTPException(status_code=403, detail="Forbidden: Only the author can delete this thread")
+        
+    await coll.delete_one({"_id": thread_id})
+    return {"status": "success", "message": "Thread deleted"}
+
+@router.delete("/threads/{thread_id}/comments/{comment_id}")
+async def delete_comment(thread_id: str, comment_id: str, user_id: str = Depends(verify_token)):
+    """Delete a comment reply. Only the author of the comment can delete it."""
+    coll = get_forum_collection()
+    thread = await coll.find_one({"_id": thread_id})
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread not found")
+    
+    comments = thread.get("comments", [])
+    target = next((c for c in comments if c.get("comment_id") == comment_id), None)
+    if not target:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if target.get("author") != user_id:
+        raise HTTPException(status_code=403, detail="Forbidden: Only the author can delete this comment")
+        
+    await coll.update_one(
+        {"_id": thread_id},
+        {
+            "$pull": {"comments": {"comment_id": comment_id}},
+            "$inc": {"replies_count": -1}
+        }
+    )
+    return {"status": "success", "message": "Comment deleted"}

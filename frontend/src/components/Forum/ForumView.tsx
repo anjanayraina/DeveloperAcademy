@@ -86,6 +86,46 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
     }
   };
 
+  const handleDeleteThread = async (threadId: string) => {
+    if (!window.confirm("Are you sure you want to delete this thread? This action cannot be undone.")) return;
+    try {
+      setLoading(true);
+      const { deleteThread } = await import('../../api/client');
+      await deleteThread(threadId, token);
+      setSelectedThread(null);
+      setSubPage('home');
+      // Reload threads list
+      const updated = await fetchForumThreads(
+        activeCategory === 'All Topics' ? undefined : activeCategory,
+        searchQuery.trim() || undefined
+      );
+      setThreads(updated);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to delete thread.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!selectedThread) return;
+    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    try {
+      setLoading(true);
+      const { deleteComment } = await import('../../api/client');
+      await deleteComment(selectedThread.thread_id, commentId, token);
+      // Reload thread
+      const thread = await fetchForumThread(selectedThread.thread_id);
+      setSelectedThread(thread);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to delete comment.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
@@ -156,6 +196,9 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
           onBack={() => setSubPage('home')}
           formatAuthor={formatAuthor}
           getCategoryColor={getCategoryColor}
+          currentUserId={userId}
+          onDeleteThread={handleDeleteThread}
+          onDeleteComment={handleDeleteComment}
         />
       )}
 
