@@ -14,6 +14,36 @@ async def get_progress(user_id: str):
     user = await get_or_create_user(user_id)
     return user
 
+@router.post("/reset")
+async def reset_progress(user_id: str = Query(...)):
+    """Reset all learning progress for a user."""
+    from src.services.db import get_collection, get_or_create_user
+    coll = get_collection()
+    await coll.delete_one({"_id": user_id})
+    new_user = await get_or_create_user(user_id)
+    return {"status": "ok", "user_progress": new_user}
+
+@router.post("/track")
+async def update_active_track(user_id: str = Query(...), track: str = Query(...)):
+    """Update active learning track for a user (Ethereum, Arbitrum, etc.)."""
+    from src.services.db import get_collection, get_or_create_user
+    coll = get_collection()
+    user = await get_or_create_user(user_id)
+    track = track.lower()
+    
+    levels = user.get("levels", [])
+    for lvl in levels:
+        if lvl["level_id"] == 7:
+            lvl["title"] = f"{track.capitalize()} Track"
+            lvl["completed_lessons"] = 0
+            lvl["completed_at"] = None
+            
+    await coll.update_one(
+        {"_id": user_id},
+        {"$set": {"active_track": track, "levels": levels}}
+    )
+    return await get_or_create_user(user_id)
+
 @router.post("/{user_id}")
 async def update_progress(user_id: str, level_id: int, completed_lessons: int, xp_gained: int):
     """Directly update lesson completion and XP for a given level in MongoDB."""
@@ -55,34 +85,4 @@ async def update_progress(user_id: str, level_id: int, completed_lessons: int, x
     }
     
     await save_user_progress(user_id, update_payload)
-    return await get_or_create_user(user_id)
-
-@router.post("/reset")
-async def reset_progress(user_id: str):
-    """Reset all learning progress for a user."""
-    from src.services.db import get_collection, get_or_create_user
-    coll = get_collection()
-    await coll.delete_one({"_id": user_id})
-    new_user = await get_or_create_user(user_id)
-    return {"status": "ok", "user_progress": new_user}
-
-@router.post("/track")
-async def update_active_track(user_id: str, track: str):
-    """Update active learning track for a user (Ethereum, Arbitrum, etc.)."""
-    from src.services.db import get_collection, get_or_create_user
-    coll = get_collection()
-    user = await get_or_create_user(user_id)
-    track = track.lower()
-    
-    levels = user.get("levels", [])
-    for lvl in levels:
-        if lvl["level_id"] == 7:
-            lvl["title"] = f"{track.capitalize()} Track"
-            lvl["completed_lessons"] = 0
-            lvl["completed_at"] = None
-            
-    await coll.update_one(
-        {"_id": user_id},
-        {"$set": {"active_track": track, "levels": levels}}
-    )
     return await get_or_create_user(user_id)
