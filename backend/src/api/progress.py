@@ -56,3 +56,12 @@ async def update_progress(user_id: str, level_id: int, completed_lessons: int, x
     
     await save_user_progress(user_id, update_payload)
     return await get_or_create_user(user_id)
+
+@router.post("/reset")
+async def reset_progress(user_id: str):
+    """Reset all learning progress for a user."""
+    from src.services.db import get_collection, get_or_create_user
+    coll = get_collection()
+    await coll.delete_one({"_id": user_id})
+    new_user = await get_or_create_user(user_id)
+    return {"status": "ok", "user_progress": new_user}

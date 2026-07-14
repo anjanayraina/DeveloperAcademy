@@ -3,6 +3,7 @@ import type { UserProgress } from '../../types';
 import { ProgressBar } from './ProgressBar';
 import { postGithubSync, fetchGithubOrgStats } from '../../api/client';
 import type { GithubOrgStats } from '../../api/client';
+import { CertificatesView } from '../Certificates/CertificatesView';
 import './Dashboard.css';
 
 interface DashboardProps {
@@ -23,6 +24,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   token,
 }) => {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview');
+  const [overviewSubView, setOverviewSubView] = useState<'profile' | 'certificates' | 'achievements' | 'settings'>('profile');
   const [orgStats, setOrgStats] = useState<GithubOrgStats | null>(null);
   
   // GitHub sync states
@@ -49,7 +51,40 @@ export const Dashboard: React.FC<DashboardProps> = ({
   if (!progress) return null;
 
   // ─── Dynamic Analytics Computations ──────────────────────────────────────────
-  
+  const getDeveloperTitle = (level: number) => {
+    if (level >= 6) return "Protocol Engineer";
+    if (level >= 5) return "Senior Auditor";
+    if (level >= 4) return "DeFi Architect";
+    if (level >= 3) return "Smart Contract Developer";
+    if (level >= 2) return "Solidity Apprentice";
+    return "Web3 Novice";
+  };
+
+  const getLevelLabel = (level: number) => {
+    if (level >= 6) return "Engineer";
+    if (level >= 5) return "Auditor";
+    if (level >= 4) return "Architect";
+    if (level >= 3) return "Developer";
+    if (level >= 2) return "Apprentice";
+    return "Novice";
+  };
+
+  const getFormattedUsername = () => {
+    if (progress.github_username) return `@${progress.github_username}`;
+    if (userId.startsWith('gh-')) return `@${userId.replace('gh-', '')}`;
+    const addr = progress.wallet_address || userId.replace('wallet-', '');
+    if (addr.startsWith('0x') && addr.length === 42) {
+      return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+    }
+    return addr || 'Web3 Architect';
+  };
+
+  const isGithubUser = progress.github_username || userId.startsWith('gh-');
+  const isWalletUser = progress.wallet_address || userId.startsWith('wallet-');
+  const verificationText = isGithubUser && isWalletUser ? 'Multi-verified' : isGithubUser ? 'GitHub Verified' : 'Wallet Verified';
+
+  const engineerLevel = Math.max(1, Math.floor((progress?.xp ?? 0) / 100) + 1);
+
   // Level Percentages (L1 to L6)
   const getLevelPct = (levelId: number) => {
     const lvl = progress.levels.find(l => l.level_id === levelId);
@@ -237,6 +272,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
   };
 
+  const achievements = [
+    { id: '1', title: 'Genesis Block', desc: 'Completed Level 1 lessons and laid the foundation.', icon: '⛓️', unlocked: (progress?.current_level ?? 1) > 1 },
+    { id: '2', title: 'Solidity Compiler', desc: 'Submitted your first smart contract practice exercise.', icon: '💻', unlocked: (progress?.exercises_submitted?.length ?? 0) > 0 },
+    { id: '3', title: 'Quiz Master', desc: 'Earned 100% score on any Academy assessment quiz.', icon: '🧠', unlocked: (progress?.quiz_attempts?.some(a => a.score === 100) ?? false) },
+    { id: '4', title: 'DAO Explorer', desc: 'Unlocked the Level 5 DAO Governance curriculum.', icon: '🏛️', unlocked: (progress?.current_level ?? 1) >= 5 },
+    { id: '5', title: 'Open Source Contributor', desc: 'Linked your GitHub profile to your developer identity.', icon: '🐱', unlocked: !!progress?.github_username },
+    { id: '6', title: 'Ecosystem Builder', desc: 'Accumulated over 1,000 developer experience points (XP).', icon: '⚡', unlocked: (progress?.xp ?? 0) >= 1000 },
+  ];
+
   return (
     <div className="dashboard">
       {/* Dashboard Sub-Header / Tab Navigation */}
@@ -300,73 +344,192 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="analytics-columns">
             {/* Left Column */}
             <div className="analytics-left">
-              {/* Learning Progress Line Chart */}
-              <div className="dashboard-panel glass">
-                <h3 className="panel-title">Learning Progress</h3>
-                <div className="svg-chart-container">
-                  <svg className="svg-line-chart" viewBox="0 0 400 160">
-                    <defs>
-                      <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--clr-primary)" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="var(--clr-primary)" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <path
-                      d={linePath}
-                      fill="none"
-                      stroke="var(--clr-primary-light)"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d={areaPath}
-                      fill="url(#chart-grad)"
-                    />
-                    {/* Y Axis Gridlines */}
-                    <line x1="20" y1="140" x2="380" y2="140" stroke="rgba(255,255,255,0.05)" />
-                    <line x1="20" y1="80" x2="380" y2="80" stroke="rgba(255,255,255,0.05)" />
-                    <line x1="20" y1="20" x2="380" y2="20" stroke="rgba(255,255,255,0.05)" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* GitHub Sync panel */}
-              <div className="dashboard-panel glass">
-                <h3 className="panel-title">🐱 Sync GitHub Contributions</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', marginBottom: 16 }}>
-                  Link your account to track commits, pulls, and unlock custom XP rewards.
-                </p>
-                {progress.github_username ? (
-                  <div className="github-linked-state">
-                    <span className="github-linked-label">Linked Username:</span>
-                    <strong className="github-linked-val">@{progress.github_username}</strong>
-                    <button className="btn btn--secondary btn--sm" style={{marginLeft: 'auto'}} onClick={() => {
-                      setGithubUsername(progress.github_username || '');
-                      setSyncing(true);
-                      postGithubSync(userId, progress.github_username || '', token).then(res => {
-                        onProgressUpdate(res.user_progress);
-                        alert("Commits synced successfully!");
-                      }).catch(e => console.error(e)).finally(() => setSyncing(false));
-                    }}>
-                      🔄 Re-Sync Commits
-                    </button>
+              {overviewSubView === 'profile' && (
+                <>
+                  {/* Learning Progress Line Chart */}
+                  <div className="dashboard-panel glass">
+                    <h3 className="panel-title">Learning Progress</h3>
+                    <div className="svg-chart-container">
+                      <svg className="svg-line-chart" viewBox="0 0 400 160">
+                        <defs>
+                          <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="var(--clr-primary)" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="var(--clr-primary)" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          d={linePath}
+                          fill="none"
+                          stroke="var(--clr-primary-light)"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d={areaPath}
+                          fill="url(#chart-grad)"
+                        />
+                        {/* Y Axis Gridlines */}
+                        <line x1="20" y1="140" x2="380" y2="140" stroke="rgba(255,255,255,0.05)" />
+                        <line x1="20" y1="80" x2="380" y2="80" stroke="rgba(255,255,255,0.05)" />
+                        <line x1="20" y1="20" x2="380" y2="20" stroke="rgba(255,255,255,0.05)" />
+                      </svg>
+                    </div>
                   </div>
-                ) : (
-                  <form onSubmit={handleSyncGitHub} className="github-sync-form">
-                    <input
-                      type="text"
-                      placeholder="GitHub Username"
-                      value={githubUsername}
-                      onChange={(e) => setGithubUsername(e.target.value)}
-                      className="github-sync-input"
-                      required
-                    />
-                    <button type="submit" className="btn btn--primary btn--sm" disabled={syncing}>
-                      {syncing ? 'Syncing...' : 'Sync Contributions'}
-                    </button>
-                  </form>
-                )}
-              </div>
+
+                  {/* GitHub Sync panel */}
+                  <div className="dashboard-panel glass">
+                    <h3 className="panel-title">🐱 Sync GitHub Contributions</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', marginBottom: 16 }}>
+                      Link your account to track commits, pulls, and unlock custom XP rewards.
+                    </p>
+                    {progress.github_username ? (
+                      <div className="github-linked-state">
+                        <span className="github-linked-label">Linked Username:</span>
+                        <strong className="github-linked-val">@{progress.github_username}</strong>
+                        <button className="btn btn--secondary btn--sm" style={{marginLeft: 'auto'}} onClick={() => {
+                          setGithubUsername(progress.github_username || '');
+                          setSyncing(true);
+                          postGithubSync(userId, progress.github_username || '', token).then(res => {
+                            onProgressUpdate(res.user_progress);
+                            alert("Commits synced successfully!");
+                          }).catch(e => console.error(e)).finally(() => setSyncing(false));
+                        }}>
+                          🔄 Re-Sync Commits
+                        </button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleSyncGitHub} className="github-sync-form">
+                        <input
+                          type="text"
+                          placeholder="GitHub Username"
+                          value={githubUsername}
+                          onChange={(e) => setGithubUsername(e.target.value)}
+                          className="github-sync-input"
+                          required
+                        />
+                        <button type="submit" className="btn btn--primary btn--sm" disabled={syncing}>
+                          {syncing ? 'Syncing...' : 'Sync Contributions'}
+                        </button>
+                      </form>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {overviewSubView === 'certificates' && (
+                <div className="dashboard-panel glass animate-fade-up" style={{ padding: '0px', border: 'none', background: 'transparent' }}>
+                  <CertificatesView userId={userId} />
+                </div>
+              )}
+
+              {overviewSubView === 'achievements' && (
+                <div className="dashboard-panel glass animate-fade-up" style={{ padding: '24px' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>Developer Achievements</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', marginBottom: '24px' }}>
+                    Unlock achievements and badges by completing lesson objectives, compiler tasks, and identity connections.
+                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                    {achievements.map((ach) => (
+                      <div key={ach.id} className="glass" style={{
+                        padding: '20px',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        background: ach.unlocked ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255, 255, 255, 0.01)',
+                        opacity: ach.unlocked ? 1 : 0.6,
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>{ach.icon}</div>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{ach.title}</h4>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', lineHeight: '1.4', marginBottom: '12px' }}>{ach.desc}</p>
+                        <span style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          color: ach.unlocked ? '#10b981' : '#6b7280',
+                          background: ach.unlocked ? 'rgba(16, 185, 129, 0.1)' : 'rgba(107, 114, 128, 0.1)',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          {ach.unlocked ? '🏆 Unlocked' : '🔒 Locked'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {overviewSubView === 'settings' && (
+                <div className="dashboard-panel glass animate-fade-up" style={{ padding: '24px' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>Identity & Settings</h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', marginBottom: '24px' }}>
+                    Manage your connected credentials, reset educational progress, and customize workspace models.
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: '0 0 4px 0' }}>🐱 GitHub Integration</h4>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: 0 }}>
+                          {progress?.github_username ? `Connected as @${progress.github_username}` : 'Not connected'}
+                        </p>
+                      </div>
+                      {progress?.github_username ? (
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 10px', borderRadius: '4px' }}>Connected</span>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)' }}>Not Connected</span>
+                      )}
+                    </div>
+
+                    <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: '0 0 4px 0' }}>🦊 Wallet Connection</h4>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: 0, wordBreak: 'break-all' }}>
+                          {progress?.wallet_address ? `Connected: ${progress.wallet_address}` : 'Not connected'}
+                        </p>
+                      </div>
+                      {progress?.wallet_address ? (
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 10px', borderRadius: '4px' }}>Connected</span>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)' }}>Not Connected</span>
+                      )}
+                    </div>
+
+                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+
+                    <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                      <div style={{ flex: 1, minWidth: '240px' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fca5a5', margin: '0 0 4px 0' }}>⚠️ Reset Learning History</h4>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: 0 }}>
+                          This will wipe your compiled exercises, quiz scores, and XP points. This action is irreversible.
+                        </p>
+                      </div>
+                      <button className="btn" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 16px', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer' }}
+                              onClick={async () => {
+                                if (confirm("Are you sure you want to reset all progress? This will clear your compiler submissions and quiz history!")) {
+                                  try {
+                                    const res = await fetch(`http://localhost:8000/api/progress/reset?user_id=${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                                    if (res.ok) {
+                                      const data = await res.json();
+                                      onProgressUpdate(data.user_progress);
+                                      alert("Progress reset successfully! Reloading...");
+                                      window.location.reload();
+                                    } else {
+                                      alert("Failed to reset progress. Is the backend running?");
+                                    }
+                                  } catch (err) {
+                                    console.error(err);
+                                    alert("Error calling reset API.");
+                                  }
+                                }
+                              }}>
+                        Reset Progress
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right Column */}
@@ -392,59 +555,71 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>
-                        {userId.startsWith('wallet-') ? 'Web3 Architect' : `@${userId.replace('gh-', '')}`}
+                        {getFormattedUsername()}
                       </h3>
                       <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>VERIFIED</span>
                     </div>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: '2px 0 0 0' }}>Protocol Engineer</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)', margin: 0 }}>GitHub Verified</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: '2px 0 0 0' }}>{getDeveloperTitle(progress?.current_level ?? 1)}</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)', margin: 0 }}>{verificationText}</p>
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
                   <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.04)' }}>
                     <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, display: 'block', marginBottom: '4px' }}>LEVEL</span>
-                    <strong style={{ fontSize: '1.25rem', color: '#fff' }}>03 <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--clr-text-secondary)' }}>Developer</span></strong>
+                    <strong style={{ fontSize: '1.25rem', color: '#fff' }}>
+                      {String(progress?.current_level ?? 1).padStart(2, '0')}{' '}
+                      <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--clr-text-secondary)' }}>
+                        {getLevelLabel(progress?.current_level ?? 1)}
+                      </span>
+                    </strong>
                   </div>
                   <div style={{ padding: '16px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.04)' }}>
                     <span style={{ fontSize: '0.65rem', color: 'var(--clr-text-muted)', fontWeight: 700, display: 'block', marginBottom: '4px' }}>ENGINEER LEVEL</span>
-                    <strong style={{ fontSize: '1.25rem', color: '#fff' }}>Lv. 14</strong>
+                    <strong style={{ fontSize: '1.25rem', color: '#fff' }}>Lv. {engineerLevel}</strong>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {[
-                    { label: '👤 My Profile', active: true },
-                    { label: '🏆 Certificates' },
-                    { label: '🎖️ Achievements' },
-                    { label: '⚙️ Settings' }
-                  ].map((item, idx) => (
-                    <button
-                      key={idx}
-                      style={{
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        backgroundColor: item.active ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.02)',
-                        color: item.active ? '#93c5fd' : 'var(--clr-text-secondary)',
-                        textAlign: 'left',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.backgroundColor = item.active ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.02)';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
-                      }}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                    { label: '👤 My Profile', view: 'profile' as const },
+                    { label: '🏆 Certificates', view: 'certificates' as const },
+                    { label: '🎖️ Achievements', view: 'achievements' as const },
+                    { label: '⚙️ Settings', view: 'settings' as const }
+                  ].map((item, idx) => {
+                    const isActive = activeTab === 'overview' && overviewSubView === item.view;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setActiveTab('overview');
+                          setOverviewSubView(item.view);
+                        }}
+                        style={{
+                          padding: '12px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255,255,255,0.05)',
+                          backgroundColor: isActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.02)',
+                          color: isActive ? '#93c5fd' : 'var(--clr-text-secondary)',
+                          textAlign: 'left',
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = isActive ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.02)';
+                          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
