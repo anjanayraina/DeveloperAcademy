@@ -6,7 +6,7 @@
 
 .hacks-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 32px;
 }
 
@@ -440,4 +440,33 @@
 
 .checklist-item--checked .check-bullet {
   color: #10b981;
+}
+
+@media (max-width: 1200px) {
+  .hacks-layout,
+  .submission-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hack-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .hack-item__main {
+    padding-right: 0;
+  }
+  .hack-detail-meta-box {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .hack-hero-card {
+    padding: 24px;
+  }
+  .hack-detail-tab-body {
+    padding: 20px;
+  }
 }

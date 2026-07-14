@@ -439,3 +439,21 @@
   gap: 16px;
   height: 100%;
 }
+
+@media (max-width: 1024px) {
+  .lesson-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    height: auto;
+    overflow-y: auto;
+  }
+  .lesson-pane-left,
+  .lesson-pane-right {
+    height: auto;
+    overflow: visible;
+  }
+  .lesson-pane-left {
+    border-right: none;
+    border-bottom: 1px solid var(--clr-border);
+  }
+}
