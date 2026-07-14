@@ -175,6 +175,7 @@ export const LEVEL_COLORS: Record<number, string> = {
   4: '#059669',
   5: '#d97706',
   6: '#dc2626',
+  7: '#6366f1',
 };
 
 export const LEVEL_ICONS: Record<number, string> = {
@@ -184,4 +185,5 @@ export const LEVEL_ICONS: Record<number, string> = {
   4: '💎',
   5: '🏛️',
   6: '🔮',
+  7: '🌐',
 };

@@ -510,7 +510,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                               onClick={async () => {
                                 if (confirm("Are you sure you want to reset all progress? This will clear your compiler submissions and quiz history!")) {
                                   try {
-                                    const res = await fetch(`http://localhost:8000/api/progress/reset?user_id=${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                                    const res = await fetch(`/api/progress/reset?user_id=${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
                                     if (res.ok) {
                                       const data = await res.json();
                                       onProgressUpdate(data.user_progress);

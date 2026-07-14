@@ -1,6 +1,6 @@
 import re
 from fastapi import APIRouter, HTTPException, Depends
-from src.services.lessons import LESSONS_DB
+from src.services.lessons import LESSONS_DB, get_track_lessons
 from src.services.db import log_exercise_submission, get_or_create_user
 from src.models.progress import ExerciseSubmission
 from src.services.auth_helper import verify_token
@@ -18,45 +18,38 @@ def validate_solidity_syntax(code: str) -> list:
             stack.append((char, char_idx))
         elif char in brackets.values():
             if not stack:
-                errors.append("Syntax error: Mismatched closing bracket found.")
-                break
-            top, idx = stack.pop()
-            if brackets[top] != char:
-                errors.append(f"Syntax error: Mismatched bracket '{char}' matching '{top}'.")
-                break
-    if stack and len(errors) == 0:
-        errors.append("Syntax error: Unclosed bracket or parenthesis in contract code.")
-
-    # 2. Typos in keywords
-    typos = {
-        r'\brequir\b': "Did you mean 'require' instead of 'requir'?",
-        r'\bmodifer\b': "Did you mean 'modifier' instead of 'modifer'?",
-        r'\bfuncton\b': "Did you mean 'function' instead of 'functon'?",
-        r'\bretur\b': "Did you mean 'return' instead of 'retur'?",
-        r'\bcontrac\b': "Did you mean 'contract' instead of 'contrac'?",
-        r'\baddres\b': "Did you mean 'address' instead of 'addres'?"
-    }
-    for pattern, hint in typos.items():
-        if re.search(pattern, code, re.IGNORECASE):
-            errors.append(f"Compilation error: {hint}")
-
-    # 3. Semicolon validation
+                errors.append(f"Syntax error: Unbalanced bracket '{char}' at position {char_idx}")
+            else:
+                top, top_idx = stack.pop()
+                if brackets[top] != char:
+                    errors.append(f"Syntax error: Mismatched brackets. Opened '{top}' at position {top_idx} but closed with '{char}' at position {char_idx}")
+    
+    if stack:
+        for top, top_idx in stack:
+            errors.append(f"Syntax error: Unclosed bracket '{top}' opened at position {top_idx}")
+            
+    # 2. Semicolon checks
     lines = code.split('\n')
-    for line in lines:
+    for line_idx, line in enumerate(lines):
         stripped = line.strip()
-        if not stripped:
-            continue
-        # Skip block openers, block closers, definitions, conditions, loops, and comments
-        if (stripped.endswith('{') or 
-            stripped.endswith('}') or 
-            stripped.startswith('contract') or 
-            stripped.startswith('function') or 
-            stripped.startswith('modifier') or 
-            stripped.startswith('if') or 
-            stripped.startswith('for') or 
-            stripped.startswith('while') or 
+        # Skip empty lines, comments, import statements, pragmas, function/contract headers, or lines ending with structural braces
+        if (not stripped or 
             stripped.startswith('//') or 
             stripped.startswith('/*') or 
+            stripped.startswith('*') or
+            stripped.startswith('pragma') or 
+            stripped.startswith('import') or 
+            stripped.startswith('contract') or 
+            stripped.startswith('interface') or 
+            stripped.startswith('library') or 
+            stripped.startswith('function') or 
+            stripped.startswith('constructor') or 
+            stripped.startswith('modifier') or 
+            stripped.startswith('event') or 
+            stripped.startswith('struct') or 
+            stripped.startswith('enum') or 
+            stripped.endswith('{') or 
+            stripped.endswith('}') or 
             stripped.endswith('*/')):
             continue
         
@@ -72,10 +65,22 @@ async def submit_exercise(sub: ExerciseSubmission, verified_id: str = Depends(ve
     if sub.user_id != verified_id:
         raise HTTPException(status_code=403, detail="Forbidden: You cannot submit exercises for another user account.")
     lesson_id = sub.lesson_id
-    if lesson_id not in LESSONS_DB:
+    lesson = None
+    if lesson_id.startswith("7-"):
+        user = await get_or_create_user(verified_id)
+        track = user.get("active_track", "ethereum")
+        track_lessons = get_track_lessons(track)
+        for tl in track_lessons:
+            if tl.id == lesson_id:
+                lesson = tl
+                break
+    else:
+        if lesson_id in LESSONS_DB:
+            lesson = LESSONS_DB[lesson_id]
+            
+    if not lesson:
         raise HTTPException(status_code=404, detail=f"Lesson '{lesson_id}' not found")
         
-    lesson = LESSONS_DB[lesson_id]
     if not lesson.exercise:
         raise HTTPException(status_code=400, detail="This lesson does not have a coding exercise")
         

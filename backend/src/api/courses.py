@@ -4,16 +4,26 @@ Courses and Lessons API Routers — retrieves structured courses list and indivi
 from fastapi import APIRouter, HTTPException
 from src.services.lessons import get_courses_list, get_track_lessons, LESSONS_DB
 
+SUPPORTED_TRACKS = {"ethereum", "arbitrum", "optimism", "polygon", "base", "solana", "avalanche"}
+
+def validate_track(track: str) -> str:
+    track_lower = track.lower().strip()
+    if track_lower not in SUPPORTED_TRACKS:
+        raise HTTPException(status_code=400, detail=f"Unsupported ecosystem track '{track}'. Supported: {sorted(list(SUPPORTED_TRACKS))}")
+    return track_lower
+
 router = APIRouter()
 
 @router.get("")
 async def list_courses(track: str = "ethereum"):
     """Retrieve all levels and their nested lessons list."""
+    track = validate_track(track)
     return get_courses_list(track)
 
 @router.get("/lessons/{lesson_id}")
 async def get_lesson(lesson_id: str, track: str = "ethereum"):
     """Retrieve detailed content for a single lesson (including quiz and exercise meta)."""
+    track = validate_track(track)
     if lesson_id.startswith("7-"):
         track_lessons = get_track_lessons(track)
         for l in track_lessons:

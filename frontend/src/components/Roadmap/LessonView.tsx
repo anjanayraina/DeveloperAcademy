@@ -58,7 +58,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
       })
       .catch((err) => console.error("Error fetching lesson details:", err))
       .finally(() => setLoading(false));
-  }, [lessonId]);
+  }, [lessonId, activeTrack]);
 
   const handleSelectOption = (questionIdx: number, optionIdx: number) => {
     if (quizResult) return; // Read-only after submission

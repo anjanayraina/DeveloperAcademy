@@ -97,3 +97,177 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: var(--radius-lg);
 }
+
+/* Ecosystem Track Switcher */
+.roadmap__track-switcher {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(10, 11, 23, 0.45);
+  margin-bottom: 32px;
+}
+
+.track-switcher__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.track-switcher__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.track-switcher__subtitle {
+  font-size: 0.8rem;
+  color: var(--clr-text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.track-switcher__status {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+  animation: pulse 1.5s infinite;
+}
+
+.track-switcher__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.track-btn {
+  padding: 12px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.01);
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.track-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.track-btn--active {
+  border: 1px solid var(--clr-primary);
+  background-color: rgba(124, 58, 237, 0.1);
+  color: #fff;
+}
+
+.track-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.track-btn__icon {
+  font-size: 1.25rem;
+}
+
+.track-btn__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.track-btn--active .track-btn__name {
+  font-weight: 800;
+}
+
+.track-btn__badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--clr-primary-light);
+}
+
+.track-overview {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.track-overview__label {
+  font-size: 0.7rem;
+  color: var(--clr-text-muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.track-overview__desc {
+  font-size: 0.78rem;
+  color: var(--clr-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Build With MOR Section */
+.roadmap__build-mor {
+  margin-top: 48px;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(10, 11, 23, 0.45);
+}
+
+.build-mor__title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.build-mor__desc {
+  font-size: 0.85rem;
+  color: var(--clr-text-secondary);
+  margin-bottom: 24px;
+}
+
+.build-mor__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.build-mor__item {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.build-mor__item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124, 58, 237, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.build-mor__item-icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.build-mor__item-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+}

@@ -26,11 +26,14 @@ async def reset_progress(user_id: str = Query(...)):
 @router.post("/track")
 async def update_active_track(user_id: str = Query(...), track: str = Query(...)):
     """Update active learning track for a user (Ethereum, Arbitrum, etc.)."""
+    track = track.lower().strip()
+    SUPPORTED_TRACKS = {"ethereum", "arbitrum", "optimism", "polygon", "base", "solana", "avalanche"}
+    if track not in SUPPORTED_TRACKS:
+        raise HTTPException(status_code=400, detail=f"Unsupported ecosystem track '{track}'. Supported: {sorted(list(SUPPORTED_TRACKS))}")
+        
     from src.services.db import get_collection, get_or_create_user
     coll = get_collection()
     user = await get_or_create_user(user_id)
-    track = track.lower()
-    
     levels = user.get("levels", [])
     for lvl in levels:
         if lvl["level_id"] == 7:

@@ -47,6 +47,7 @@ export const MentorPage: React.FC<MentorPageProps> = ({ currentLevel = 1, userId
     4: 'Level 4 — DeFi Fundamentals',
     5: 'Level 5 — DAO Governance',
     6: 'Level 6 — MOR Finance Protocols',
+    7: 'Level 7 — Ecosystem Learning Track',
   };
   return (
     <ChatInterface mentorContext={LEVEL_TITLES[currentLevel] ?? 'General Curriculum'} userId={userId} />
