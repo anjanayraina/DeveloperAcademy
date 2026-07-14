@@ -122,10 +122,19 @@ export const LessonView: React.FC<LessonViewProps> = ({
           onProgressUpdate(result.user_progress);
         }
       } else {
+        const errorLogs: string[] = [];
+        if (result.syntax_errors && result.syntax_errors.length > 0) {
+          result.syntax_errors.forEach((err) => {
+            errorLogs.push(`❌ ${err}`);
+          });
+        }
+        if (result.missing_keywords && result.missing_keywords.length > 0) {
+          errorLogs.push(`⚠️ Missing required structures: ${result.missing_keywords.join(", ")}`);
+        }
         setConsoleLogs((prev) => [
           ...prev,
           "❌ Compilation completed with errors.",
-          `⚠️ Missing required structures: ${result.missing_keywords.join(", ")}`,
+          ...errorLogs,
           "❌ Exercise FAILED. Review instruction parameters and retry.",
         ]);
       }

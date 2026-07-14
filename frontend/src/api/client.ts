@@ -177,6 +177,7 @@ export interface ExerciseResult {
   passed: boolean;
   feedback: string;
   missing_keywords: string[];
+  syntax_errors?: string[];
   user_progress: UserProgress;
 }
 
