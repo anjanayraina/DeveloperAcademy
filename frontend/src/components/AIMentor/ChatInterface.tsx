@@ -27,12 +27,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       id: 'welcome',
       role: 'assistant',
       content:
-        "👋 Hey! I'm your **AI Mentor** for the Developer Academy. I can help you understand blockchain concepts, debug Solidity code, and guide you through DeFi protocols.\n\nWhat would you like to learn today?",
+        "👋 Hey! I'm your **AI Mentor** for the Developer Academy. You can switch between **OpenClaw** (for lesson guidance, concept explanations, and educational support) and **Hermes** (for code reviews, debugging, and engineering support) using the selectors above.\n\nWhat would you like to discuss today?",
     },
   ]);
   const [input, setInput]         = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const [mentorProvider, setMentorProvider] = useState<'claude' | 'hermes'>('claude');
+  const [mentorProvider, setMentorProvider] = useState<'openclaw' | 'hermes'>('openclaw');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
 
@@ -114,14 +114,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <span className="mentor-switcher__label">Choose AI Mentor:</span>
         <div className="mentor-switcher__options">
           <button
-            className={`mentor-btn ${mentorProvider === 'claude' ? 'mentor-btn--active' : ''}`}
-            onClick={() => setMentorProvider('claude')}
+            className={`mentor-btn ${mentorProvider === 'openclaw' ? 'mentor-btn--active' : ''}`}
+            onClick={() => setMentorProvider('openclaw')}
+            title="OpenClaw: Education Mentor – lesson guidance, concept explanations, quizzes, learning recommendations and educational support."
           >
-            🔮 Claude (Education)
+            🔮 OpenClaw (Education)
           </button>
           <button
             className={`mentor-btn ${mentorProvider === 'hermes' ? 'mentor-btn--active' : ''}`}
             onClick={() => setMentorProvider('hermes')}
+            title="Hermes: Engineering Mentor – code review, smart contract templates, debugging, coding exercises, GitHub assistance and engineering support."
           >
             🛠️ Hermes (Engineering)
           </button>

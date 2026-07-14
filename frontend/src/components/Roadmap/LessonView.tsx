@@ -367,7 +367,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
                   <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--clr-text-secondary)', marginLeft: '8px', fontFamily: 'monospace' }}>Vault.sol</span>
                 </div>
                 <button className="btn btn--secondary btn--xs" style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.1)', color: '#3b82f6', border: '1px solid rgba(37, 99, 235, 0.2)' }}>
-                  ☀️ Ask Claude
+                  ☀️ Ask OpenClaw
                 </button>
               </div>
               

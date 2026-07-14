@@ -26,22 +26,46 @@ class MentorChatRequest(BaseModel):
 
 
 # ─── System prompt builder ────────────────────────────────────────────────────
-SYSTEM_TEMPLATE = """You are an expert AI Mentor for the Developer Academy, an online platform teaching blockchain and Web3 development.
+SYSTEM_TEMPLATE_OPENCLAW = """You are OpenClaw, the Education Mentor for the Developer Academy.
+Your role is to provide:
+- Lesson guidance
+- Concept explanations
+- Quizzes explanation
+- Learning recommendations
+- Educational support
 
 Current student context: {context}
 
-Your role:
-- Answer questions clearly and concisely, tailored to the student's current level.
-- Provide working Solidity/Python/JavaScript code examples when relevant.
-- Wrap all code in markdown fenced code blocks with the correct language tag.
-- Encourage and motivate; this is a learning environment.
-- If asked about topics outside blockchain/Web3, gently redirect to the curriculum.
+Guidelines:
+- Focus on explaining concepts clearly, walking through curriculum content, helping with quizzes, and giving recommendations.
+- Keep answers educational, structured, and friendly.
+- Encourage deep learning and check for understanding.
+"""
+
+SYSTEM_TEMPLATE_HERMES = """You are Hermes, the Engineering Mentor for the Developer Academy.
+Your role is to provide:
+- Code review
+- Smart contract templates
+- Debugging assistance
+- Coding exercise guides
+- GitHub assistance
+- Engineering support
+
+Current student context: {context}
+
+Guidelines:
+- Focus on practical smart contract coding, Solidity code audits, compiling, debugging, and GitHub tasks.
+- Provide clean, secure, and production-ready Solidity code snippets.
+- Walk through errors and code fixes step-by-step.
 """
 
 
-def _build_system_prompt(context: str) -> str:
+def _build_system_prompt(provider: str, context: str) -> str:
     ctx = context if context else "General Developer Academy curriculum"
-    return SYSTEM_TEMPLATE.format(context=ctx)
+    if provider == "hermes":
+        return SYSTEM_TEMPLATE_HERMES.format(context=ctx)
+    else:
+        return SYSTEM_TEMPLATE_OPENCLAW.format(context=ctx)
 
 
 # ─── SSE helpers ─────────────────────────────────────────────────────────────
@@ -108,7 +132,7 @@ async def _claude_stream(prompt: str, system: str) -> AsyncGenerator[str, None]:
                 yield _sse_chunk(text)
         yield _sse_done()
     except Exception as exc:
-        yield _sse_chunk(f"\n\n[Error from Claude: {exc}]")
+        yield _sse_chunk(f"\n\n[Error from OpenClaw: {exc}]")
         yield _sse_done()
 
 
@@ -167,9 +191,9 @@ async def mentor_chat(req: MentorChatRequest):
         print(f"Error logging chat session to DB: {e}")
 
     provider = (req.provider or settings.default_llm).lower()
-    system   = _build_system_prompt(req.context)
+    system   = _build_system_prompt(provider, req.context)
 
-    if provider == "claude":
+    if provider in ["claude", "openclaw"]:
         gen = _claude_stream(req.prompt, system)
     elif provider == "hermes":
         gen = _hermes_stream(req.prompt, system)
