@@ -128,6 +128,11 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
   const checklistCount = [isNameFilled, isTaglineFilled, isDescFilled, isVideoFilled, isCodeFilled].filter(Boolean).length;
   const checklistPct = Math.round((checklistCount / 5) * 100);
 
+  const activeCount = hackathons.filter(h => h.status === 'ongoing').length;
+  const registeredCount = 1240 + (hackathons.filter(h => h.is_registered).length * 15);
+  const submittedCount = 342 + (hackathons.filter(h => h.submission).length);
+  const totalPrizePool = "$190,000";
+
   const filteredHacks = hackathons.filter(h => {
     if (activeTab === 'ongoing') return h.status === 'ongoing';
     if (activeTab === 'upcoming') return h.status === 'upcoming';
@@ -144,6 +149,26 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
               <div>
                 <h2 className="hacks-title">Hackathons</h2>
                 <p className="hacks-subtitle">Participate in exciting hackathons, build amazing projects, and turn ideas into impact.</p>
+              </div>
+            </div>
+
+            {/* Summary Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Active Hackathons</span>
+                <strong style={{ fontSize: '1.5rem', color: '#fff' }}>{activeCount}</strong>
+              </div>
+              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Registered Developers</span>
+                <strong style={{ fontSize: '1.5rem', color: '#fff' }}>{registeredCount.toLocaleString()}</strong>
+              </div>
+              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Projects Submitted</span>
+                <strong style={{ fontSize: '1.5rem', color: '#fff' }}>{submittedCount}</strong>
+              </div>
+              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Total Prize Pool</span>
+                <strong style={{ fontSize: '1.5rem', color: '#10b981' }}>{totalPrizePool}</strong>
               </div>
             </div>
 
@@ -182,6 +207,26 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
                         {hack.is_registered && <span className="badge badge--success">✓ Registered</span>}
                       </div>
                       <p className="hack-item__desc">{hack.description}</p>
+                      
+                      {hack.ecosystems && hack.ecosystems.length > 0 && (
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px', marginTop: '8px' }}>
+                          {hack.ecosystems.map(eco => (
+                            <span key={eco} style={{
+                              fontSize: '0.65rem',
+                              fontWeight: 800,
+                              background: 'rgba(99, 102, 241, 0.1)',
+                              border: '1px solid rgba(99, 102, 241, 0.2)',
+                              color: '#a5b4fc',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.03em'
+                            }}>
+                              {eco}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       
                       <div className="hack-item__meta">
                         <span className="hack-meta-tag">💰 Prize: {hack.prize_pool}</span>

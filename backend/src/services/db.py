@@ -55,6 +55,8 @@ async def connect_to_mongo():
             db_name = path
     db_instance.db = db_instance.client[db_name]
     print(f"✅ Connected to MongoDB. Database: '{db_name}'")
+    await seed_forum_threads()
+    await seed_hackathons()
 
 
 async def close_mongo_connection():
@@ -497,6 +499,8 @@ async def seed_forum_threads():
 async def seed_hackathons():
     """Seed initial hackathons if collection is empty."""
     coll = get_hackathons_collection()
+    # Drop old mock ones to ensure we seed the new diverse ones
+    await coll.delete_many({"hackathon_id": {"$in": ["hack-1", "hack-2", "hack-3"]}})
     count = await coll.count_documents({})
     if count == 0:
         print("🌱 Seeding hackathons in MongoDB...")
@@ -510,6 +514,7 @@ async def seed_hackathons():
                 "start_date": "2026-08-15",
                 "end_date": "2026-08-17",
                 "status": "ongoing",
+                "ecosystems": ["Ethereum", "Arbitrum", "Optimism"],
                 "rules": [
                     "Teams can have 1 to 5 members.",
                     "Code must be submitted on a public GitHub repo before the deadline.",
@@ -528,12 +533,55 @@ async def seed_hackathons():
             {
                 "_id": "hack-2",
                 "hackathon_id": "hack-2",
+                "title": "MOR Agentic AI Hackathon",
+                "description": "Build autonomous AI agents that run on top of Morpheus decentralized compute networks. Design custom agent logic, wallets, or inference pools.",
+                "prize_pool": "$50,000",
+                "start_date": "2026-08-25",
+                "end_date": "2026-08-28",
+                "status": "ongoing",
+                "ecosystems": ["Solana", "Arbitrum", "Base"],
+                "rules": [
+                    "Must be fully functional on testnet.",
+                    "Must include integration with Morpheus smart contracts.",
+                    "Open to teams of up to 4 members."
+                ],
+                "tracks": ["AI Agent Logic", "Compute Proofs", "Agent Wallets"],
+                "milestones": [
+                    {"title": "Registration Opens", "date": "2026-08-01"},
+                    {"title": "Hackathon Starts", "date": "2026-08-25"},
+                    {"title": "Hackathon Ends", "date": "2026-08-28"}
+                ]
+            },
+            {
+                "_id": "hack-3",
+                "hackathon_id": "hack-3",
+                "title": "Base Build in Public Hack",
+                "description": "Create consumer dApps on Base. Focus on social integrations, identity, or gaming tools that leverage Base layer-2 scaling.",
+                "prize_pool": "$20,000",
+                "start_date": "2026-08-01",
+                "end_date": "2026-08-10",
+                "status": "ongoing",
+                "ecosystems": ["Base", "Optimism"],
+                "rules": [
+                    "Must deploy to Base Goerli / Sepolia.",
+                    "Project must be open source."
+                ],
+                "tracks": ["Social dApps", "Consumer Tech", "NFTs & Gaming"],
+                "milestones": [
+                    {"title": "Hackathon Starts", "date": "2026-08-01"},
+                    {"title": "Hackathon Ends", "date": "2026-08-10"}
+                ]
+            },
+            {
+                "_id": "hack-4",
+                "hackathon_id": "hack-4",
                 "title": "Web3 Student Challenge",
                 "description": "A beginner-friendly hackathon for students worldwide to build dApps using HTML, CSS, JavaScript, and Solidity.",
                 "prize_pool": "$15,000",
                 "start_date": "2026-09-01",
                 "end_date": "2026-09-15",
                 "status": "upcoming",
+                "ecosystems": ["Polygon", "Base", "Solana"],
                 "rules": [
                     "Must be a student or recent graduate.",
                     "Individual submissions only.",
@@ -547,14 +595,15 @@ async def seed_hackathons():
                 ]
             },
             {
-                "_id": "hack-3",
-                "hackathon_id": "hack-3",
+                "_id": "hack-5",
+                "hackathon_id": "hack-5",
                 "title": "NFT Builders Jam",
                 "description": "Focus on building new NFT utility, dynamic metadata, or gaming assets using the ERC-721 and ERC-1155 standards.",
                 "prize_pool": "$10,000",
                 "start_date": "2026-09-20",
                 "end_date": "2026-09-22",
                 "status": "upcoming",
+                "ecosystems": ["Avalanche", "Solana", "Ethereum"],
                 "rules": [
                     "Open to anyone.",
                     "Up to 3 members per team.",
@@ -565,6 +614,46 @@ async def seed_hackathons():
                     {"title": "Registration Opens", "date": "2026-08-20"},
                     {"title": "Hackathon Starts", "date": "2026-09-20"},
                     {"title": "Hackathon Ends", "date": "2026-09-22"}
+                ]
+            },
+            {
+                "_id": "hack-6",
+                "hackathon_id": "hack-6",
+                "title": "Arbitrum Orbit Hyperchain Jam",
+                "description": "Deploy Orbit chains and build high-frequency DeFi applications on custom execution layer-3 nodes.",
+                "prize_pool": "$40,000",
+                "start_date": "2026-06-10",
+                "end_date": "2026-06-12",
+                "status": "completed",
+                "ecosystems": ["Arbitrum"],
+                "rules": [
+                    "Must deploy a custom Orbit node.",
+                    "Submission must include throughput metric charts."
+                ],
+                "tracks": ["Orbit Deployments", "Custom Gas Tokens", "Layer 3 Apps"],
+                "milestones": [
+                    {"title": "Hackathon Starts", "date": "2026-06-10"},
+                    {"title": "Winners Announced", "date": "2026-06-15"}
+                ]
+            },
+            {
+                "_id": "hack-7",
+                "hackathon_id": "hack-7",
+                "title": "Solana Speedrun Game Jam",
+                "description": "Build fast, on-chain games using Anchor, Rust, and Solana high-throughput transactions.",
+                "prize_pool": "$30,000",
+                "start_date": "2026-05-15",
+                "end_date": "2026-05-17",
+                "status": "completed",
+                "ecosystems": ["Solana"],
+                "rules": [
+                    "Open-source Rust programs.",
+                    "Must include a playable web build."
+                ],
+                "tracks": ["On-chain Arcade", "Dynamic Game State", "Solana Composability"],
+                "milestones": [
+                    {"title": "Hackathon Starts", "date": "2026-05-15"},
+                    {"title": "Winners Announced", "date": "2026-05-20"}
                 ]
             }
         ]

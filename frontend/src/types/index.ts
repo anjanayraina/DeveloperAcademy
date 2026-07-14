@@ -104,6 +104,7 @@ export interface Hackathon {
   milestones: HackathonMilestone[];
   is_registered: boolean;
   submission?: HackathonSubmission;
+  ecosystems?: string[];
 }
 
 export interface QuizQuestion {

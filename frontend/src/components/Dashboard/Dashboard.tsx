@@ -106,6 +106,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const web3Skill = lvl1 || 10;
   const securitySkill = Math.round((lvl3 + lvl6) / 2) || 10;
   const daoSkill = lvl6 || 10;
+  const typeScriptSkill = Math.round((lvl1 + lvl3) / 2) || 10;
 
   const getSkillBadge = (pct: number) => {
     if (pct < 20) return "Beginner";
@@ -647,6 +648,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <ProgressBar value={web3Skill} color="#d97706" height={6} showPct={false} />
                     <span className="skill-badge">{getSkillBadge(web3Skill)}</span>
                   </div>
+                  <div className="skill-row">
+                    <span className="skill-lbl">TypeScript</span>
+                    <ProgressBar value={typeScriptSkill} color="#2563eb" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(typeScriptSkill)}</span>
+                  </div>
                 </div>
               </div>
 
@@ -825,6 +831,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <span className="skill-lbl">Web3.js</span>
                     <ProgressBar value={web3Skill} color="#d97706" height={6} showPct={false} />
                     <span className="skill-badge">{getSkillBadge(web3Skill)}</span>
+                  </div>
+                  <div className="skill-row">
+                    <span className="skill-lbl">TypeScript</span>
+                    <ProgressBar value={typeScriptSkill} color="#2563eb" height={6} showPct={false} />
+                    <span className="skill-badge">{getSkillBadge(typeScriptSkill)}</span>
                   </div>
                   <div className="skill-row">
                     <span className="skill-lbl">Security</span>
