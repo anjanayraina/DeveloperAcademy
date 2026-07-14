@@ -1,8 +1,8 @@
-// ─── Dashboard — Learning Analytics Hub ──────────────────────────────────────
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { UserProgress } from '../../types';
 import { ProgressBar } from './ProgressBar';
-import { postGithubSync } from '../../api/client';
+import { postGithubSync, fetchGithubOrgStats } from '../../api/client';
+import type { GithubOrgStats } from '../../api/client';
 import './Dashboard.css';
 
 interface DashboardProps {
@@ -13,7 +13,7 @@ interface DashboardProps {
   token: string;
 }
 
-type AnalyticsTab = 'overview' | 'courses' | 'skills';
+type AnalyticsTab = 'overview' | 'courses' | 'skills' | 'github';
 
 export const Dashboard: React.FC<DashboardProps> = ({
   progress,
@@ -23,10 +23,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
   token,
 }) => {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview');
+  const [orgStats, setOrgStats] = useState<GithubOrgStats | null>(null);
   
   // GitHub sync states
   const [githubUsername, setGithubUsername] = useState('');
   const [syncing, setSyncing] = useState(false);
+
+  useEffect(() => {
+    fetchGithubOrgStats()
+      .then(setOrgStats)
+      .catch((err) => console.error("Error loading GitHub org stats:", err));
+  }, []);
 
   if (loading) {
     return (
@@ -251,6 +258,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
             onClick={() => setActiveTab('skills')}
           >
             🕸️ Skill radar
+          </button>
+          <button
+            className={`dashboard-tab-btn ${activeTab === 'github' ? 'dashboard-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('github')}
+          >
+            🐱 GitHub Workspace
           </button>
         </div>
       </div>
@@ -596,6 +609,106 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <h4>DAO Architectures</h4>
                 <p>Master multi-sig governance structures and proposals casting validators.</p>
                 <button className="btn btn--secondary btn--sm rec-btn">Learn DAO</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {activeTab === 'github' && (
+        <div className="analytics-github animate-fade-up">
+          <div className="analytics-columns">
+            {/* Left Column - Repos & Releases */}
+            <div className="analytics-left">
+              <div className="dashboard-panel glass">
+                <h3 className="panel-title">📦 Starter & Org Repositories</h3>
+                <div className="repos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                  {orgStats?.repositories.map((repo, idx) => (
+                    <div key={idx} className="repo-card glass" style={{ padding: '16px', borderRadius: '8px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
+                      <div className="repo-card__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>
+                          <a href={repo.url} target="_blank" rel="noopener noreferrer" className="repo-link" style={{ color: 'var(--clr-primary-light)', textDecoration: 'underline' }}>
+                            {repo.name}
+                          </a>
+                        </h4>
+                        <span className="repo-lang-badge" style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--clr-text-secondary)' }}>{repo.language}</span>
+                      </div>
+                      <p className="repo-desc" style={{ fontSize: '0.8rem', color: 'var(--clr-text-muted)', lineHeight: '1.4', marginBottom: '12px' }}>{repo.description}</p>
+                      <div className="repo-meta" style={{ display: 'flex', gap: '12px', fontSize: '0.75rem', color: 'var(--clr-text-muted)' }}>
+                        <span>⭐ {repo.stars}</span>
+                        <span>🍴 {repo.forks}</span>
+                        {repo.open_issues > 0 && <span style={{ color: '#f59e0b' }}>⚠️ {repo.open_issues} issues</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="dashboard-panel glass">
+                <h3 className="panel-title">🏷️ Active Releases</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {orgStats?.releases.map((rel, idx) => (
+                    <div key={idx} className="release-card glass" style={{ padding: '16px', borderRadius: '8px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
+                      <div className="release-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <strong className="release-version" style={{ color: '#10b981', fontSize: '0.9rem' }}>{rel.version}</strong>
+                        <span className="release-date" style={{ fontSize: '0.75rem', color: 'var(--clr-text-muted)' }}>{rel.published_at}</span>
+                      </div>
+                      <p className="release-title" style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)' }}>{rel.title}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Contributors, Issues & PRs */}
+            <div className="analytics-right">
+              <div className="dashboard-panel glass">
+                <h3 className="panel-title">👥 Top Contributors</h3>
+                <div className="contributors-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {orgStats?.contributors.map((c, idx) => (
+                    <div key={idx} className="contributor-item" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 12px', borderRadius: '6px', background: 'rgba(255,255,255,0.01)' }}>
+                      <div className="contributor-avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--clr-primary-dim)', color: 'var(--clr-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>{c.avatar}</div>
+                      <div className="contributor-info" style={{ flex: 1 }}>
+                        <div className="contributor-name" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--clr-text-primary)' }}>@{c.username}</div>
+                        <div className="contributor-role" style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)' }}>{c.role}</div>
+                      </div>
+                      <span className="contributor-commits" style={{ fontSize: '0.75rem', color: 'var(--clr-text-secondary)' }}>{c.contributions} commits</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="dashboard-panel glass">
+                <h3 className="panel-title">🔧 Active Issues & PRs</h3>
+                <div className="issues-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {orgStats?.issues.map((issue, idx) => (
+                    <div key={idx} className="issue-item" style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
+                      <div className="issue-main" style={{ flex: 1 }}>
+                        <div className="issue-title" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--clr-text-primary)', marginBottom: '4px' }}>
+                          <span style={{ color: '#ef4444', marginRight: '6px', fontWeight: 'bold' }}>{issue.id}</span>
+                          {issue.title}
+                        </div>
+                        <div className="issue-meta" style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)' }}>
+                          <span>{issue.repo}</span> • <span>by {issue.author}</span> • <span>{issue.created_at}</span>
+                        </div>
+                      </div>
+                      <span className="badge badge--issue" style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>Issue</span>
+                    </div>
+                  ))}
+                  {orgStats?.prs.map((pr, idx) => (
+                    <div key={idx} className="issue-item" style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--clr-border)', background: 'var(--clr-bg)' }}>
+                      <div className="issue-main" style={{ flex: 1 }}>
+                        <div className="issue-title" style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--clr-text-primary)', marginBottom: '4px' }}>
+                          <span style={{ color: '#c084fc', marginRight: '6px', fontWeight: 'bold' }}>{pr.id}</span>
+                          {pr.title}
+                        </div>
+                        <div className="issue-meta" style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)' }}>
+                          <span>{pr.repo}</span> • <span>by {pr.author}</span> • <span>{pr.created_at}</span>
+                        </div>
+                      </div>
+                      <span className="badge badge--pr" style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: 'rgba(192, 132, 252, 0.1)', color: '#c084fc' }}>PR ({pr.status})</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

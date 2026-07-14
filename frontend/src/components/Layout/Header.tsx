@@ -8,7 +8,7 @@ interface HeaderProps {
   xp: number;
   streak: number;
   userId: string;
-  authType: 'github' | 'wallet' | null;
+  authType: 'github' | 'wallet' | 'email' | null;
   progress: UserProgress | null;
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
@@ -52,6 +52,9 @@ export const Header: React.FC<HeaderProps> = ({
       }
       return addr;
     }
+    if (authType === 'email') {
+      return userId.replace('email-', '');
+    }
     return 'Demo User';
   };
 
@@ -66,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="header__auth">
           {authType ? (
             <div className="auth-profile">
-              <span className="auth-profile__icon">{authType === 'github' ? '🐱' : '🦊'}</span>
+              <span className="auth-profile__icon">{authType === 'github' ? '🐱' : authType === 'wallet' ? '🦊' : '✉️'}</span>
               <span className="auth-profile__name" title={userId}>{formatUser()}</span>
               {authType === 'wallet' && !progress?.github_username && (
                 <button className="btn btn--secondary btn--xs header-link-btn" onClick={onLinkGitHub} title="Link GitHub account" style={{ fontSize: '0.7rem', padding: '3px 8px', marginLeft: 8 }}>

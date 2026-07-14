@@ -32,6 +32,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   ]);
   const [input, setInput]         = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [mentorProvider, setMentorProvider] = useState<'claude' | 'hermes'>('claude');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
 
@@ -77,7 +78,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             m.id === assistantId ? { ...m, content: m.content + delta } : m,
           ),
         );
-      }, userId);
+      }, userId, mentorProvider);
 
       // Consume the async generator
       for await (const _ of gen) { /* chunks delivered via onChunk callback */ }
@@ -97,7 +98,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       );
       setIsStreaming(false);
     }
-  }, [isStreaming, mentorContext]);
+  }, [isStreaming, mentorContext, mentorProvider, userId]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -108,6 +109,25 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <div className="chat">
+      {/* Mentor switcher bar */}
+      <div className="mentor-switcher glass">
+        <span className="mentor-switcher__label">Choose AI Mentor:</span>
+        <div className="mentor-switcher__options">
+          <button
+            className={`mentor-btn ${mentorProvider === 'claude' ? 'mentor-btn--active' : ''}`}
+            onClick={() => setMentorProvider('claude')}
+          >
+            🔮 Claude (Education)
+          </button>
+          <button
+            className={`mentor-btn ${mentorProvider === 'hermes' ? 'mentor-btn--active' : ''}`}
+            onClick={() => setMentorProvider('hermes')}
+          >
+            🛠️ Hermes (Engineering)
+          </button>
+        </div>
+      </div>
+
       {/* Context badge */}
       <div className="chat__context-bar glass">
         <span className="chat__context-icon">📍</span>

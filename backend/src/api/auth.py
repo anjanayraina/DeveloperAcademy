@@ -10,6 +10,33 @@ from src.models.auth import GithubAuthRequest, WalletAuthRequest, LinkGithubRequ
 
 router = APIRouter()
 
+class EmailAuthRequest(BaseModel):
+    email: str
+
+@router.post("/email")
+async def auth_email(req: EmailAuthRequest):
+    """Authenticate or register via Email address."""
+    email = req.email.strip().lower()
+    if "@" not in email:
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
+    from src.services.db import get_collection, create_default_user_dict
+    coll = get_collection()
+    user = await coll.find_one({"email": email})
+    if not user:
+        user = await coll.find_one({"_id": f"email-{email}"})
+    if not user:
+        user = await coll.find_one({"_id": email})
+    if not user:
+        display_name = email.split("@")[0]
+        user = create_default_user_dict(display_name, "email")
+        user["email"] = email
+        await coll.insert_one(user)
+        
+    from src.services.auth_helper import create_access_token
+    token = create_access_token(user["_id"])
+    return {"token": token, "user": user}
+
 @router.post("/github")
 async def auth_github(req: GithubAuthRequest):
     """Authenticate via GitHub. Supports OAuth code exchanges and username fallbacks."""

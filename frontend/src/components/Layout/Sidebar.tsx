@@ -7,7 +7,7 @@ interface SidebarProps {
   activePage: NavPage;
   onNavigate: (page: NavPage) => void;
   userId: string;
-  authType: 'github' | 'wallet' | null;
+  authType: 'github' | 'wallet' | 'email' | null;
   onLogout: () => void;
 }
 
@@ -34,6 +34,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (authType === 'wallet') {
       return 'W3';
     }
+    if (authType === 'email') {
+      return userId.replace('email-', '').slice(0, 2).toUpperCase();
+    }
     return 'DA';
   };
 
@@ -48,12 +51,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }
       return addr;
     }
+    if (authType === 'email') {
+      return userId.replace('email-', '');
+    }
     return 'Demo User';
   };
 
   const getFormattedRole = () => {
     if (authType === 'github') return 'GitHub Learner';
     if (authType === 'wallet') return 'Web3 Architect';
+    if (authType === 'email') return 'Academy Scholar';
     return 'Junior Dev';
   };
 

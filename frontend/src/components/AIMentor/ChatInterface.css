@@ -120,3 +120,45 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+
+/* Mentor switcher bar */
+.mentor-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.mentor-switcher__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.mentor-switcher__options {
+  display: flex;
+  gap: 8px;
+}
+.mentor-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text-secondary);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mentor-btn:hover {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--clr-text-primary);
+}
+.mentor-btn--active {
+  background: var(--clr-primary-dim) !important;
+  color: var(--clr-primary-light) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
+}

@@ -341,3 +341,36 @@
   color: #ffffff;
 }
 
+/* Email form styles */
+.login-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.login-email-input {
+  width: 100%;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg, 12px);
+  color: #ffffff;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+.login-email-input:focus {
+  outline: none;
+  border-color: var(--clr-primary, #7c3aed);
+  background: rgba(255, 255, 255, 0.05);
+}
+.login-btn--email {
+  background: linear-gradient(135deg, var(--clr-primary), var(--clr-secondary));
+  border: none;
+  color: #ffffff;
+}
+.login-btn--email:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+

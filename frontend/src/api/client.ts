@@ -44,11 +44,12 @@ export async function* streamMentorChat(
   context: string,
   onChunk: (delta: string) => void,
   userId = 'demo-user',
+  provider?: string,
 ): AsyncGenerator<void, void, unknown> {
   const res = await fetch(`${BASE}/mentor/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, context, user_id: userId }),
+    body: JSON.stringify({ prompt, context, user_id: userId, provider }),
   });
 
   if (!res.ok || !res.body) {
@@ -97,6 +98,19 @@ export async function fetchAuthConfig(): Promise<AuthConfig> {
 export interface AuthResponse {
   token: string;
   user: UserProgress;
+}
+
+export async function authEmail(email: string): Promise<AuthResponse> {
+  const res = await fetch(`${BASE}/auth/email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || "Email auth failed.");
+  }
+  return res.json();
 }
 
 export async function authGithub(username?: string, code?: string): Promise<AuthResponse> {
@@ -392,6 +406,52 @@ export async function linkWallet(
     const data = await res.json().catch(() => ({}));
     throw new Error(data.detail || `Wallet link failed: ${res.status}`);
   }
+  return res.json();
+}
+
+export interface GithubOrgStats {
+  repositories: {
+    name: string;
+    description: string;
+    language: string;
+    stars: number;
+    forks: number;
+    open_issues: number;
+    url: string;
+  }[];
+  contributors: {
+    username: string;
+    avatar: string;
+    contributions: number;
+    role: string;
+  }[];
+  issues: {
+    id: string;
+    title: string;
+    repo: string;
+    status: string;
+    author: string;
+    created_at: string;
+  }[];
+  prs: {
+    id: string;
+    title: string;
+    repo: string;
+    status: string;
+    author: string;
+    created_at: string;
+  }[];
+  releases: {
+    version: string;
+    title: string;
+    published_at: string;
+    download_url: string;
+  }[];
+}
+
+export async function fetchGithubOrgStats(): Promise<GithubOrgStats> {
+  const res = await fetch(`${BASE}/github/org-stats`);
+  if (!res.ok) throw new Error(`Failed to fetch GitHub org stats: ${res.status}`);
   return res.json();
 }
 
