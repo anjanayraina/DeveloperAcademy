@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Login.css';
 
 interface LoginProps {
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
-  onLoginEmail: (email: string) => void;
   error: string | null;
   loading: boolean;
 }
@@ -12,12 +11,9 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({
   onLoginGitHub,
   onLoginWallet,
-  onLoginEmail,
   error,
   loading,
 }) => {
-  const [email, setEmail] = useState('');
-
   return (
     <div className="login-page">
       {/* Background gradients */}
@@ -44,31 +40,7 @@ export const Login: React.FC<LoginProps> = ({
           </div>
         ) : (
           <div className="login-methods">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (email.trim()) onLoginEmail(email.trim());
-              }}
-              className="login-email-form"
-            >
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="login-email-input"
-                required
-              />
-              <button type="submit" className="btn btn--primary login-btn login-btn--email">
-                ✉️ Continue with Email
-              </button>
-            </form>
-
-            <div className="login-divider">
-              <span>or</span>
-            </div>
-
-            <button className="btn btn--primary login-btn login-btn--wallet" style={{ background: '#2563eb' }} onClick={onLoginWallet}>
+            <button className="btn btn--primary login-btn login-btn--wallet" onClick={onLoginWallet}>
               🦊 Connect Web3 Wallet
             </button>
             

@@ -100,19 +100,6 @@ export interface AuthResponse {
   user: UserProgress;
 }
 
-export async function authEmail(email: string): Promise<AuthResponse> {
-  const res = await fetch(`${BASE}/auth/email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.detail || "Email auth failed.");
-  }
-  return res.json();
-}
-
 export async function authGithub(username?: string, code?: string): Promise<AuthResponse> {
   const res = await fetch(`${BASE}/auth/github`, {
     method: 'POST',

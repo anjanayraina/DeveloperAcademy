@@ -47,7 +47,7 @@ export default function App() {
     return null;
   };
 
-  const setSessionCookie = (uid: string, type: 'github' | 'wallet' | 'email' | 'demo', token: string) => {
+  const setSessionCookie = (uid: string, type: 'github' | 'wallet' | 'demo', token: string) => {
     document.cookie = `user_session=${JSON.stringify({ userId: uid, authType: type, token })}; path=/; max-age=86400; SameSite=Lax`;
   };
 
@@ -60,7 +60,7 @@ export default function App() {
 
   // Auth state
   const [userId, setUserId] = useState<string>(initialSession?.userId || '');
-  const [authType, setAuthType] = useState<'github' | 'wallet' | 'email' | null>(initialSession?.authType || null);
+  const [authType, setAuthType] = useState<'github' | 'wallet' | null>(initialSession?.authType || null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [jwtToken, setJwtToken] = useState<string | null>(initialSession?.token || null);
   
@@ -181,28 +181,6 @@ export default function App() {
     } catch (err) {
       console.error(err);
       alert("Failed to authenticate with GitHub.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLoginEmail = async (email: string) => {
-    try {
-      setLoginError(null);
-      setLoading(true);
-      const { authEmail } = await import('./api/client');
-      const { token, user } = await authEmail(email);
-      setUserId(user.user_id);
-      setAuthType('email');
-      setJwtToken(token);
-      setSessionCookie(user.user_id, 'email', token);
-      setProgress(user);
-      setSelectedLevel(null);
-      setSelectedLessonId(null);
-      navigate('/');
-    } catch (err: any) {
-      console.error(err);
-      setLoginError(err.message || "Failed to authenticate with Email.");
     } finally {
       setLoading(false);
     }
@@ -387,7 +365,6 @@ export default function App() {
       <Login
         onLoginGitHub={handleLoginGitHub}
         onLoginWallet={handleLoginWallet}
-        onLoginEmail={handleLoginEmail}
         error={loginError}
         loading={loading}
       />

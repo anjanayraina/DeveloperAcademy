@@ -8,7 +8,7 @@ interface HeaderProps {
   xp: number;
   streak: number;
   userId: string;
-  authType: 'github' | 'wallet' | 'email' | null;
+  authType: 'github' | 'wallet' | null;
   progress: UserProgress | null;
   onLoginGitHub: () => void;
   onLoginWallet: () => void;
@@ -18,12 +18,12 @@ interface HeaderProps {
 }
 
 const PAGE_META: Record<NavPage, { title: string; subtitle: string }> = {
-  roadmap:   { title: 'Learning Roadmap',    subtitle: 'Your path from zero to Web3 hero' },
-  dashboard: { title: 'My Dashboard',         subtitle: 'Track your progress and achievements' },
-  forum:     { title: 'Community Forum',      subtitle: 'Ask questions, share knowledge, and help others' },
-  hackathons: { title: 'Web3 Hackathons',     subtitle: 'Participate, build projects, and win prizes' },
-  mentor:    { title: 'AI Mentor',             subtitle: 'Ask anything — powered by Claude & Hermes' },
-  certificates: { title: 'My Certificates',   subtitle: 'Verifiable credentials for your Web3 achievements' },
+  roadmap:      { title: 'Academy Roadmap',    subtitle: 'Learn and compile smart contracts' },
+  dashboard:    { title: 'Learning Analytics', subtitle: 'Track your Web3 progress & stats' },
+  forum:        { title: 'Community Forum',    subtitle: 'Ask questions, share knowledge, and help others' },
+  hackathons:   { title: 'Web3 Hackathons',    subtitle: 'Build, innovate, and win.' },
+  mentor:       { title: 'AI Mentor Workspace',subtitle: 'Get real-time code reviews and support' },
+  certificates: { title: 'My Certificates',    subtitle: 'View and export your verified achievements' },
 };
 
 export const Header: React.FC<HeaderProps> = ({
@@ -52,9 +52,6 @@ export const Header: React.FC<HeaderProps> = ({
       }
       return addr;
     }
-    if (authType === 'email') {
-      return userId.replace('email-', '');
-    }
     return 'Demo User';
   };
 
@@ -69,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="header__auth">
           {authType ? (
             <div className="auth-profile">
-              <span className="auth-profile__icon">{authType === 'github' ? '🐱' : authType === 'wallet' ? '🦊' : '✉️'}</span>
+              <span className="auth-profile__icon">{authType === 'github' ? '🐱' : '🦊'}</span>
               <span className="auth-profile__name" title={userId}>{formatUser()}</span>
               {authType === 'wallet' && !progress?.github_username && (
                 <button className="btn btn--secondary btn--xs header-link-btn" onClick={onLinkGitHub} title="Link GitHub account" style={{ fontSize: '0.7rem', padding: '3px 8px', marginLeft: 8 }}>
