@@ -1,179 +1,233 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './SubscriptionPlans.css';
 
 export const SubscriptionPlans: React.FC = () => {
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
-
   const plans = [
     {
-      name: 'Explorer (Free)',
-      description: 'Start learning blockchain fundamentals and get familiar with smart contract concepts.',
-      monthlyPrice: 0,
-      yearlyPrice: 0,
+      name: 'Free',
+      tagline: 'Get Started',
+      icon: '🎁',
+      price: 0,
+      description: 'Explore the academy and start your Web3 learning journey.',
       features: [
-        { text: 'Core Roadmap Access (Levels 1-3)', enabled: true },
-        { text: 'Standard compiler challenges', enabled: true },
-        { text: 'Community forum participation', enabled: true },
-        { text: 'AI Mentor assistant (OpenClaw)', enabled: false },
-        { text: 'Verified smart contract certificates', enabled: false },
-        { text: 'Web3 hackathons entry submissions', enabled: false },
+        'Core Curriculum (Basics)',
+        'Selected Video Lessons',
+        'Community Access',
+        'AI Mentor Ask (1/day)',
+        'Certificate (Core Basics)'
       ],
-      ctaText: 'Current Plan',
-      recommended: false,
-      disabled: true,
+      ctaText: 'Get Started',
+      note: 'No credit card required',
+      highlighted: false,
     },
     {
-      name: 'Protocol Engineer (Pro)',
-      description: 'Unlock advanced Web3 modules, unlimited AI engineer mentorship, and verified credentials.',
-      monthlyPrice: 29,
-      yearlyPrice: 23,
+      name: 'Basic',
+      tagline: 'Build Foundation',
+      icon: '🌱',
+      price: 19,
+      description: 'Strengthen your skills with structured learning and hands-on practice.',
       features: [
-        { text: 'All 7 Levels & Ecosystem tracks', enabled: true },
-        { text: 'Advanced compiler sandboxes', enabled: true },
-        { text: 'Unlimited AI Mentor (OpenClaw & Hermes)', enabled: true },
-        { text: 'Verified Verifiable Credentials (PDF)', enabled: true },
-        { text: 'Web3 Hackathons entry submissions', enabled: true },
-        { text: 'Priority Forum badges & badges search', enabled: true },
+        'Everything in Free',
+        'All Core Curriculum',
+        'Quizzes & Exercises',
+        'AI Mentor (10 asks/day)',
+        'GitHub Starter Projects',
+        'Learning Progress Tracking'
       ],
-      ctaText: 'Upgrade to Pro',
-      recommended: true,
-      disabled: false,
+      ctaText: 'Start Learning',
+      highlighted: false,
     },
     {
-      name: 'Ecosystem Validator',
-      description: 'For teams, builders, and protocols requiring custom deployments and support.',
-      monthlyPrice: 149,
-      yearlyPrice: 119,
-      features: [
-        { text: 'All features of Protocol Engineer plan', enabled: true },
-        { text: 'Custom track curriculum generation', enabled: true },
-        { text: 'Validator node integration templates', enabled: true },
-        { text: 'Dedicated institutional dev channel', enabled: true },
-        { text: 'Ecosystem introductions & grants push', enabled: true },
-        { text: 'Priority 2-hour response time SLA', enabled: true },
+      name: 'Career Boost',
+      tagline: 'Unlock Opportunities',
+      icon: '🚀',
+      price: 29,
+      description: 'Unlock career, freelance & startup opportunities with in-demand Web3 skills.',
+      isCareer: true,
+      subgrid: [
+        { title: 'Get Hired', desc: 'Job ready skills', icon: '💼' },
+        { title: 'Freelance', desc: 'Find clients & projects', icon: '🤝' },
+        { title: 'Startup', desc: 'Build & launch your ideas', icon: '⚡' }
       ],
-      ctaText: 'Get Validator Access',
-      recommended: false,
-      disabled: false,
+      features: [
+        'Everything in Basic',
+        'Solidity • Rust • Go',
+        '7 Multi-Chains',
+        'DAO Development',
+        'Real Projects & Case Studies',
+        'Career & Freelance Resources',
+        'Portfolio & Resume Guidance'
+      ],
+      ctaText: 'Unlock Career',
+      highlighted: true,
+    },
+    {
+      name: 'Pro',
+      tagline: 'Build & Advance',
+      icon: '💻',
+      price: 149,
+      description: 'Build real-world dApps and advance your developer career.',
+      features: [
+        'Everything in Career Boost',
+        'Advanced Smart Contracts',
+        'DeFi & Protocol Development',
+        'AI Mentor (Unlimited asks)',
+        'Code Review (Hermes)',
+        'Priority Support',
+        'Early Access to New Courses',
+        'Pro Certificate'
+      ],
+      ctaText: 'Go Pro',
+      highlighted: false,
+    },
+    {
+      name: 'Enterprise',
+      tagline: 'Scale & Lead',
+      icon: '🏢',
+      price: 499,
+      description: 'For teams and organizations building the future of Web3.',
+      features: [
+        'Everything in Pro',
+        'Team Access (Up to 10)',
+        'Private Team Dashboard',
+        'Custom Learning Paths',
+        'Dedicated Support',
+        'Team Certification',
+        'Onboarding & Training Call',
+        'Advanced Analytics'
+      ],
+      ctaText: 'Build Together',
+      highlighted: false,
     }
   ];
 
-  const featuresComparison = [
-    { name: 'Core Roadmap Modules (Levels 1-3)', explorer: '✓', pro: '✓', validator: '✓' },
-    { name: 'Advanced Levels & Tracks (Levels 4-7)', explorer: '✖', pro: '✓', validator: '✓' },
-    { name: 'Concept Explanations (OpenClaw AI)', explorer: 'Standard', pro: 'Unlimited', validator: 'Unlimited' },
-    { name: 'Code Review & Debugging (Hermes AI)', explorer: '✖', pro: '✓', validator: '✓' },
-    { name: 'Verified Certificates', explorer: '✖', pro: '✓', validator: '✓' },
-    { name: 'Web3 Hackathons Registration', explorer: '✖', pro: '✓', validator: '✓' },
-    { name: 'Custom Track Curriculum Dev', explorer: '✖', pro: '✖', validator: '✓' },
-    { name: 'Ecosystem Intros & Grants', explorer: '✖', pro: '✖', validator: '✓' },
-    { name: 'Developer Relations SLA', explorer: '✖', pro: '24 hours', validator: '2 hours' },
+  const footerFeatures = [
+    { title: 'Learn', desc: 'Master Web3 skills step-by-step', icon: '🎓' },
+    { title: 'Get Hired', desc: 'Job-ready skills & career resources', icon: '💼' },
+    { title: 'Freelance', desc: 'Find clients & projects to earn', icon: '🤝' },
+    { title: 'Startup', desc: 'Build, launch & grow your Web3 idea', icon: '🚀' },
+    { title: 'Earn & Lead', desc: 'Earn badges, certificates & recognition', icon: '🏆' },
+    { title: 'Community', desc: 'Connect, collaborate & grow together', icon: '👥' }
+  ];
+
+  const ecosystems = [
+    { name: 'Ethereum', icon: '🟢' },
+    { name: 'Base', icon: '🔷' },
+    { name: 'Optimism', icon: '🔴' },
+    { name: 'Arbitrum', icon: '🔵' },
+    { name: 'Polygon', icon: '🟣' },
+    { name: 'Solana', icon: '🟠' },
+    { name: 'Avalanche', icon: '🟤' }
   ];
 
   return (
     <div className="subscription-plans glass animate-fade-in">
       <div className="subscription-plans__header">
-        <h2 className="subscription-plans__title">Find the plan that matches your journey</h2>
-        <p className="subscription-plans__subtitle">
-          Accelerate your blockchain engineering skills, secure onchain credentials, and build with verified developer authority.
-        </p>
-
-        {/* Toggle */}
-        <div className="billing-toggle">
-          <button 
-            className={`billing-toggle__btn ${billingPeriod === 'monthly' ? 'billing-toggle__btn--active' : ''}`}
-            onClick={() => setBillingPeriod('monthly')}
-          >
-            Monthly Billing
-          </button>
-          <button 
-            className={`billing-toggle__btn ${billingPeriod === 'yearly' ? 'billing-toggle__btn--active' : ''}`}
-            onClick={() => setBillingPeriod('yearly')}
-          >
-            Yearly Billing
-          </button>
-          <span className="billing-toggle__discount">Save 20%</span>
+        <div className="subscription-plans__divider-container">
+          <span className="subscription-plans__line"></span>
+          <h2 className="subscription-plans__title-plans">Monthly Subscription Plans</h2>
+          <span className="subscription-plans__line"></span>
         </div>
       </div>
 
       {/* Grid of Plans */}
       <div className="plans-grid">
-        {plans.map((plan) => {
-          const price = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
-          return (
-            <div key={plan.name} className={`plan-card ${plan.recommended ? 'plan-card--recommended' : ''}`}>
-              {plan.recommended && <div className="plan-card__badge">RECOMMENDED</div>}
-              <h3 className="plan-card__name">{plan.name}</h3>
-              <p className="plan-card__desc">{plan.description}</p>
-              
-              <div className="plan-card__price-container">
-                <span className="plan-card__price">${price}</span>
-                <span className="plan-card__period">/ month {billingPeriod === 'yearly' && 'billed annually'}</span>
-              </div>
-
-              <span className="plan-card__features-title">Features Included:</span>
-              <ul className="plan-card__features-list">
-                {plan.features.map((feature, idx) => (
-                  <li 
-                    key={idx} 
-                    className={`plan-card__feature-item ${!feature.enabled ? 'plan-card__feature-item--disabled' : ''}`}
-                  >
-                    <span className={`plan-card__feature-icon ${!feature.enabled ? 'plan-card__feature-icon--disabled' : ''}`}>
-                      {feature.enabled ? '✓' : '✖'}
-                    </span>
-                    {feature.text}
-                  </li>
-                ))}
-              </ul>
-
-              <button 
-                className={`btn plan-card__cta ${plan.recommended ? 'btn--primary' : 'btn--ghost'}`}
-                disabled={plan.disabled}
-                onClick={() => alert(`${plan.name} checkout placeholder. Payment integrations will be completed in the next phase.`)}
-              >
-                {plan.ctaText}
-              </button>
+        {plans.map((plan) => (
+          <div 
+            key={plan.name} 
+            className={`plan-card ${plan.highlighted ? 'plan-card--highlighted' : ''}`}
+          >
+            {plan.highlighted && <div className="plan-card__best-value">BEST VALUE</div>}
+            
+            <div className="plan-card__icon-wrap">{plan.icon}</div>
+            <h3 className="plan-card__name">{plan.name}</h3>
+            <span className="plan-card__tagline">{plan.tagline}</span>
+            
+            <div className="plan-card__price-wrap">
+              <span className="plan-card__currency">$</span>
+              <span className="plan-card__amount">{plan.price}</span>
+              <span className="plan-card__period">/month</span>
             </div>
-          );
-        })}
+
+            <p className="plan-card__desc">{plan.description}</p>
+
+            {/* Sub-grid block for Career Boost */}
+            {plan.isCareer && plan.subgrid && (
+              <div className="career-boost-subgrid">
+                {plan.subgrid.map((item) => (
+                  <div key={item.title} className="subgrid-item">
+                    <span className="subgrid-icon">{item.icon}</span>
+                    <span className="subgrid-title">{item.title}</span>
+                    <span className="subgrid-desc">{item.desc}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <ul className="plan-card__features">
+              {plan.features.map((feature, idx) => {
+                const isChains = feature === '7 Multi-Chains';
+                return (
+                  <li key={idx} className="plan-card__feature">
+                    <span className="plan-card__feature-check">✓</span>
+                    <div>
+                      <span>{feature}</span>
+                      {isChains && (
+                        <div className="chains-row">
+                          {ecosystems.map((eco) => (
+                            <span 
+                              key={eco.name} 
+                              className="chains-row__icon" 
+                              title={eco.name}
+                            >
+                              {eco.icon}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <button 
+              className={`btn plan-card__cta-btn ${plan.highlighted ? 'btn--primary' : 'btn--secondary'}`}
+              onClick={() => alert(`Redirecting to checkout session for ${plan.name} plan...`)}
+            >
+              {plan.ctaText}
+            </button>
+            {plan.note && <p className="plan-card__btn-note">{plan.note}</p>}
+          </div>
+        ))}
       </div>
 
-      {/* Detailed Feature Comparison */}
-      <div className="comparison-section animate-fade-up">
-        <h3 className="comparison-section__title">Compare Plans in Detail</h3>
-        <div className="comparison-table-wrapper">
-          <table className="comparison-table">
-            <thead>
-              <tr>
-                <th>Feature</th>
-                <th>Explorer</th>
-                <th>Protocol Engineer (Pro)</th>
-                <th>Ecosystem Validator</th>
-              </tr>
-            </thead>
-            <tbody>
-              {featuresComparison.map((row) => (
-                <tr key={row.name}>
-                  <td>{row.name}</td>
-                  <td>
-                    <span className={row.explorer === '✖' ? 'comparison-table__cross' : 'comparison-table__check'}>
-                      {row.explorer}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={row.pro === '✖' ? 'comparison-table__cross' : 'comparison-table__check'}>
-                      {row.pro}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={row.validator === '✖' ? 'comparison-table__cross' : 'comparison-table__check'}>
-                      {row.validator}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Grid of Footer Features */}
+      <div className="plans-footer-grid">
+        {footerFeatures.map((item) => (
+          <div key={item.title} className="footer-item">
+            <span className="footer-item__icon">{item.icon}</span>
+            <div>
+              <h4 className="footer-item__title">{item.title}</h4>
+              <p className="footer-item__desc">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Powered by / ecosystems footer */}
+      <div className="partners-footer">
+        <div className="partners-footer__powered">
+          <span>POWERED BY</span>
+          <span className="partners-footer__powered-logo">⬡ MOR FINANCE</span>
+        </div>
+        <div className="partners-footer__ecosystems">
+          <span className="partners-footer__label">Ecosystem Partners:</span>
+          <div className="partners-footer__list">
+            {ecosystems.map((eco) => (
+              <span key={eco.name}>{eco.icon} {eco.name}</span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

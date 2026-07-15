@@ -10,12 +10,12 @@ interface HackathonsViewProps {
 }
 
 type HackathonSubPage = 'list' | 'detail' | 'submission';
-type HackathonTab = 'upcoming' | 'ongoing' | 'completed';
+type HackathonTab = 'all' | 'upcoming' | 'ongoing' | 'completed';
 type DetailTab = 'overview' | 'rules' | 'tracks' | 'timeline';
 
 export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgressUpdate, token }) => {
   const [subPage, setSubPage] = useState<HackathonSubPage>('list');
-  const [activeTab, setActiveTab] = useState<HackathonTab>('ongoing');
+  const [activeTab, setActiveTab] = useState<HackathonTab>('all');
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>('overview');
   
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
@@ -85,9 +85,9 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
     setSubPage('submission');
   };
 
-  const handleSubmitProject = async (e: React.FormEvent) => {
+  const handleSubmission = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedHack || !projName.trim() || !projCode.trim()) return;
+    if (!selectedHack) return;
     try {
       setLoading(true);
       const updatedProgress = await postHackathonSubmit(
@@ -102,15 +102,8 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
         token
       );
       onProgressUpdate(updatedProgress);
-      
-      // Reload hackathons
-      const hacks = await fetchHackathons(userId);
-      setHackathons(hacks);
-      const freshHack = hacks.find(h => h.hackathon_id === selectedHack.hackathon_id);
-      if (freshHack) setSelectedHack(freshHack);
-      
-      setSubPage('detail');
-      alert("Project submitted successfully! +200 XP gained!");
+      setSubPage('list');
+      setSelectedHack(null);
     } catch (err) {
       console.error(err);
     } finally {
@@ -118,7 +111,6 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
     }
   };
 
-  // Checklist calculations
   const isNameFilled = projName.trim().length > 0;
   const isTaglineFilled = projTagline.trim().length > 0;
   const isDescFilled = projDesc.trim().length > 0;
@@ -128,162 +120,196 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
   const checklistCount = [isNameFilled, isTaglineFilled, isDescFilled, isVideoFilled, isCodeFilled].filter(Boolean).length;
   const checklistPct = Math.round((checklistCount / 5) * 100);
 
-  const activeCount = hackathons.filter(h => h.status === 'ongoing').length;
-  const registeredCount = 1240 + (hackathons.filter(h => h.is_registered).length * 15);
-  const submittedCount = 342 + (hackathons.filter(h => h.submission).length);
-  const totalPrizePool = "$190,000";
-
   const filteredHacks = hackathons.filter(h => {
     if (activeTab === 'ongoing') return h.status === 'ongoing';
     if (activeTab === 'upcoming') return h.status === 'upcoming';
-    return h.status === 'completed';
+    if (activeTab === 'completed') return h.status === 'completed';
+    return true; // 'all'
   });
 
   return (
     <div className="hackathons-view animate-fade-up">
       {subPage === 'list' && (
-        <div className="hacks-layout">
-          <div className="hacks-main">
-            {/* Header */}
-            <div className="hacks-header">
-              <div>
-                <h2 className="hacks-title">Hackathons</h2>
-                <p className="hacks-subtitle">Participate in exciting hackathons, build amazing projects, and turn ideas into impact.</p>
-              </div>
-            </div>
+        <div className="hacks-full-width">
+          {/* Header */}
+          <div className="hacks-header">
+            <h2 className="hacks-title">Hackathons</h2>
+            <p className="hacks-subtitle">Join MOR hackathons to solve real Web3 challenges.</p>
+          </div>
 
-            {/* Summary Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Active Hackathons</span>
-                <strong style={{ fontSize: '1.5rem', color: '#fff' }}>{activeCount}</strong>
-              </div>
-              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Registered Developers</span>
-                <strong style={{ fontSize: '1.5rem', color: '#fff' }}>{registeredCount.toLocaleString()}</strong>
-              </div>
-              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Projects Submitted</span>
-                <strong style={{ fontSize: '1.5rem', color: '#fff' }}>{submittedCount}</strong>
-              </div>
-              <div className="glass" style={{ padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Total Prize Pool</span>
-                <strong style={{ fontSize: '1.5rem', color: '#10b981' }}>{totalPrizePool}</strong>
-              </div>
+          {/* Promo Banner */}
+          <div className="hacks-promo-banner glass">
+            <h3 className="hacks-promo-banner__title">Build. Innovate. Compete.</h3>
+            <p className="hacks-promo-banner__desc">
+              Join MOR hackathons to solve real Web3 challenges, earn rewards, and shape the future of decentralized finance.
+            </p>
+            <div className="hacks-promo-banner__actions">
+              <button className="btn btn--primary" onClick={() => alert("Exploring active challenges...")}>
+                🚀 Explore Hackathons
+              </button>
+              <button className="btn btn--ghost" onClick={() => alert("Creating a team in the MOR registry...")}>
+                👥 Create Team
+              </button>
             </div>
+          </div>
 
-            {/* Tab navigator */}
-            <div className="hacks-tabs-bar glass">
-              <div className="hacks-tabs">
-                {(['upcoming', 'ongoing', 'completed'] as HackathonTab[]).map((tab) => (
-                  <button
-                    key={tab}
-                    className={`hacks-tab-btn ${activeTab === tab ? 'hacks-tab-btn--active' : ''}`}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          {/* Tab navigator */}
+          <div className="hacks-tabs-bar glass">
+            <div className="hacks-tabs">
+              {([
+                { id: 'all', label: 'All' },
+                { id: 'upcoming', label: 'Upcoming' },
+                { id: 'ongoing', label: 'Live' },
+                { id: 'completed', label: 'Past' }
+              ] as const).map((tab) => (
+                <button
+                  key={tab.id}
+                  className={`hacks-tab-btn ${activeTab === tab.id ? 'hacks-tab-btn--active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Hackathons Grid */}
+          {loading ? (
+            <div className="hacks-loading">
+              <div className="spinner" />
+              <p>Loading hackathons...</p>
+            </div>
+          ) : filteredHacks.length === 0 ? (
+            <div className="hacks-empty glass" style={{ marginBottom: 32 }}>
+              <p>No hackathons found in this category.</p>
+            </div>
+          ) : (
+            <div className="hacks-cards-grid">
+              {filteredHacks.map((hack) => (
+                <div key={hack.hackathon_id} className="hack-card glass" onClick={() => handleSelectHack(hack)}>
+                  <div className="hack-card__header">
+                    <span className="hack-card__badge-live">● LIVE</span>
+                    <span className="hack-card__badge-diff">ADVANCED</span>
+                  </div>
+                  <h4 className="hack-card__title">{hack.title}</h4>
+                  <p className="hack-card__desc">{hack.description}</p>
+                  
+                  <div className="hack-card__stats">
+                    <div className="hack-card__stat-item">
+                      <span className="hack-card__stat-lbl">Prize Pool</span>
+                      <span className="hack-card__stat-val hack-card__stat-val--prize">{hack.prize_pool}</span>
+                    </div>
+                    <div className="hack-card__stat-item">
+                      <span className="hack-card__stat-lbl">Duration</span>
+                      <span className="hack-card__stat-val hack-card__stat-val--other">14 Days</span>
+                    </div>
+                    <div className="hack-card__stat-item">
+                      <span className="hack-card__stat-lbl">Team Size</span>
+                      <span className="hack-card__stat-val hack-card__stat-val--other">2 - 5</span>
+                    </div>
+                  </div>
+
+                  <div className="hack-card__footer">
+                    <span>Ends {hack.end_date}</span>
+                    <span>👥 247 teams</span>
+                  </div>
+
+                  <button className="btn btn--ghost hack-card__view-btn">
+                    View Challenge
                   </button>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
+          )}
 
-            {/* Hackathons List */}
-            {loading ? (
-              <div className="hacks-loading">
-                <div className="spinner" />
-                <p>Loading hackathons...</p>
+          {/* Submissions & Judging status card */}
+          <div className="judging-panel glass animate-fade-in">
+            <h3 className="judging-panel__title">
+              <span>🪁</span> My Submissions & Judging Status
+            </h3>
+            
+            <div className="submission-detail-card">
+              <div className="submission-detail-card__header">
+                <h4 className="submission-detail-card__title">DeFi Protocol V2</h4>
+                <span className="submission-detail-card__badge">Under Review</span>
               </div>
-            ) : filteredHacks.length === 0 ? (
-              <div className="hacks-empty glass">
-                <p>No hackathons found in this category.</p>
+              
+              <div className="submission-detail-card__meta">
+                <span className="submission-detail-card__meta-item">
+                  🔗 github.com/alexrivera/defi-v2
+                </span>
+                <span className="submission-detail-card__meta-item">
+                  📅 Deadline: Dec 28, 2024
+                </span>
               </div>
-            ) : (
-              <div className="hacks-list">
-                {filteredHacks.map((hack) => (
-                  <div key={hack.hackathon_id} className="hack-item glass" onClick={() => handleSelectHack(hack)}>
-                    <div className="hack-item__main">
-                      <div className="hack-item__title-row">
-                        <h4 className="hack-item__title">{hack.title}</h4>
-                        {hack.is_registered && <span className="badge badge--success">✓ Registered</span>}
-                      </div>
-                      <p className="hack-item__desc">{hack.description}</p>
-                      
-                      {hack.ecosystems && hack.ecosystems.length > 0 && (
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px', marginTop: '8px' }}>
-                          {hack.ecosystems.map(eco => (
-                            <span key={eco} style={{
-                              fontSize: '0.65rem',
-                              fontWeight: 800,
-                              background: 'rgba(99, 102, 241, 0.1)',
-                              border: '1px solid rgba(99, 102, 241, 0.2)',
-                              color: '#a5b4fc',
-                              padding: '2px 8px',
-                              borderRadius: '4px',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.03em'
-                            }}>
-                              {eco}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="hack-item__meta">
-                        <span className="hack-meta-tag">💰 Prize: {hack.prize_pool}</span>
-                        <span className="hack-meta-tag">📅 Dates: {hack.start_date} - {hack.end_date}</span>
-                      </div>
-                    </div>
 
-                    <div className="hack-item__actions">
-                      {hack.is_registered ? (
-                        <button className="btn btn--secondary btn--sm">
-                          View details
-                        </button>
-                      ) : hack.status === 'upcoming' ? (
-                        <button className="btn btn--secondary btn--sm" onClick={(e) => handleRegister(e, hack.hackathon_id)}>
-                          Notify Me
-                        </button>
-                      ) : (
-                        <button className="btn btn--primary btn--sm" onClick={(e) => handleRegister(e, hack.hackathon_id)}>
-                          Register Now
-                        </button>
-                      )}
-                    </div>
+              {/* Timeline stepper */}
+              <div className="stepper-timeline">
+                <div className="stepper-line">
+                  <div className="stepper-line-fill" />
+                </div>
+                
+                {[
+                  { label: 'Submission Review', status: 'completed', icon: '✓' },
+                  { label: 'Technical Evaluation', status: 'active', icon: '⬡' },
+                  { label: 'Final Judging', status: 'pending', icon: '🔨' },
+                  { label: 'Results Announced', status: 'pending', icon: '🏁' }
+                ].map((step, idx) => (
+                  <div key={idx} className="stepper-step">
+                    <span className={`stepper-icon ${
+                      step.status === 'completed' ? 'stepper-icon--completed' : 
+                      step.status === 'active' ? 'stepper-icon--active' : ''
+                    }`}>
+                      {step.icon}
+                    </span>
+                    <span className={`stepper-label ${
+                      step.status === 'completed' ? 'stepper-label--completed' : 
+                      step.status === 'active' ? 'stepper-label--active' : ''
+                    }`}>
+                      {step.label}
+                    </span>
                   </div>
                 ))}
               </div>
-            )}
+
+              <div className="stepper-alert">
+                <span>ℹ️</span>
+                <span>3 of 5 criteria evaluated — Technical score pending final review</span>
+              </div>
+              <div style={{ height: '3px', background: 'var(--clr-primary)', borderRadius: '2px', marginTop: '12px', width: '50%' }} />
+            </div>
           </div>
 
-          {/* Sidebar Panels */}
-          <div className="hacks-sidebar">
-            {/* Why Join Hackathons */}
-            <div className="forum-panel glass">
-              <h3 className="forum-panel__title">Why Join Hackathons?</h3>
-              <div className="benefits-list">
-                <div className="benefit-item">🛠️ <strong>Build real projects</strong> - Turn concepts into code.</div>
-                <div className="benefit-item">💡 <strong>Learn new skills</strong> - Work with Morpheus SDKs.</div>
-                <div className="benefit-item">🤝 <strong>Network with devs</strong> - Meet other Web3 builders.</div>
-                <div className="benefit-item">🏆 <strong>Win amazing prizes</strong> - Huge reward pools!</div>
+          {/* Winners & Rewards Section */}
+          <div className="winners-section glass" style={{ padding: 24, borderRadius: 'var(--radius-lg)', border: '1px solid var(--clr-border)' }}>
+            <div>
+              <h3 className="winners-section__title">Winners & Rewards</h3>
+              <div className="winners-list-mock">
+                {[
+                  { team: 'TechForge Team', place: '1st Place - DeFi Innovation', prize: '$30,000', medal: '🥇' },
+                  { team: 'Nexus Builders', place: '2nd Place - DeFi Innovation', prize: '$15,000', medal: '🥈' },
+                  { team: 'CodeWave', place: '3rd Place - DeFi Innovation', prize: '$5,000', medal: '🥉' }
+                ].map((w, idx) => (
+                  <div key={idx} className="winner-card">
+                    <div className="winner-card__left">
+                      <span className="winner-card__medal">{w.medal}</span>
+                      <div>
+                        <h4 className="winner-card__team">{w.team}</h4>
+                        <span className="winner-card__place">{w.place}</span>
+                      </div>
+                    </div>
+                    <span className="winner-card__prize">{w.prize}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Your Stats */}
-            <div className="forum-panel glass">
-              <h3 className="forum-panel__title">Your Stats</h3>
-              <div className="hacks-stats-grid">
-                <div className="hacks-stat-card">
-                  <span className="hacks-stat-val">
-                    {hackathons.filter(h => h.is_registered).length}
-                  </span>
-                  <span className="hacks-stat-lbl">Joined</span>
-                </div>
-                <div className="hacks-stat-card">
-                  <span className="hacks-stat-val">
-                    {hackathons.filter(h => h.submission).length}
-                  </span>
-                  <span className="hacks-stat-lbl">Built</span>
-                </div>
+            <div>
+              <h3 className="winners-section__title">Achievement Badges</h3>
+              <div className="badges-container">
+                <span className="badge-tag-custom">🏆 Top 10 Finisher</span>
+                <span className="badge-tag-custom">✨ Best UX</span>
+                <span className="badge-tag-custom">💡 Innovation Award</span>
               </div>
             </div>
           </div>
@@ -409,7 +435,7 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
 
           <div className="submission-layout">
             {/* Form */}
-            <form onSubmit={handleSubmitProject} className="submission-form glass">
+            <form onSubmit={handleSubmission} className="submission-form glass">
               <h3>My Submission</h3>
               <p className="submission-subtitle">Manage your hackathon project submission.</p>
 
