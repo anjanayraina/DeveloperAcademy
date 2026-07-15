@@ -228,56 +228,107 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
               <span>🪁</span> My Submissions & Judging Status
             </h3>
             
-            <div className="submission-detail-card">
-              <div className="submission-detail-card__header">
-                <h4 className="submission-detail-card__title">DeFi Protocol V2</h4>
-                <span className="submission-detail-card__badge">Under Review</span>
-              </div>
-              
-              <div className="submission-detail-card__meta">
-                <span className="submission-detail-card__meta-item">
-                  🔗 github.com/alexrivera/defi-v2
-                </span>
-                <span className="submission-detail-card__meta-item">
-                  📅 Deadline: Dec 28, 2024
-                </span>
-              </div>
+            {(() => {
+              const submissionHack = hackathons.find(h => h.submission);
+              const registeredHack = hackathons.find(h => h.is_registered);
+              const displayHack = submissionHack || registeredHack;
 
-              {/* Timeline stepper */}
-              <div className="stepper-timeline">
-                <div className="stepper-line">
-                  <div className="stepper-line-fill" />
-                </div>
-                
-                {[
-                  { label: 'Submission Review', status: 'completed', icon: '✓' },
-                  { label: 'Technical Evaluation', status: 'active', icon: '⬡' },
-                  { label: 'Final Judging', status: 'pending', icon: '🔨' },
-                  { label: 'Results Announced', status: 'pending', icon: '🏁' }
-                ].map((step, idx) => (
-                  <div key={idx} className="stepper-step">
-                    <span className={`stepper-icon ${
-                      step.status === 'completed' ? 'stepper-icon--completed' : 
-                      step.status === 'active' ? 'stepper-icon--active' : ''
-                    }`}>
-                      {step.icon}
+              if (!displayHack) {
+                return (
+                  <div className="submission-detail-card" style={{ textAlign: 'center', padding: '32px' }}>
+                    <h4 className="submission-detail-card__title" style={{ marginBottom: '8px' }}>Get Ready to Build</h4>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', margin: '0 0 16px 0' }}>
+                      You haven't registered for any active hackathons yet.
+                    </p>
+                    <button 
+                      className="btn btn--primary btn--sm" 
+                      onClick={() => {
+                        const firstOngoing = hackathons.find(h => h.status === 'ongoing');
+                        if (firstOngoing) handleSelectHack(firstOngoing);
+                      }}
+                    >
+                      Explore Active Challenges
+                    </button>
+                  </div>
+                );
+              }
+
+              const hasSubmitted = !!displayHack.submission;
+              const projTitle = displayHack.submission ? displayHack.submission.project_name : `Registered: ${displayHack.title}`;
+              const badgeText = hasSubmitted ? 'Under Review' : 'Registered';
+              const codeLink = displayHack.submission ? displayHack.submission.code_link : 'No project submitted yet';
+              
+              const steps = [
+                { label: 'Submission Review', status: hasSubmitted ? 'completed' : 'active', icon: '✓' },
+                { label: 'Technical Evaluation', status: hasSubmitted ? 'active' : 'pending', icon: '⬡' },
+                { label: 'Final Judging', status: 'pending', icon: '🔨' },
+                { label: 'Results Announced', status: 'pending', icon: '🏁' }
+              ];
+
+              return (
+                <div className="submission-detail-card">
+                  <div className="submission-detail-card__header">
+                    <h4 className="submission-detail-card__title">{projTitle}</h4>
+                    <span className="submission-detail-card__badge" style={{
+                      color: hasSubmitted ? 'var(--clr-warning)' : 'var(--clr-success)',
+                      background: hasSubmitted ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                      border: hasSubmitted ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>{badgeText}</span>
+                  </div>
+                  
+                  <div className="submission-detail-card__meta">
+                    <span className="submission-detail-card__meta-item">
+                      🔗 {codeLink}
                     </span>
-                    <span className={`stepper-label ${
-                      step.status === 'completed' ? 'stepper-label--completed' : 
-                      step.status === 'active' ? 'stepper-label--active' : ''
-                    }`}>
-                      {step.label}
+                    <span className="submission-detail-card__meta-item">
+                      📅 Deadline: {displayHack.end_date}
                     </span>
                   </div>
-                ))}
-              </div>
 
-              <div className="stepper-alert">
-                <span>ℹ️</span>
-                <span>3 of 5 criteria evaluated — Technical score pending final review</span>
-              </div>
-              <div style={{ height: '3px', background: 'var(--clr-primary)', borderRadius: '2px', marginTop: '12px', width: '50%' }} />
-            </div>
+                  {/* Timeline stepper */}
+                  <div className="stepper-timeline">
+                    <div className="stepper-line">
+                      <div className="stepper-line-fill" style={{ width: hasSubmitted ? '50%' : '12.5%' }} />
+                    </div>
+                    
+                    {steps.map((step, idx) => (
+                      <div key={idx} className="stepper-step">
+                        <span className={`stepper-icon ${
+                          step.status === 'completed' ? 'stepper-icon--completed' : 
+                          step.status === 'active' ? 'stepper-icon--active' : ''
+                        }`}>
+                          {step.icon}
+                        </span>
+                        <span className={`stepper-label ${
+                          step.status === 'completed' ? 'stepper-label--completed' : 
+                          step.status === 'active' ? 'stepper-label--active' : ''
+                        }`}>
+                          {step.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="stepper-alert">
+                    <span>ℹ️</span>
+                    <span>
+                      {hasSubmitted 
+                        ? '3 of 5 criteria evaluated — Technical score pending final review'
+                        : 'Awaiting project submission before judging evaluation begins.'
+                      }
+                    </span>
+                  </div>
+                  <div style={{ 
+                    height: '3px', 
+                    background: hasSubmitted ? 'var(--clr-primary)' : 'var(--clr-success)', 
+                    borderRadius: '2px', 
+                    marginTop: '12px', 
+                    width: hasSubmitted ? '50%' : '12.5%',
+                    transition: 'all 0.4s ease'
+                  }} />
+                </div>
+              );
+            })()}
           </div>
 
           {/* Winners & Rewards Section */}
