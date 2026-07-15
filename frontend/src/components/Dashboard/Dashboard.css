@@ -200,6 +200,8 @@
   background: var(--clr-primary-light);
   margin-top: 5px;
   flex-shrink: 0;
+  box-shadow: 0 0 8px var(--clr-primary-glow);
+  animation: pulse-glow 3s infinite ease-in-out;
 }
 
 .activity-label {
@@ -362,17 +364,22 @@
   }
 }
 .metric-card-wrap {
-  background: var(--clr-bg-card);
+  background: var(--clr-bg-glass);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg);
   padding: 16px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: all var(--duration) var(--ease-out);
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 .metric-card-wrap:hover {
-  border-color: var(--clr-border-bright);
+  border-color: var(--clr-primary-light);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 32px var(--clr-primary-dim);
 }
 .metric-card__icon-container {
   font-size: 1.6rem;
@@ -405,11 +412,13 @@
 }
 
 .panel-growth {
-  background: var(--clr-bg-card);
+  background: var(--clr-bg-glass);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg);
   padding: 24px;
   position: relative;
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .panel-growth__header {

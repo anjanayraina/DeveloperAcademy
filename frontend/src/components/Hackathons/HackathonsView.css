@@ -58,8 +58,10 @@
 }
 
 .hacks-tab-btn--active {
-  background: var(--clr-primary-dim) !important;
-  color: var(--clr-primary-light) !important;
+  background: var(--clr-primary) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px var(--clr-primary-glow), inset 0 1px 1px rgba(255,255,255,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 /* Hackathons List */
@@ -473,13 +475,14 @@
 
 /* --- Redesigned Web3 Hackathons Mockup Layout --- */
 .hacks-promo-banner {
-  background: linear-gradient(135deg, #2e0854 0%, #0d0e21 100%);
-  border: 1px solid rgba(124, 58, 237, 0.25);
+  background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.2) 0%, transparent 80%), linear-gradient(135deg, #1b053a 0%, #0d0e21 100%);
+  border: 1px solid rgba(124, 58, 237, 0.35);
   border-radius: var(--radius-lg);
   padding: 32px 24px;
   margin-bottom: 24px;
   position: relative;
   overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 36px rgba(0, 0, 0, 0.4);
 }
 
 .hacks-promo-banner__title {
@@ -523,16 +526,20 @@
 }
 
 .hack-card {
-  background: var(--clr-bg-card);
+  background: var(--clr-bg-glass);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg);
   padding: 20px;
   display: flex;
   flex-direction: column;
-  transition: all var(--duration) var(--ease-out);
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 .hack-card:hover {
-  border-color: var(--clr-border-bright);
+  border-color: var(--clr-primary-light);
+  transform: translateY(-4px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 40px var(--clr-primary-dim);
 }
 
 .hack-card__header {
@@ -545,12 +552,14 @@
 .hack-card__badge-live {
   font-size: 0.65rem;
   font-weight: 800;
-  color: var(--clr-success);
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  padding: 2px 8px;
-  border-radius: 4px;
+  color: #fff;
+  background: var(--clr-success);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 3px 10px;
+  border-radius: 12px;
   text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .hack-card__badge-diff {
