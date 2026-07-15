@@ -18,6 +18,7 @@ const NAV_ITEMS: { id: NavPage; label: string; icon: string; description: string
   { id: 'hackathons',   label: 'Web3 Hackathons',  icon: '⚔️',  description: 'Build & innovate' },
   { id: 'mentor',       label: 'AI Mentor',        icon: '🤖',  description: 'Chat with AI' },
   { id: 'certificates', label: 'My Certificates',  icon: '🏆',  description: 'Earned credentials' },
+  { id: 'subscriptions', label: 'Subscription Plans', icon: '💎', description: 'Unlock premium features' },
   { id: 'about',        label: 'About MOR',        icon: 'ℹ️',  description: 'Mission & ecosystem' },
 ];
 

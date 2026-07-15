@@ -24,6 +24,7 @@ const PAGE_META: Record<NavPage, { title: string; subtitle: string }> = {
   hackathons:   { title: 'Web3 Hackathons',    subtitle: 'Build, innovate, and win.' },
   mentor:       { title: 'AI Mentor Workspace',subtitle: 'Get real-time code reviews and support' },
   certificates: { title: 'My Certificates',    subtitle: 'View and export your verified achievements' },
+  subscriptions: { title: 'Subscription Plans', subtitle: 'Choose a subscription plan to unlock premium mentorship and credentials' },
   about:        { title: 'About the Academy',  subtitle: 'Why the Academy exists and how it supports open source' },
 };
 

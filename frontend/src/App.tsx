@@ -14,6 +14,7 @@ import { ForumView } from './components/Forum/ForumView';
 import { HackathonsView } from './components/Hackathons/HackathonsView';
 import { LandingPage } from './components/Auth/LandingPage';
 import { AboutPage } from './components/About/AboutPage';
+import { SubscriptionPlans } from './components/Subscriptions/SubscriptionPlans';
 import './index.css';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
     if (path.startsWith('/hackathons')) return 'hackathons';
     if (path.startsWith('/mentor')) return 'mentor';
     if (path.startsWith('/certificates')) return 'certificates';
+    if (path.startsWith('/subscriptions')) return 'subscriptions';
     if (path.startsWith('/about')) return 'about';
     return 'roadmap';
   };
@@ -452,6 +454,7 @@ export default function App() {
           <Route path="/hackathons" element={<HackathonsView userId={userId} onProgressUpdate={handleProgressUpdate} token={jwtToken || ''} />} />
           <Route path="/mentor" element={<MentorPage currentLevel={progress?.current_level ?? 1} userId={userId} />} />
           <Route path="/certificates" element={<CertificatesView userId={userId} />} />
+          <Route path="/subscriptions" element={<SubscriptionPlans />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
