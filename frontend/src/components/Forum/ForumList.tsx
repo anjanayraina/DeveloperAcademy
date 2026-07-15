@@ -15,6 +15,9 @@ interface ForumListProps {
   onCreatePostClick: () => void;
   formatAuthor: (author: string) => string;
   getCategoryColor: (cat: string) => string;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  totalCount: number;
 }
 
 export const ForumList: React.FC<ForumListProps> = ({
@@ -30,7 +33,12 @@ export const ForumList: React.FC<ForumListProps> = ({
   topContributors,
   onCreatePostClick,
   formatAuthor,
+  currentPage,
+  setCurrentPage,
+  totalCount,
 }) => {
+  const totalPages = Math.ceil(totalCount / 5) || 1;
+
   return (
     <div className="forum-layout">
       <div className="forum-main">
@@ -89,57 +97,82 @@ export const ForumList: React.FC<ForumListProps> = ({
             <p>No threads found in this category. Be the first to start a discussion!</p>
           </div>
         ) : (
-          <div className="forum-threads-list">
-            {threads.map((thread) => (
-              <div
-                key={thread.thread_id}
-                className="thread-row-card glass"
-                onClick={() => handleSelectThread(thread.thread_id)}
-              >
-                <div className="thread-row-card__avatar">
-                  {thread.author.replace('gh-', '').replace('wallet-', '').slice(0, 2).toUpperCase()}
-                </div>
-                
-                <div className="thread-row-card__content">
-                  <h4 className="thread-row-card__title">{thread.title}</h4>
+          <>
+            <div className="forum-threads-list">
+              {threads.map((thread) => (
+                <div
+                  key={thread.thread_id}
+                  className="thread-row-card glass"
+                  onClick={() => handleSelectThread(thread.thread_id)}
+                >
+                  <div className="thread-row-card__avatar">
+                    {thread.author.replace('gh-', '').replace('wallet-', '').slice(0, 2).toUpperCase()}
+                  </div>
                   
-                  <div className="thread-row-card__tags">
-                    <span className="thread-row-card__tag-item thread-row-card__tag-item--blue">
-                      {thread.category}
-                    </span>
-                    {thread.tags.slice(0, 2).map((t, idx) => (
-                      <span
-                        key={idx}
-                        className={`thread-row-card__tag-item ${
-                          idx === 0 ? 'thread-row-card__tag-item--green' : 'thread-row-card__tag-item--purple'
-                        }`}
-                      >
-                        #{t}
+                  <div className="thread-row-card__content">
+                    <h4 className="thread-row-card__title">{thread.title}</h4>
+                    
+                    <div className="thread-row-card__tags">
+                      <span className="thread-row-card__tag-item thread-row-card__tag-item--blue">
+                        {thread.category}
                       </span>
-                    ))}
+                      {thread.tags.slice(0, 2).map((t, idx) => (
+                        <span
+                          key={idx}
+                          className={`thread-row-card__tag-item ${
+                            idx === 0 ? 'thread-row-card__tag-item--green' : 'thread-row-card__tag-item--purple'
+                          }`}
+                        >
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="thread-row-card__meta">
+                      <span>{formatAuthor(thread.author)}</span>
+                      <span>•</span>
+                      <span>{new Date(thread.created_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
 
-                  <div className="thread-row-card__meta">
-                    <span>{formatAuthor(thread.author)}</span>
-                    <span>•</span>
-                    <span>{new Date(thread.created_at).toLocaleDateString()}</span>
+                  <div className="thread-row-card__metrics">
+                    <span className="thread-row-card__metric-item">
+                      💬 {thread.replies_count}
+                    </span>
+                    <span className="thread-row-card__metric-item">
+                      ❤️ {thread.likes_count}
+                    </span>
+                    <span className="thread-row-card__metric-item">
+                      👁️ {thread.views_count}
+                    </span>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <div className="thread-row-card__metrics">
-                  <span className="thread-row-card__metric-item">
-                    💬 {thread.replies_count}
-                  </span>
-                  <span className="thread-row-card__metric-item">
-                    ❤️ {thread.likes_count}
-                  </span>
-                  <span className="thread-row-card__metric-item">
-                    👁️ {thread.views_count}
-                  </span>
-                </div>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="pagination-bar">
+                <button
+                  className="btn btn--secondary btn--sm pagination-btn"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  ← Prev
+                </button>
+                <span className="pagination-info">
+                  Page <strong>{currentPage}</strong> of {totalPages}
+                </span>
+                <button
+                  className="btn btn--secondary btn--sm pagination-btn"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  Next →
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
 

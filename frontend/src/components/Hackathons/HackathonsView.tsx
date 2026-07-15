@@ -21,6 +21,13 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedHack, setSelectedHack] = useState<Hackathon | null>(null);
+  const [currentHackPage, setCurrentHackPage] = useState(1);
+  const [totalHackCount, setTotalHackCount] = useState(0);
+
+  // Reset page index on tab switch
+  useEffect(() => {
+    setCurrentHackPage(1);
+  }, [activeTab]);
 
   // Submission Form State
   const [projName, setProjName] = useState('');
@@ -33,11 +40,19 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
   // Sync hackathons list
   useEffect(() => {
     setLoading(true);
-    fetchHackathons(userId)
-      .then(setHackathons)
+    fetchHackathons(
+      userId,
+      activeTab === 'all' ? undefined : activeTab,
+      currentHackPage,
+      3
+    )
+      .then((res) => {
+        setHackathons(res.hackathons);
+        setTotalHackCount(res.total_count);
+      })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  }, [userId, subPage]);
+  }, [userId, subPage, activeTab, currentHackPage]);
 
   const handleSelectHack = (hack: Hackathon) => {
     setSelectedHack(hack);
@@ -52,10 +67,16 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
       const updatedProgress = await postHackathonRegister(hackId, userId, token);
       onProgressUpdate(updatedProgress);
       // Reload hackathons
-      const hacks = await fetchHackathons(userId);
-      setHackathons(hacks);
+      const res = await fetchHackathons(
+        userId,
+        activeTab === 'all' ? undefined : activeTab,
+        currentHackPage,
+        3
+      );
+      setHackathons(res.hackathons);
+      setTotalHackCount(res.total_count);
       // Update selected
-      const freshHack = hacks.find(h => h.hackathon_id === hackId);
+      const freshHack = res.hackathons.find(h => h.hackathon_id === hackId);
       if (freshHack) setSelectedHack(freshHack);
     } catch (err) {
       console.error(err);
@@ -120,12 +141,7 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
   const checklistCount = [isNameFilled, isTaglineFilled, isDescFilled, isVideoFilled, isCodeFilled].filter(Boolean).length;
   const checklistPct = Math.round((checklistCount / 5) * 100);
 
-  const filteredHacks = hackathons.filter(h => {
-    if (activeTab === 'ongoing') return h.status === 'ongoing';
-    if (activeTab === 'upcoming') return h.status === 'upcoming';
-    if (activeTab === 'completed') return h.status === 'completed';
-    return true; // 'all'
-  });
+  const filteredHacks = hackathons;
 
   return (
     <div className="hackathons-view animate-fade-up">
@@ -183,44 +199,73 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
             <div className="hacks-empty glass" style={{ marginBottom: 32 }}>
               <p>No hackathons found in this category.</p>
             </div>
-          ) : (
-            <div className="hacks-cards-grid">
-              {filteredHacks.map((hack) => (
-                <div key={hack.hackathon_id} className="hack-card glass" onClick={() => handleSelectHack(hack)}>
-                  <div className="hack-card__header">
-                    <span className="hack-card__badge-live">● LIVE</span>
-                    <span className="hack-card__badge-diff">ADVANCED</span>
-                  </div>
-                  <h4 className="hack-card__title">{hack.title}</h4>
-                  <p className="hack-card__desc">{hack.description}</p>
-                  
-                  <div className="hack-card__stats">
-                    <div className="hack-card__stat-item">
-                      <span className="hack-card__stat-lbl">Prize Pool</span>
-                      <span className="hack-card__stat-val hack-card__stat-val--prize">{hack.prize_pool}</span>
-                    </div>
-                    <div className="hack-card__stat-item">
-                      <span className="hack-card__stat-lbl">Duration</span>
-                      <span className="hack-card__stat-val hack-card__stat-val--other">14 Days</span>
-                    </div>
-                    <div className="hack-card__stat-item">
-                      <span className="hack-card__stat-lbl">Team Size</span>
-                      <span className="hack-card__stat-val hack-card__stat-val--other">2 - 5</span>
-                    </div>
-                  </div>
+          ) : (() => {
+            const totalHackPages = Math.ceil(totalHackCount / 3) || 1;
 
-                  <div className="hack-card__footer">
-                    <span>Ends {hack.end_date}</span>
-                    <span>👥 247 teams</span>
-                  </div>
+            return (
+              <>
+                <div className="hacks-cards-grid">
+                  {filteredHacks.map((hack) => (
+                    <div key={hack.hackathon_id} className="hack-card glass" onClick={() => handleSelectHack(hack)}>
+                      <div className="hack-card__header">
+                        <span className="hack-card__badge-live">● LIVE</span>
+                        <span className="hack-card__badge-diff">ADVANCED</span>
+                      </div>
+                      <h4 className="hack-card__title">{hack.title}</h4>
+                      <p className="hack-card__desc">{hack.description}</p>
+                      
+                      <div className="hack-card__stats">
+                        <div className="hack-card__stat-item">
+                          <span className="hack-card__stat-lbl">Prize Pool</span>
+                          <span className="hack-card__stat-val hack-card__stat-val--prize">{hack.prize_pool}</span>
+                        </div>
+                        <div className="hack-card__stat-item">
+                          <span className="hack-card__stat-lbl">Duration</span>
+                          <span className="hack-card__stat-val hack-card__stat-val--other">14 Days</span>
+                        </div>
+                        <div className="hack-card__stat-item">
+                          <span className="hack-card__stat-lbl">Team Size</span>
+                          <span className="hack-card__stat-val hack-card__stat-val--other">2 - 5</span>
+                        </div>
+                      </div>
 
-                  <button className="btn btn--ghost hack-card__view-btn">
-                    View Challenge
-                  </button>
+                      <div className="hack-card__footer">
+                        <span>Ends {hack.end_date}</span>
+                        <span>👥 247 teams</span>
+                      </div>
+
+                      <button className="btn btn--ghost hack-card__view-btn">
+                        View Challenge
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+
+                {/* Pagination bar */}
+                {totalHackPages > 1 && (
+                  <div className="pagination-bar" style={{ marginBottom: '32px', borderTop: 'none' }}>
+                    <button
+                      className="btn btn--secondary btn--sm pagination-btn"
+                      disabled={currentHackPage === 1}
+                      onClick={() => setCurrentHackPage(currentHackPage - 1)}
+                    >
+                      ← Prev
+                    </button>
+                    <span className="pagination-info">
+                      Page <strong>{currentHackPage}</strong> of {totalHackPages}
+                    </span>
+                    <button
+                      className="btn btn--secondary btn--sm pagination-btn"
+                      disabled={currentHackPage === totalHackPages}
+                      onClick={() => setCurrentHackPage(currentHackPage + 1)}
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {/* Submissions & Judging status card */}
           <div className="judging-panel glass animate-fade-in">

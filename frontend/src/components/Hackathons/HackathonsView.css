@@ -855,3 +855,26 @@
   border: 1px solid rgba(124, 58, 237, 0.15);
   color: var(--clr-primary-light);
 }
+
+/* Pagination Bar */
+.pagination-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 12px;
+  border-top: 1px solid var(--clr-border);
+}
+.pagination-info {
+  font-size: 0.85rem;
+  color: var(--clr-text-secondary);
+}
+.pagination-info strong {
+  color: #fff;
+}
+.pagination-btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}

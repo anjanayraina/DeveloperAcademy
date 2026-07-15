@@ -11,10 +11,22 @@ from src.services.auth_helper import verify_token
 router = APIRouter()
 
 @router.get("")
-async def get_hackathons(user_id: Optional[str] = Query(None)):
-    """Retrieve all hackathons, marked with user registration and submission state if user_id is provided."""
+async def get_hackathons(
+    user_id: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    limit: int = Query(3, ge=1)
+):
+    """Retrieve hackathons, marked with user registration and submission state, paginated."""
     coll = get_hackathons_collection()
-    cursor = coll.find({})
+    query = {}
+    
+    if status and status != 'all':
+        query["status"] = status
+        
+    total_count = await coll.count_documents(query)
+    
+    cursor = coll.find(query).skip((page - 1) * limit).limit(limit)
     
     hacks = []
     async for doc in cursor:
@@ -35,7 +47,12 @@ async def get_hackathons(user_id: Optional[str] = Query(None)):
             if hid in submissions:
                 hack["submission"] = submissions[hid]
                 
-    return hacks
+    return {
+        "hackathons": hacks,
+        "total_count": total_count,
+        "page": page,
+        "limit": limit
+    }
 
 @router.post("/{hackathon_id}/register")
 async def register_hackathon(hackathon_id: str, req: RegisterRequest, verified_id: str = Depends(verify_token)):

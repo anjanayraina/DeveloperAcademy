@@ -20,6 +20,8 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('All Topics');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   
   // Active Thread Detail state
   const [selectedThread, setSelectedThread] = useState<ForumThread | null>(null);
@@ -38,9 +40,14 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
     setLoading(true);
     fetchForumThreads(
       activeCategory === 'All Topics' ? undefined : activeCategory,
-      searchQuery.trim() || undefined
+      searchQuery.trim() || undefined,
+      currentPage,
+      5
     )
-      .then(setThreads)
+      .then((res) => {
+        setThreads(res.threads);
+        setTotalCount(res.total_count);
+      })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
 
@@ -50,7 +57,11 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
         setTopContributors(res.top_contributors);
       })
       .catch((err) => console.error("Error loading forum stats:", err));
-  }, [activeCategory, searchQuery, subPage]);
+  }, [activeCategory, searchQuery, subPage, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,9 +108,12 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
       // Reload threads list
       const updated = await fetchForumThreads(
         activeCategory === 'All Topics' ? undefined : activeCategory,
-        searchQuery.trim() || undefined
+        searchQuery.trim() || undefined,
+        currentPage,
+        5
       );
-      setThreads(updated);
+      setThreads(updated.threads);
+      setTotalCount(updated.total_count);
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Failed to delete thread.");
@@ -184,6 +198,9 @@ export const ForumView: React.FC<ForumViewProps> = ({ userId, token }) => {
           onCreatePostClick={() => setSubPage('create')}
           formatAuthor={formatAuthor}
           getCategoryColor={getCategoryColor}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalCount={totalCount}
         />
       )}
 

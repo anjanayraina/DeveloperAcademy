@@ -252,11 +252,25 @@ export async function postGithubSync(userId: string, githubUsername: string, tok
 // ─── Forum API Calls ──────────────────────────────────────────────────────────
 import type { ForumThread, ForumComment, Hackathon } from '../types';
 
-export async function fetchForumThreads(category?: string, search?: string): Promise<ForumThread[]> {
+export interface PaginatedThreads {
+  threads: ForumThread[];
+  total_count: number;
+  page: number;
+  limit: number;
+}
+
+export async function fetchForumThreads(
+  category?: string,
+  search?: string,
+  page: number = 1,
+  limit: number = 5
+): Promise<PaginatedThreads> {
   let url = `${BASE}/forum/threads`;
   const params = new URLSearchParams();
   if (category) params.append('category', category);
   if (search) params.append('search', search);
+  params.append('page', String(page));
+  params.append('limit', String(limit));
   
   const queryStr = params.toString();
   if (queryStr) url += `?${queryStr}`;
@@ -322,9 +336,27 @@ export async function postForumComment(
 }
 
 // ─── Hackathons API Calls ──────────────────────────────────────────────────────
-export async function fetchHackathons(userId?: string): Promise<Hackathon[]> {
+export interface PaginatedHackathons {
+  hackathons: Hackathon[];
+  total_count: number;
+  page: number;
+  limit: number;
+}
+
+export async function fetchHackathons(
+  userId?: string,
+  status?: string,
+  page: number = 1,
+  limit: number = 3
+): Promise<PaginatedHackathons> {
   let url = `${BASE}/hackathons`;
-  if (userId) url += `?user_id=${userId}`;
+  const params = new URLSearchParams();
+  if (userId) params.append('user_id', userId);
+  if (status) params.append('status', status);
+  params.append('page', String(page));
+  params.append('limit', String(limit));
+  
+  url += `?${params.toString()}`;
   
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch hackathons: ${res.status}`);

@@ -14,9 +14,11 @@ router = APIRouter()
 @router.get("/threads")
 async def get_threads(
     category: Optional[str] = Query(None),
-    search: Optional[str] = Query(None)
+    search: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    limit: int = Query(5, ge=1)
 ):
-    """List forum threads, with search and category filters."""
+    """List forum threads, with search, category filters, and skip/limit database pagination."""
     coll = get_forum_collection()
     query = {}
     
@@ -30,12 +32,20 @@ async def get_threads(
             {"content": {"$regex": search, "$options": "i"}}
         ]
         
-    cursor = coll.find(query).sort("created_at", -1)
+    total_count = await coll.count_documents(query)
+    
+    cursor = coll.find(query).sort("created_at", -1).skip((page - 1) * limit).limit(limit)
     threads = []
     async for doc in cursor:
         doc["thread_id"] = doc.get("_id")
         threads.append(doc)
-    return threads
+        
+    return {
+        "threads": threads,
+        "total_count": total_count,
+        "page": page,
+        "limit": limit
+    }
 
 @router.get("/threads/{thread_id}")
 async def get_thread(thread_id: str):
