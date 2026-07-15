@@ -8,6 +8,7 @@
 :root {
   /* Color palette — deep space */
   --clr-bg-base:       #030307;
+  --clr-bg:            var(--clr-bg-base);
   --clr-bg-elevated:   #060710;
   --clr-bg-card:       rgba(15, 17, 36, 0.55);
   --clr-bg-glass:      rgba(10, 12, 28, 0.75);
