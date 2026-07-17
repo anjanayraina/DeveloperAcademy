@@ -221,17 +221,20 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
                         </div>
                         <div className="hack-card__stat-item">
                           <span className="hack-card__stat-lbl">Duration</span>
-                          <span className="hack-card__stat-val hack-card__stat-val--other">14 Days</span>
-                        </div>
-                        <div className="hack-card__stat-item">
-                          <span className="hack-card__stat-lbl">Team Size</span>
-                          <span className="hack-card__stat-val hack-card__stat-val--other">2 - 5</span>
+                          <span className="hack-card__stat-val hack-card__stat-val--other">
+                            {(() => {
+                              const s = new Date(hack.start_date);
+                              const e = new Date(hack.end_date);
+                              const diff = Math.abs(e.getTime() - s.getTime());
+                              const days = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 3;
+                              return `${days} ${days === 1 ? 'Day' : 'Days'}`;
+                            })()}
+                          </span>
                         </div>
                       </div>
 
                       <div className="hack-card__footer">
                         <span>Ends {hack.end_date}</span>
-                        <span>👥 247 teams</span>
                       </div>
 
                       <button className="btn btn--ghost hack-card__view-btn">

@@ -67,7 +67,8 @@ async def get_thread(thread_id: str):
 
 @router.get("/stats")
 async def get_forum_stats():
-    """Retrieve trending tags and top contributors dynamically from MongoDB collections."""
+    """Retrieve trending tags, top contributors, and online user count dynamically from MongoDB."""
+    import time
     coll = get_forum_collection()
     
     # 1. Compute trending tags
@@ -102,8 +103,10 @@ async def get_forum_stats():
     from src.services.db import get_collection
     user_coll = get_collection()
     top_contributors = []
+    total_users = 0
     
     try:
+        total_users = await user_coll.count_documents({})
         # Fetch users with XP, sorted desc
         cursor = user_coll.find({}).sort("xp", -1).limit(3)
         async for doc in cursor:

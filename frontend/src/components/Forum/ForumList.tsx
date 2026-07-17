@@ -196,13 +196,7 @@ export const ForumList: React.FC<ForumListProps> = ({
           </div>
         </div>
 
-        {/* Online Status */}
-        <div className="forum-panel glass" style={{ padding: '16px 20px' }}>
-          <div className="online-status-indicator">
-            <span className="online-dot" />
-            <span>142 developers online</span>
-          </div>
-        </div>
+
 
         {/* Trending topics */}
         <div className="forum-panel glass">

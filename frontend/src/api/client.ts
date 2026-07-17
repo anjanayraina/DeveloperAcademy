@@ -289,6 +289,7 @@ export async function fetchForumThread(threadId: string): Promise<ForumThread> {
 export interface ForumStats {
   trending_tags: { tag: string; count: number }[];
   top_contributors: { username: string; avatar: string; xp: number }[];
+  online_count?: number;
 }
 
 export async function fetchForumStats(): Promise<ForumStats> {
