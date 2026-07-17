@@ -33,6 +33,7 @@ export const ForumList: React.FC<ForumListProps> = ({
   topContributors,
   onCreatePostClick,
   formatAuthor,
+  getCategoryColor,
   currentPage,
   setCurrentPage,
   totalCount,
@@ -113,7 +114,15 @@ export const ForumList: React.FC<ForumListProps> = ({
                     <h4 className="thread-row-card__title">{thread.title}</h4>
                     
                     <div className="thread-row-card__tags">
-                      <span className="thread-row-card__tag-item thread-row-card__tag-item--blue">
+                      <span 
+                        className="thread-row-card__tag-item"
+                        style={{
+                          backgroundColor: `${getCategoryColor(thread.category)}15`,
+                          borderColor: `${getCategoryColor(thread.category)}40`,
+                          color: getCategoryColor(thread.category),
+                          border: '1px solid'
+                        }}
+                      >
                         {thread.category}
                       </span>
                       {thread.tags.slice(0, 2).map((t, idx) => (

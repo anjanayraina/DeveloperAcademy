@@ -205,11 +205,19 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
             return (
               <>
                 <div className="hacks-cards-grid">
-                  {filteredHacks.map((hack) => (
+                  {hackathons.map((hack) => (
                     <div key={hack.hackathon_id} className="hack-card glass" onClick={() => handleSelectHack(hack)}>
                       <div className="hack-card__header">
                         <span className="hack-card__badge-live">● LIVE</span>
-                        <span className="hack-card__badge-diff">ADVANCED</span>
+                        {(() => {
+                          const amt = parseInt(hack.prize_pool.replace(/[^0-9]/g, '')) || 0;
+                          const diff = amt >= 40000 ? 'ADVANCED' : amt >= 22000 ? 'INTERMEDIATE' : 'BEGINNER';
+                          return (
+                            <span className={`hack-card__badge-diff hack-card__badge-diff--${diff.toLowerCase()}`}>
+                              {diff}
+                            </span>
+                          );
+                        })()}
                       </div>
                       <h4 className="hack-card__title">{hack.title}</h4>
                       <p className="hack-card__desc">{hack.description}</p>
