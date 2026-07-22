@@ -223,12 +223,13 @@
 }
 
 .c-stat-card {
-  padding: 24px;
+  padding: 16px 20px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--clr-border);
   background: var(--clr-bg-card);
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-sm);
 }
 
 .c-stat-lbl {
