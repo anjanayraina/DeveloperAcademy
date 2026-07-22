@@ -1,6 +1,6 @@
 import type { UserProgress, ProgressUpdate, TemplateMetadata, CodeTemplate, Course, Lesson, DashboardData, Certificate, GithubActivity } from '../types';
 
-const BASE = '/api';
+const BASE = (import.meta.env.VITE_API_BASE_URL as string) || '/api';
 
 // ─── Progress ─────────────────────────────────────────────────────────────────
 export async function fetchProgress(userId = 'demo-user'): Promise<UserProgress> {
