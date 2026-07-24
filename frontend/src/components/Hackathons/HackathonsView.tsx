@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Hackathon, UserProgress } from '../../types';
 import { fetchHackathons, postHackathonRegister, postHackathonSubmit } from '../../api/client';
 import './HackathonsView.css';
@@ -143,6 +143,8 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
 
   const filteredHacks = hackathons;
 
+  const gridRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="hackathons-view animate-fade-up">
       {subPage === 'list' && (
@@ -160,17 +162,30 @@ export const HackathonsView: React.FC<HackathonsViewProps> = ({ userId, onProgre
               Join MOR hackathons to solve real Web3 challenges, earn rewards, and shape the future of decentralized finance.
             </p>
             <div className="hacks-promo-banner__actions">
-              <button className="btn btn--primary" onClick={() => alert("Exploring active challenges...")}>
+              <button
+                className="btn btn--primary"
+                onClick={() => {
+                  setActiveTab('all');
+                  gridRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
                 🚀 Explore Hackathons
               </button>
-              <button className="btn btn--ghost" onClick={() => alert("Creating a team in the MOR registry...")}>
+              <button
+                className="btn btn--ghost"
+                onClick={() => {
+                  if (hackathons.length > 0) {
+                    handleSelectHack(hackathons[0]);
+                  }
+                }}
+              >
                 👥 Create Team
               </button>
             </div>
           </div>
 
           {/* Tab navigator */}
-          <div className="hacks-tabs-bar glass">
+          <div className="hacks-tabs-bar glass" ref={gridRef}>
             <div className="hacks-tabs">
               {([
                 { id: 'all', label: 'All' },

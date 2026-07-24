@@ -448,6 +448,7 @@ export default function App() {
               userId={userId}
               onProgressUpdate={handleProgressUpdate}
               token={jwtToken || ''}
+              onNavigate={(page) => navigate(`/${page}`)}
             />
           } />
           <Route path="/forum" element={<ForumView userId={userId} token={jwtToken || ''} />} />

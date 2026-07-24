@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './SubscriptionPlans.css';
 
 export const SubscriptionPlans: React.FC = () => {
+  const [activePlan, setActivePlan] = useState<string>('Free');
   const plans = [
     {
       name: 'Free',
@@ -192,10 +193,10 @@ export const SubscriptionPlans: React.FC = () => {
             </ul>
 
             <button 
-              className={`btn plan-card__cta-btn ${plan.highlighted ? 'btn--primary' : 'btn--secondary'}`}
-              onClick={() => alert(`Redirecting to checkout session for ${plan.name} plan...`)}
+              className={`btn plan-card__cta-btn ${activePlan === plan.name ? 'btn--secondary' : plan.highlighted ? 'btn--primary' : 'btn--secondary'}`}
+              onClick={() => setActivePlan(plan.name)}
             >
-              {plan.ctaText}
+              {activePlan === plan.name ? '✓ Current Plan' : plan.ctaText}
             </button>
             {plan.note && <p className="plan-card__btn-note">{plan.note}</p>}
           </div>

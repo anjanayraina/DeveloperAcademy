@@ -8,6 +8,7 @@ interface DashboardProps {
   userId: string;
   onProgressUpdate: (updatedProgress: UserProgress) => void;
   token: string;
+  onNavigate?: (page: string) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -16,6 +17,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   userId,
   onProgressUpdate,
   token,
+  onNavigate,
 }) => {
   // Reference props to satisfy TypeScript unused variable checks
   React.useEffect(() => {
@@ -312,7 +314,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="activity-breakdown">
             <div className="activity-breakdown__header">
               <h4 className="activity-breakdown__title">Activity Breakdown</h4>
-              <button className="activity-breakdown__view-all" onClick={() => alert("Detailed breakdowns are generated in real-time.")}>View All →</button>
+              <button className="activity-breakdown__view-all" onClick={() => onNavigate?.('roadmap')}>View All →</button>
             </div>
             <div className="activity-breakdown__list">
               {activityBreakdown.map((act) => (
@@ -381,7 +383,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </div>
               ))}
             </div>
-            <button className="btn btn--primary mentor-sessions__cta-btn" onClick={() => alert("Starting new AI Mentor session...")}>
+            <button className="btn btn--primary mentor-sessions__cta-btn" onClick={() => onNavigate?.('mentor')}>
               Start New Session
             </button>
           </div>
@@ -404,7 +406,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
               <div className="recommendation-row__action">
                 <span className="recommendation-row__match">{rec.match}% Match</span>
-                <button className="recommendation-row__btn" onClick={() => alert(`Starting ${rec.name} recommendation module...`)}>⚙️</button>
+                <button className="recommendation-row__btn" onClick={() => onNavigate?.('roadmap')}>⚙️</button>
               </div>
             </div>
           ))}
