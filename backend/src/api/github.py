@@ -97,17 +97,9 @@ MOCK_MESSAGES = [
 
 @router.get("/activity/{user_id}")
 async def get_github_activity(user_id: str):
-    """Retrieve GitHub activity logs. Appends a new mock commit to simulate live syncing."""
+    """Retrieve user's logged GitHub activities."""
     user = await get_or_create_user(user_id)
-    
-    # Simulate a new commit push on request to demonstrate active tracking
-    sha = "".join(random.choices("0123456789abcdef", k=8))
-    msg = random.choice(MOCK_MESSAGES)
-    await log_github_activity(user_id, message=msg, commit_sha=sha)
-    
-    # Re-fetch user to get the complete pushed history list
-    updated_user = await get_or_create_user(user_id)
-    return updated_user.get("github_activities", [])
+    return user.get("github_activities", [])
 
 @router.post("/sync")
 async def sync_github(req: GitHubSyncRequest, verified_id: str = Depends(verify_token)):
@@ -145,17 +137,6 @@ async def sync_github(req: GitHubSyncRequest, verified_id: str = Depends(verify_
                             })
     except Exception as e:
         print(f"Error calling GitHub API: {e}")
-        
-    # If GitHub API fails, rate limited, or has no public pushes, fall back to mock commits
-    if not fetched_activities:
-        for _ in range(3):
-            sha = "".join(random.choices("0123456789abcdef", k=8))
-            msg = random.choice(MOCK_MESSAGES)
-            fetched_activities.append({
-                "commit_sha": sha,
-                "message": msg,
-                "committed_at": datetime.now(timezone.utc).isoformat()
-            })
             
     # Load existing activities and filter out duplicates
     existing_activities = user.get("github_activities", [])

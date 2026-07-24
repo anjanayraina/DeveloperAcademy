@@ -230,17 +230,23 @@ export const ForumList: React.FC<ForumListProps> = ({
         {/* Top Contributors */}
         <div className="forum-panel glass">
           <h3 className="forum-panel__title">Top Contributors</h3>
-          <div className="contributors-list">
-            {topContributors.map((c, idx) => (
-              <div key={idx} className="contributor-item">
-                <div className="contributor-avatar">{c.avatar}</div>
-                <div>
-                  <div className="contributor-name">{c.username}</div>
-                  <div className="contributor-xp">{c.xp.toLocaleString()} points</div>
+          {topContributors.length === 0 ? (
+            <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-muted)', marginTop: 8 }}>
+              No top contributors yet.
+            </p>
+          ) : (
+            <div className="contributors-list">
+              {topContributors.map((c, idx) => (
+                <div key={idx} className="contributor-item">
+                  <div className="contributor-avatar">{c.avatar}</div>
+                  <div>
+                    <div className="contributor-name">{c.username}</div>
+                    <div className="contributor-xp">{c.xp.toLocaleString()} points</div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

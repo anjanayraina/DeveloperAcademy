@@ -328,7 +328,7 @@ async def get_kpis() -> Dict[str, Any]:
     ]
     cursor_quizzes = coll.aggregate(pipeline_quizzes)
     quizzes_res = await cursor_quizzes.to_list(length=1)
-    avg_quiz_score = round(quizzes_res[0]["avg_score"], 1) if quizzes_res else 85.0 # fallback default
+    avg_quiz_score = round(quizzes_res[0]["avg_score"], 1) if quizzes_res else 0.0
     
     # 5. Coding Exercises Submitted (Total count)
     pipeline_exercises = [

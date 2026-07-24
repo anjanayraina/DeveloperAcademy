@@ -121,11 +121,7 @@ async def get_forum_stats():
         print(f"Failed to query top contributors: {e}")
         
     if not top_contributors:
-        top_contributors = [
-            {"username": "BlockMaster", "avatar": "BM", "xp": 1250},
-            {"username": "AliceDev", "avatar": "AD", "xp": 980},
-            {"username": "SmartBuilder", "avatar": "SB", "xp": 820}
-        ]
+        top_contributors = []
         
     return {
         "trending_tags": trending_tags,
