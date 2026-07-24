@@ -13,6 +13,17 @@ const SUGGESTED_PROMPTS = [
   'What is a DAO proposal lifecycle?',
 ];
 
+export const LEVEL_CONTEXT_OPTIONS = [
+  { value: 'General Developer Academy Curriculum', label: '🌐 General Curriculum' },
+  { value: 'Level 1 — Blockchain Fundamentals', label: '🎯 Level 1 — Blockchain Fundamentals' },
+  { value: 'Level 2 — Wallet Development', label: '⚡ Level 2 — Wallet Development' },
+  { value: 'Level 3 — Smart Contract Development', label: '📜 Level 3 — Smart Contract Development' },
+  { value: 'Level 4 — DeFi Fundamentals', label: '🏦 Level 4 — DeFi Fundamentals' },
+  { value: 'Level 5 — DAO Governance', label: '🏛️ Level 5 — DAO Governance' },
+  { value: 'Level 6 — MOR Finance Protocols', label: '🚀 Level 6 — MOR Finance Protocols' },
+  { value: 'Level 7 — Ecosystem Learning Track', label: '🌐 Level 7 — Ecosystem Track' },
+];
+
 interface ChatInterfaceProps {
   mentorContext?: string;
   userId?: string;
@@ -33,8 +44,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [input, setInput]         = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [mentorProvider, setMentorProvider] = useState<'openclaw' | 'hermes'>('openclaw');
+  
+  // Dynamic Level & Question Context management
+  const [currentContext, setCurrentContext] = useState<string>(mentorContext);
+  const [isCustomContext, setIsCustomContext] = useState<boolean>(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef    = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setCurrentContext(mentorContext);
+    // Check if initial mentorContext matches standard level titles
+    const isStandard = LEVEL_CONTEXT_OPTIONS.some(opt => opt.value === mentorContext);
+    if (!isStandard && mentorContext && mentorContext !== 'General Developer Academy curriculum') {
+      setIsCustomContext(true);
+    } else {
+      setIsCustomContext(false);
+    }
+  }, [mentorContext]);
 
   const scrollToBottom = () =>
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,6 +75,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     ta.style.height = 'auto';
     ta.style.height = `${Math.min(ta.scrollHeight, 160)}px`;
   }, [input]);
+
+  const handleSelectContextChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (val === 'custom') {
+      setIsCustomContext(true);
+    } else if (val === 'none') {
+      setCurrentContext('');
+      setIsCustomContext(false);
+    } else {
+      setCurrentContext(val);
+      setIsCustomContext(false);
+    }
+  };
+
+  const handleClearContext = () => {
+    setCurrentContext('');
+    setIsCustomContext(false);
+  };
 
   const sendMessage = useCallback(async (text: string) => {
     const trimmed = text.trim();
@@ -72,7 +117,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setIsStreaming(true);
 
     try {
-      const gen = streamMentorChat(trimmed, mentorContext, (delta) => {
+      const gen = streamMentorChat(trimmed, currentContext, (delta) => {
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId ? { ...m, content: m.content + delta } : m,
@@ -98,7 +143,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       );
       setIsStreaming(false);
     }
-  }, [isStreaming, mentorContext, mentorProvider, userId]);
+  }, [isStreaming, currentContext, mentorProvider, userId]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -106,6 +151,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       sendMessage(input);
     }
   };
+
+  // Determine current dropdown select value
+  const selectValue = isCustomContext
+    ? 'custom'
+    : currentContext === ''
+    ? 'none'
+    : LEVEL_CONTEXT_OPTIONS.some(opt => opt.value === currentContext)
+    ? currentContext
+    : 'custom';
 
   return (
     <div className="chat">
@@ -130,11 +184,52 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       </div>
 
-      {/* Context badge */}
+      {/* Context Level selector & controls */}
       <div className="chat__context-bar glass">
-        <span className="chat__context-icon">📍</span>
-        <span className="chat__context-label">Context:</span>
-        <span className="chat__context-value">{mentorContext}</span>
+        <div className="chat__context-info">
+          <span className="chat__context-icon">📍</span>
+          <span className="chat__context-label">Level Context:</span>
+          <select
+            className="chat__context-select"
+            value={selectValue}
+            onChange={handleSelectContextChange}
+            aria-label="Select Level Context"
+          >
+            {LEVEL_CONTEXT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+            <option value="custom">✏️ Custom Context...</option>
+            <option value="none">❌ None (No Context)</option>
+          </select>
+
+          {isCustomContext && (
+            <input
+              type="text"
+              className="chat__context-input"
+              value={currentContext}
+              onChange={(e) => setCurrentContext(e.target.value)}
+              placeholder="Enter custom level context..."
+              autoFocus
+            />
+          )}
+        </div>
+
+        <div className="chat__context-actions">
+          {currentContext ? (
+            <button
+              type="button"
+              className="chat__context-btn chat__context-btn--clear"
+              onClick={handleClearContext}
+              title="Remove context completely"
+            >
+              ❌ Remove Context
+            </button>
+          ) : (
+            <span className="chat__context-tag-none">No Active Context</span>
+          )}
+        </div>
       </div>
 
       {/* Messages */}

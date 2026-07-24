@@ -1,6 +1,6 @@
 """
-AI Mentor Service — handles LLM requests (Claude, Hermes) with SSE streaming.
-Falls back to a mock streamer when DEFAULT_LLM=mock (safe for local dev).
+AI Mentor Service — handles LLM requests via Vercel AI Mentor API (OpenClaw, Hermes) with SSE streaming.
+Falls back to Claude/Hermes local or mock streamer if mentor API token is not set.
 """
 import asyncio
 import json
@@ -35,6 +35,43 @@ def _sse_chunk(text: str) -> str:
 
 def _sse_done() -> str:
     return "data: [DONE]\n\n"
+
+
+# ─── Vercel AI Mentor Streamer ────────────────────────────────────────────────
+async def _vercel_mentor_stream(prompt: str, context: str, mentor_id: str) -> AsyncGenerator[str, None]:
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {settings.mentor_bearer_token}",
+    }
+
+    full_message = f"[Context: {context}]\n{prompt}" if context else prompt
+
+    payload = {
+        "mentorId": mentor_id,
+        "message": full_message,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(
+                settings.mentor_api_url,
+                headers=headers,
+                json=payload,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                reply_text = data.get("reply", "") or data.get("message", "") or "No response from mentor."
+                words = reply_text.split(" ")
+                for i, word in enumerate(words):
+                    chunk = word + (" " if i < len(words) - 1 else "")
+                    yield _sse_chunk(chunk)
+                    await asyncio.sleep(0.015)
+            else:
+                yield _sse_chunk(f"\n\n[Error from Mentor API ({resp.status_code}): {resp.text}]")
+        yield _sse_done()
+    except Exception as exc:
+        yield _sse_chunk(f"\n\n[Error calling Mentor API: {exc}]")
+        yield _sse_done()
 
 
 async def _mock_stream(prompt: str) -> AsyncGenerator[str, None]:
@@ -122,11 +159,19 @@ async def mentor_chat(req: MentorChatRequest):
         print(f"Error logging chat session to DB: {e}")
 
     provider = (req.provider or settings.default_llm).lower()
-    system   = _build_system_prompt(provider, req.context)
 
-    if provider in ["claude", "openclaw"]:
+    if provider == "hermes":
+        mentor_id = "hermes"
+    else:
+        mentor_id = "openclaw"
+
+    if settings.mentor_bearer_token:
+        gen = _vercel_mentor_stream(req.prompt, req.context, mentor_id)
+    elif provider in ["claude"]:
+        system = _build_system_prompt(provider, req.context)
         gen = _claude_stream(req.prompt, system)
-    elif provider == "hermes":
+    elif provider == "hermes" and settings.hermes_api_url:
+        system = _build_system_prompt(provider, req.context)
         gen = _hermes_stream(req.prompt, system)
     else:
         gen = _mock_stream(req.prompt)
