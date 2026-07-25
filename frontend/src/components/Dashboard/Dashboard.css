@@ -863,3 +863,59 @@
 .recommendation-row__btn:hover {
   color: #fff;
 }
+
+/* Responsive: Recommendations & Dashboard panels */
+@media (max-width: 768px) {
+  .recommendations-section {
+    padding: 16px 12px;
+  }
+  .recommendation-row {
+    padding: 10px 10px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .recommendation-row__icon-wrap {
+    width: 34px;
+    height: 34px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .recommendation-row__details {
+    flex: 1;
+    min-width: 0;
+  }
+  .recommendation-row__name {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .recommendation-row__tags {
+    font-size: 0.68rem;
+  }
+  .recommendation-row__action {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .recommendation-row__match {
+    font-size: 0.68rem;
+    white-space: nowrap;
+  }
+  .analytics-row-three {
+    grid-template-columns: 1fr !important;
+  }
+  .github-calendar-panel {
+    padding: 16px 12px;
+  }
+  .github-calendar-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .github-calendar-title {
+    font-size: 0.95rem;
+  }
+  .github-calendar-wrap {
+    padding: 10px 6px;
+  }
+}

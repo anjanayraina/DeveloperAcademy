@@ -250,7 +250,8 @@
   .sidebar__nav-name,
   .sidebar__nav-desc,
   .sidebar__user-container,
-  .sidebar__nav-label {
+  .sidebar__nav-label,
+  .sidebar__discord-container {
     display: none !important;
   }
   .sidebar__logo {
