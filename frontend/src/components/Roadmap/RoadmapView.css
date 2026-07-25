@@ -216,6 +216,51 @@
   line-height: 1.4;
 }
 
+.multichain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.multichain-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.multichain-card:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+.multichain-card__icon {
+  font-size: 1.1rem;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.multichain-card__title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px 0;
+}
+
+.multichain-card__sub {
+  font-size: 0.7rem;
+  color: var(--clr-text-muted);
+  margin: 0;
+  line-height: 1.3;
+}
+
 /* Build With MOR Section */
 .roadmap__build-mor {
   margin-top: 48px;

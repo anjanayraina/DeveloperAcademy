@@ -195,7 +195,6 @@ export const ForumList: React.FC<ForumListProps> = ({
               { emoji: '🤝', text: 'Be respectful and helpful.' },
               { emoji: '🔍', text: 'Search before creating a thread.' },
               { emoji: '📝', text: 'Format code blocks with syntax highlighting.' },
-              { emoji: '🚫', text: 'Do not post spam or referral links.' }
             ].map((g, idx) => (
               <div key={idx} className="guideline-bullet">
                 <span>{g.emoji}</span>
@@ -203,6 +202,23 @@ export const ForumList: React.FC<ForumListProps> = ({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Discord Community Panel */}
+        <div className="forum-panel glass" style={{ border: '1px solid rgba(88, 101, 242, 0.3)', background: 'rgba(88, 101, 242, 0.06)' }}>
+          <h3 className="forum-panel__title" style={{ color: '#7289da' }}>Discord Community</h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-secondary)', margin: '8px 0 14px 0', lineHeight: 1.4 }}>
+            Join our active Developer Academy Discord server for live chat, office hours, and real-time developer support.
+          </p>
+          <a
+            href="https://discord.gg/Jjt52cQEV"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn--primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', width: '100%', justifyContent: 'center', background: '#5865F2', borderColor: '#5865F2', textDecoration: 'none' }}
+          >
+            💬 Join Discord Server
+          </a>
         </div>
 
 

@@ -123,11 +123,58 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
           })}
         </div>
 
-        {/* Selected Track Details */}
+        {/* Selected Track Details & Multichain Integration Guide */}
         {selectedEco && (
           <div className="track-overview">
-            <span className="track-overview__label">Track Curriculum Overview</span>
+            <div className="track-overview__header">
+              <span className="track-overview__label">{selectedEco.name} Ecosystem Learning Structure</span>
+            </div>
             <p className="track-overview__desc">{selectedEco.desc}</p>
+            
+            <div className="multichain-grid">
+              <div className="multichain-card">
+                <span className="multichain-card__icon">📖</span>
+                <div>
+                  <h5 className="multichain-card__title">2 Introductory Lessons</h5>
+                  <p className="multichain-card__sub">Architecture & Environment Setup</p>
+                </div>
+              </div>
+              <div className="multichain-card">
+                <span className="multichain-card__icon">❓</span>
+                <div>
+                  <h5 className="multichain-card__title">2 Quizzes</h5>
+                  <p className="multichain-card__sub">Interactive Knowledge Evaluations</p>
+                </div>
+              </div>
+              <div className="multichain-card">
+                <span className="multichain-card__icon">💻</span>
+                <div>
+                  <h5 className="multichain-card__title">2 Coding Exercises</h5>
+                  <p className="multichain-card__sub">Smart Contract Execution Tasks</p>
+                </div>
+              </div>
+              <div className="multichain-card">
+                <span className="multichain-card__icon">🛠️</span>
+                <div>
+                  <h5 className="multichain-card__title">2 Starter Projects</h5>
+                  <p className="multichain-card__sub">Token Protocol & dApp Integration</p>
+                </div>
+              </div>
+              <div className="multichain-card">
+                <span className="multichain-card__icon">🤖</span>
+                <div>
+                  <h5 className="multichain-card__title">AI Mentor Support</h5>
+                  <p className="multichain-card__sub">OpenClaw (Education) & Hermes (Engineering)</p>
+                </div>
+              </div>
+              <div className="multichain-card">
+                <span className="multichain-card__icon">🗺️</span>
+                <div>
+                  <h5 className="multichain-card__title">Full Ecosystem Roadmap</h5>
+                  <p className="multichain-card__sub">Intermediate, Advanced, DeFi, NFTs, Governance, Hackathons, Certifications & Capstones</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

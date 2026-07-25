@@ -91,6 +91,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ))}
       </nav>
 
+      {/* Discord Banner */}
+      <div className="sidebar__discord-container">
+        <a
+          href="https://discord.gg/Jjt52cQEV"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sidebar__discord-link"
+          title="Join Developer Academy Discord Community"
+        >
+          <span className="sidebar__discord-icon">💬</span>
+          <div className="sidebar__discord-text">
+            <span className="sidebar__discord-title">Join Discord</span>
+            <span className="sidebar__discord-sub">Community & Support</span>
+          </div>
+          <span className="sidebar__discord-arrow">↗</span>
+        </a>
+      </div>
+
       {/* Footer */}
       <div className="sidebar__footer">
         <div className="sidebar__user-container">

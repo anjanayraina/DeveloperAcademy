@@ -408,84 +408,288 @@ TRACK_TOPICS = {
 }
 
 def get_track_lessons(track_id: str) -> List[Lesson]:
-    track_id = track_id.lower()
-    topics = TRACK_TOPICS.get(track_id, TRACK_TOPICS["ethereum"])
-    lessons = []
+    """
+    Generate the standardized Multichain Integration curriculum for each supported ecosystem:
+    - 2 Introductory Lessons
+    - 2 Quizzes (multiple questions per lesson)
+    - 2 Coding Exercises
+    - 2 Starter Projects
+    - AI Mentor Support (OpenClaw & Hermes)
+    - Full Ecosystem Roadmap: Intermediate, Advanced, DeFi, NFTs, Governance, Hackathons, Certifications & Capstones
+    """
+    t_id = track_id.lower().strip()
+    name = t_id.capitalize()
     
-    # 1. Add core lessons
-    for idx, topic in enumerate(topics):
-        lesson_num = idx + 1
-        lessons.append(
-            Lesson(
-                id=f"7-{lesson_num}",
-                level_id=7,
-                title=topic,
-                duration="12 mins",
-                xp=150,
-                content=f"""# {topic}
-                
-This is an official module on the **{track_id.upper()} Ecosystem Track**.
+    # Ecosystem-specific metadata for bespoke introductory content & starter projects
+    ECOSYSTEM_DETAILS = {
+        "ethereum": {
+            "arch": "Ethereum Virtual Machine (EVM), proof-of-stake consensus (Gasper), and gas execution model.",
+            "tool": "Solidity (^0.8.20), Hardhat, Foundry, and Ethers.js / Viem",
+            "p1_title": "Ethereum Starter Project 1: ERC-20 Staking Contract",
+            "p1_desc": "Build, compile, and deploy a yield-bearing ERC-20 staking contract on Ethereum Goerli/Sepolia testnet.",
+            "p2_title": "Ethereum Starter Project 2: Full-Stack DApp with OpenClaw & Hermes AI Mentors",
+            "p2_desc": "Connect a React frontend with RainbowKit wallet connection and integrate OpenClaw & Hermes AI mentor guidance."
+        },
+        "arbitrum": {
+            "arch": "Arbitrum Nitro execution engine, Optimistic Rollup AVM, Orbit L3 chains, and Stylus Rust execution environment.",
+            "tool": "Solidity & Rust (Stylus SDK), Arbitrum Nitro testnet nodes, and Foundry",
+            "p1_title": "Arbitrum Starter Project 1: High-Frequency Stylus (Rust) Smart Contract",
+            "p1_desc": "Develop a WebAssembly-compiled Rust smart contract leveraging Arbitrum Stylus for 10x gas savings.",
+            "p2_title": "Arbitrum Starter Project 2: Orbit L3 Chain DApp with OpenClaw & Hermes AI Support",
+            "p2_desc": "Deploy an L3 Orbit chain instance and build a custom frontend with OpenClaw & Hermes engineering support."
+        },
+        "optimism": {
+            "arch": "OP Stack infrastructure, Superchain inter-rollup messaging, and Bedrock rollup execution layer.",
+            "tool": "Solidity, OP Stack Devnet CLI, Foundry, and Wagmi",
+            "p1_title": "Optimism Starter Project 1: Superchain Cross-Domain Messenger Vault",
+            "p1_desc": "Build a cross-domain message passing vault smart contract using the OP Stack CrossDomainMessenger.",
+            "p2_title": "Optimism Starter Project 2: RetroPGF Governance DApp with AI Mentors",
+            "p2_desc": "Implement a Retroactive Public Goods Funding (RetroPGF) voting portal integrated with OpenClaw AI."
+        },
+        "base": {
+            "arch": "Base Layer-2 execution engine, Coinbase Wallet Smart Wallet standards, and Onchain app architecture.",
+            "tool": "Solidity (^0.8.20), Coinbase Smart Wallet SDK, Foundry, and MOR Finance APIs",
+            "p1_title": "Base Starter Project 1: MOR Finance Yield Aggregator Contract",
+            "p1_desc": "Construct an automated yield aggregator contract on Base L2 connecting with MOR Finance compute pools.",
+            "p2_title": "Base Starter Project 2: Onchain App with OpenClaw & Hermes AI Mentors",
+            "p2_desc": "Build a zero-friction mobile Web3 dApp with Paymaster gasless transactions and AI mentor integration."
+        },
+        "polygon": {
+            "arch": "Polygon PoS architecture, Polygon CDK (Chain Development Kit), and zkEVM zero-knowledge rollups.",
+            "tool": "Solidity, Polygon CDK CLI, Hardhat, and Plonky2 ZK verifiers",
+            "p1_title": "Polygon Starter Project 1: zkEVM Zero-Knowledge Proof Verifier Contract",
+            "p1_desc": "Deploy a zero-knowledge proof verification smart contract on Polygon zkEVM testnet.",
+            "p2_title": "Polygon Starter Project 2: Consumer DApp & NFT Marketplace with AI Support",
+            "p2_desc": "Create a high-scale consumer NFT marketplace with OpenClaw educational walkthroughs."
+        },
+        "avalanche": {
+            "arch": "Avalanche Snow consensus engine, Primary Network (C-Chain, P-Chain, X-Chain), and Subnet Virtual Machines.",
+            "tool": "Solidity, Avalanche CLI, Avalanche Warp Messaging (AWM), and Ethers.js",
+            "p1_title": "Avalanche Starter Project 1: Custom Avalanche Subnet & AWM Bridge",
+            "p1_desc": "Deploy a custom EVM Subnet and configure Avalanche Warp Messaging (AWM) for cross-subnet transfers.",
+            "p2_title": "Avalanche Starter Project 2: Subnet DeFi Portal with OpenClaw & Hermes AI Support",
+            "p2_desc": "Build an Avalanche Subnet liquidity portal with real-time Hermes engineering assistant streaming."
+        },
+        "solana": {
+            "arch": "Solana Sealevel parallel smart contract runtime, Proof-of-History (PoH) consensus, and Accounts model.",
+            "tool": "Rust, Anchor Framework, Solana CLI, and @solana/web3.js",
+            "p1_title": "Solana Starter Project 1: Anchor Framework Token Vault Program",
+            "p1_desc": "Write a high-throughput Rust program using the Anchor framework with Program Derived Addresses (PDAs).",
+            "p2_title": "Solana Starter Project 2: Web3 DApp with OpenClaw & Hermes AI Integration",
+            "p2_desc": "Develop a Solana dApp connecting Phantom wallet with OpenClaw learning recommendations."
+        }
+    }
+    
+    details = ECOSYSTEM_DETAILS.get(t_id, ECOSYSTEM_DETAILS["ethereum"])
 
-### Core Objective:
-In this module, you will learn the architecture, smart contract conventions, and deployment workflows for **{topic}**. 
+    lessons: List[Lesson] = [
+        # 1. Introductory Lesson 1
+        Lesson(
+            id="7-1",
+            level_id=7,
+            title=f"Introductory Lesson 1: {name} Architecture & Core Principles",
+            duration="12 mins",
+            xp=150,
+            content=f"""# Introductory Lesson 1: {name} Architecture & Core Principles
 
-### Concepts Covered:
-1. **Infrastructure**: Setup local test nodes and RPC bindings.
-2. **Implementation**: Code optimization and standards.
-3. **Security**: Common vulnerabilities and verification tools.
+Welcome to the **{name} Ecosystem Track** on Developer Academy!
+
+### Overview & Architecture
+{details['arch']}
+
+### Key Concepts:
+1. **Consensus & Execution**: Learn how transactions are validated, ordered, and committed to state.
+2. **Network Topology**: Explore mainnet, testnet RPC endpoints, and block explorer verification.
+3. **Gas & Execution Efficiency**: Understand execution limits, state storage costs, and transaction fees.
+
+### AI Mentor Assistance:
+You can switch to **OpenClaw (Education Mentor)** in the chat panel above to ask questions about {name}'s consensus or architecture at any point!
 """,
-                quiz=[
-                    QuizQuestion(
-                        question=f"Which of the following is true about {topic}?",
-                        options=[
-                            "It represents a specialized ecosystem feature and implementation standard.",
-                            "It is a generic database scaling protocol completely unrelated to blockchains.",
-                            "It requires writing client-side assembly layouts only.",
-                            "It cannot be deployed to local test networks."
-                        ],
-                        correct_idx=0
-                    )
-                ],
-                exercise=CodingExercise(
-                    instruction=f"Write a comment referencing the {topic.lower()} standard. Include the keyword '{track_id}'.",
-                    template=f"// Ecosystem: {track_id}\n",
-                    required_keywords=[track_id]
+            quiz=[
+                QuizQuestion(
+                    question=f"Which architectural model powers transaction processing on {name}?",
+                    options=[
+                        details['arch'],
+                        "A centralized SQL relational database server.",
+                        "Unencrypted local file storage.",
+                        "Legacy FTP file transfers."
+                    ],
+                    correct_idx=0
+                ),
+                QuizQuestion(
+                    question=f"Why is understanding network RPC endpoints critical when developing for {name}?",
+                    options=[
+                        "RPC nodes broadcast transactions, query on-chain state, and interface between dApps and nodes.",
+                        "RPC nodes compile CSS stylesheets for frontend designs.",
+                        "RPC nodes replace Web3 wallet seed phrases.",
+                        "RPC nodes parse HTML tags."
+                    ],
+                    correct_idx=0
                 )
+            ],
+            exercise=CodingExercise(
+                instruction=f"Write a smart contract comment initializing the {name} architecture definition. Ensure your code contains the keywords `{t_id}` and `architecture`.",
+                template=f"// Ecosystem: {t_id}\n// Defined below:\n",
+                required_keywords=[t_id, "architecture"]
+            )
+        ),
+
+        # 2. Introductory Lesson 2
+        Lesson(
+            id="7-2",
+            level_id=7,
+            title=f"Introductory Lesson 2: {name} Environment Setup & Tooling",
+            duration="15 mins",
+            xp=150,
+            content=f"""# Introductory Lesson 2: {name} Environment Setup & Tooling
+
+In this second introductory module, you will configure your developer environment to compile, test, and deploy smart contracts on **{name}**.
+
+### Developer Tooling Chain:
+- **Primary Frameworks**: {details['tool']}.
+- **RPC & Provider Bindings**: Configure custom network RPC URLs, chain IDs, and testnet faucets.
+- **Verification Workflow**: Submit contract source code and ABI artifacts to block explorers.
+
+### AI Mentor Assistance:
+If you encounter compiler warnings or deployment errors, switch to **Hermes (Engineering Mentor)** for automated code reviews and fixes!
+""",
+            quiz=[
+                QuizQuestion(
+                    question=f"Which developer toolchain is recommended for {name} contract development?",
+                    options=[
+                        details['tool'],
+                        "Microsoft Word and Excel macros.",
+                        "Adobe Photoshop CS6.",
+                        "Python 2.7 legacy script interpreters."
+                    ],
+                    correct_idx=0
+                ),
+                QuizQuestion(
+                    question=f"What step must be performed after deploying a contract on {name} testnets?",
+                    options=[
+                        "Verify contract source code and ABI artifacts on the block explorer.",
+                        "Delete the private key from disk.",
+                        "Restart the local operating system.",
+                        "Format the hard drive."
+                    ],
+                    correct_idx=0
+                )
+            ],
+            exercise=CodingExercise(
+                instruction=f"Write a configuration comment referencing the compiler setup for {name}. Ensure your code contains `{t_id}` and `compiler`.",
+                template=f"// {name} Config Setup\n",
+                required_keywords=[t_id, "compiler"]
+            )
+        ),
+
+        # 3. Starter Project 1
+        Lesson(
+            id="7-3",
+            level_id=7,
+            title=details['p1_title'],
+            duration="20 mins",
+            xp=200,
+            content=f"""# {details['p1_title']}
+
+### Project Blueprint:
+{details['p1_desc']}
+
+### Hands-On Instructions:
+1. **Contract Structure**: Implement state variables, event logging, and access control modifiers.
+2. **Compilation**: Run local compilation scripts using {details['tool']}.
+3. **Testnet Deployment**: Broadcast contract bytecodes to the testnet RPC node.
+""",
+            quiz=[
+                QuizQuestion(
+                    question=f"What is the primary objective of {details['p1_title']}?",
+                    options=[
+                        details['p1_desc'],
+                        "To format static CSS stylesheets.",
+                        "To send manual HTTP GET requests."
+                    ],
+                    correct_idx=0
+                )
+            ],
+            exercise=CodingExercise(
+                instruction=f"Write a contract structure comment for Starter Project 1. The code must contain `{t_id}` and `project1`.",
+                template=f"// {details['p1_title']}\n",
+                required_keywords=[t_id, "project1"]
+            )
+        ),
+
+        # 4. Starter Project 2
+        Lesson(
+            id="7-4",
+            level_id=7,
+            title=details['p2_title'],
+            duration="25 mins",
+            xp=250,
+            content=f"""# {details['p2_title']}
+
+### Project Blueprint:
+{details['p2_desc']}
+
+### AI Mentor Integration:
+- **OpenClaw (Education)**: Guides your users through onboarding and learning recommendations.
+- **Hermes (Engineering)**: Reviews your frontend contract calls, debugging state shifts in real-time.
+""",
+            quiz=[
+                QuizQuestion(
+                    question=f"How do OpenClaw & Hermes AI Mentors assist in Starter Project 2?",
+                    options=[
+                        "OpenClaw provides education & onboarding guidance while Hermes offers real-time engineering and code review support.",
+                        "They disable Web3 wallet connections.",
+                        "They convert Rust code to HTML tables."
+                    ],
+                    correct_idx=0
+                )
+            ],
+            exercise=CodingExercise(
+                instruction=f"Write a dApp integration comment for Starter Project 2. The code must contain `{t_id}` and `project2`.",
+                template=f"// {details['p2_title']}\n",
+                required_keywords=[t_id, "project2"]
+            )
+        ),
+
+        # 5. Full Ecosystem Roadmap & Capstone Projects
+        Lesson(
+            id="7-5",
+            level_id=7,
+            title=f"{name} Full Ecosystem Roadmap & Capstone Projects",
+            duration="30 mins",
+            xp=300,
+            content=f"""# {name} Full Ecosystem Roadmap & Capstone Projects
+
+Congratulations on completing the Introductory Lessons, Quizzes, Coding Exercises, and Starter Projects for **{name}**!
+
+### Comprehensive Ecosystem Roadmap Scope:
+1. **Intermediate Modules**: Multi-sig contracts, tokenomics, state optimization.
+2. **Advanced Protocols**: Cross-chain messaging, ZK proof verification, high-throughput scaling.
+3. **DeFi Protocols**: AMMs, liquidity pools, collateralized lending, yield vaults.
+4. **NFTs & Standards**: Dynamic NFTs, soulbound tokens, marketplace contracts.
+5. **Governance**: On-chain DAOs, voting delegation, timelocks.
+6. **Hackathons & Grants**: Ecosystem hackathons, MOR builder grants, public goods.
+7. **Certifications & Capstones**: On-chain verifiable credentials and production capstone projects.
+""",
+            quiz=[
+                QuizQuestion(
+                    question=f"Which advanced topics are covered in the complete {name} Ecosystem Roadmap?",
+                    options=[
+                        "Intermediate, Advanced Protocols, DeFi, NFTs, Governance, Hackathons, Certifications, and Capstone Projects.",
+                        "Basic HTML styling only.",
+                        "Legacy PHP scripting."
+                    ],
+                    correct_idx=0
+                )
+            ],
+            exercise=CodingExercise(
+                instruction=f"Write a final capstone completion comment. The code must contain `{t_id}` and `capstone`.",
+                template=f"// {name} Capstone Status:\n",
+                required_keywords=[t_id, "capstone"]
             )
         )
-        
-    # 2. Add mock filler lessons up to 20 total
-    for idx in range(len(topics), 20):
-        lesson_num = idx + 1
-        sub_topic = f"{track_id.capitalize()} Deep Dive Module {lesson_num - len(topics)}"
-        lessons.append(
-            Lesson(
-                id=f"7-{lesson_num}",
-                level_id=7,
-                title=sub_topic,
-                duration="10 mins",
-                xp=100,
-                content=f"""# {sub_topic}
-
-Explore auxiliary protocols, developer documentation, and ecosystem grants for {track_id.capitalize()} development.
-""",
-                quiz=[
-                    QuizQuestion(
-                        question=f"What is the purpose of the {sub_topic} module?",
-                        options=[
-                            "To gain deeper familiarity with developer integrations.",
-                            "To compile general layout styling rules."
-                        ],
-                        correct_idx=0
-                    )
-                ],
-                exercise=CodingExercise(
-                    instruction="Write a comment with the word 'completed'.",
-                    template="// Status:\n",
-                    required_keywords=["completed"]
-                )
-            )
-        )
+    ]
+    
     return lessons
 
 def get_courses_list(track: str = "ethereum") -> List[Course]:

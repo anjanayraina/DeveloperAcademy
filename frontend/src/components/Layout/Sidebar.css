@@ -126,6 +126,62 @@
   border-radius: 2px 0 0 2px;
 }
 
+/* Discord Banner */
+.sidebar__discord-container {
+  padding: 0 12px 12px 12px;
+}
+
+.sidebar__discord-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.25);
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar__discord-link:hover {
+  background: rgba(88, 101, 242, 0.25);
+  border-color: #5865F2;
+  transform: translateY(-1px);
+}
+
+.sidebar__discord-icon {
+  font-size: 1.1rem;
+}
+
+.sidebar__discord-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar__discord-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #7289da;
+}
+
+.sidebar__discord-link:hover .sidebar__discord-title {
+  color: #ffffff;
+}
+
+.sidebar__discord-sub {
+  font-size: 0.68rem;
+  color: var(--clr-text-muted);
+}
+
+.sidebar__discord-arrow {
+  font-size: 0.8rem;
+  color: #7289da;
+}
+
 /* Footer */
 .sidebar__footer {
   padding: 16px 20px;

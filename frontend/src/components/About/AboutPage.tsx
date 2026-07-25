@@ -44,6 +44,24 @@ export const AboutPage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '32px 0' }} />
+
+      {/* Discord Community Section */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px', borderRadius: '16px', border: '1px solid rgba(88, 101, 242, 0.3)', background: 'rgba(88, 101, 242, 0.08)', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#7289da', margin: '0 0 4px 0' }}>Join Our Discord Community</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--clr-text-secondary)', margin: 0 }}>Connect with developers, ask questions, get live office hours support, and collaborate.</p>
+        </div>
+        <a
+          href="https://discord.gg/Jjt52cQEV"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px', background: '#5865F2', color: '#fff', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', transition: 'all 0.2s' }}
+        >
+          💬 Join Discord
+        </a>
+      </div>
     </div>
   );
 };
