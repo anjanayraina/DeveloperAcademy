@@ -101,6 +101,70 @@ async def get_github_activity(user_id: str):
     user = await get_or_create_user(user_id)
     return user.get("github_activities", [])
 
+@router.get("/stats/{username}")
+async def get_github_user_stats(username: str):
+    """Fetch live public GitHub statistics (public repos, merged PRs, followers, total commits) directly from GitHub API."""
+    username = username.strip()
+    if not username:
+        raise HTTPException(status_code=400, detail="GitHub username required.")
+
+    headers = {
+        "User-Agent": "Developer-Academy-Backend",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    async with httpx.AsyncClient() as client:
+        # 1. Fetch user profile
+        user_resp = await client.get(f"https://api.github.com/users/{username}", headers=headers, timeout=10)
+        if user_resp.status_code != 200:
+            raise HTTPException(status_code=user_resp.status_code, detail=f"GitHub user '{username}' not found.")
+        
+        user_data = user_resp.json()
+        public_repos = user_data.get("public_repos", 0)
+        followers = user_data.get("followers", 0)
+        avatar_url = user_data.get("avatar_url", "")
+        name = user_data.get("name") or username
+
+        # 2. Fetch Merged PRs count via search API
+        merged_prs = 0
+        try:
+            pr_resp = await client.get(
+                f"https://api.github.com/search/issues?q=author:{username}+type:pr+is:merged",
+                headers=headers,
+                timeout=10
+            )
+            if pr_resp.status_code == 200:
+                merged_prs = pr_resp.json().get("total_count", 0)
+        except Exception as e:
+            print(f"Error fetching merged PRs: {e}")
+
+        # 3. Fetch Total Commits count via search API
+        total_commits = 0
+        try:
+            commit_headers = {
+                "User-Agent": "Developer-Academy-Backend",
+                "Accept": "application/vnd.github.cloak-preview+json"
+            }
+            commit_resp = await client.get(
+                f"https://api.github.com/search/commits?q=author:{username}",
+                headers=commit_headers,
+                timeout=10
+            )
+            if commit_resp.status_code == 200:
+                total_commits = commit_resp.json().get("total_count", 0)
+        except Exception as e:
+            print(f"Error fetching commits count: {e}")
+
+        return {
+            "username": username,
+            "name": name,
+            "avatar_url": avatar_url,
+            "public_repos": public_repos,
+            "followers": followers,
+            "merged_prs": merged_prs,
+            "total_commits": total_commits
+        }
+
 @router.post("/sync")
 async def sync_github(req: GitHubSyncRequest, verified_id: str = Depends(verify_token)):
     """Link a user's GitHub username, fetch their public commits from GitHub API, and save them in MongoDB."""

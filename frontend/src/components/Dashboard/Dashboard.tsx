@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { UserProgress } from '../../types';
+import { fetchGitHubUserStats } from '../../api/client';
+import type { GitHubUserStats } from '../../api/client';
 import './Dashboard.css';
 
 interface DashboardProps {
@@ -19,8 +21,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
   token,
   onNavigate,
 }) => {
+  const [ghStats, setGhStats] = useState<GitHubUserStats | null>(null);
+  const [ghLoading, setGhLoading] = useState<boolean>(false);
+
+  const ghUsername = progress?.github_username || (userId && userId.startsWith('gh-') ? userId.replace('gh-', '') : null);
+
+  useEffect(() => {
+    if (ghUsername) {
+      setGhLoading(true);
+      fetchGitHubUserStats(ghUsername)
+        .then((data) => {
+          setGhStats(data);
+        })
+        .catch((err) => {
+          console.warn('Failed to fetch GitHub live stats:', err);
+        })
+        .finally(() => setGhLoading(false));
+    }
+  }, [ghUsername]);
+
   // Reference props to satisfy TypeScript unused variable checks
-  React.useEffect(() => {
+  useEffect(() => {
     if (userId && token && onProgressUpdate) {
       console.log("Analytics dashboard active for:", userId);
     }
@@ -168,35 +189,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const weeklyActivity = getWeeklyActivityData();
-
-  // 4. AI Mentor Session Insights: map dynamically to the active track
-  const getDynamicMentorSessions = (track?: string) => {
-    const trackName = (track || 'ethereum').toLowerCase();
-    if (trackName === 'solana') {
-      return [
-        { tag: 'Code Review', title: 'Solana Anchor Accounts Constraints', desc: 'Mentor suggested 3 optimizations for your Rust account validation checks.', time: '2 hrs ago', isReview: true },
-        { tag: 'Concept Explainer', title: 'Solana Accounts Model vs EVM', desc: 'Successfully grasped rent exemption and state isolation.', time: 'Yesterday', isReview: false }
-      ];
-    }
-    if (trackName === 'arbitrum') {
-      return [
-        { tag: 'Code Review', title: 'Arbitrum Stylus Rust Entrypoint', desc: 'Mentor suggested 2 optimizations for memory allocator usage.', time: '2 hrs ago', isReview: true },
-        { tag: 'Concept Explainer', title: 'Arbitrum Nitro Gas Offloading', desc: 'Successfully grasped L2 execution phase and L1 sequencing.', time: 'Yesterday', isReview: false }
-      ];
-    }
-    if (trackName === 'optimism') {
-      return [
-        { tag: 'Code Review', title: 'OP Stack L2 Standard Bridge', desc: 'Mentor reviewed cross-domain deposit and withdrawal transaction handling.', time: '2 hrs ago', isReview: true },
-        { tag: 'Concept Explainer', title: 'Optimistic Rollup Fault Proofs', desc: 'Grasped interactive fraud proof challenges and Cannon emulator execution.', time: 'Yesterday', isReview: false }
-      ];
-    }
-    return [
-      { tag: 'Code Review', title: 'Solidity Reentrancy Guard Pattern', desc: 'Mentor suggested 3 optimizations for your external contract calls.', time: '2 hrs ago', isReview: true },
-      { tag: 'Concept Explainer', title: 'EIP-1153 Transient Storage', desc: 'Successfully grasped TSTORE and TLOAD opcode mechanics.', time: 'Yesterday', isReview: false }
-    ];
-  };
-
-  const mentorSessions = getDynamicMentorSessions(progress.active_track);
 
   // 5. Learning Recommendations: map dynamically to user level and track
   const getDynamicRecommendations = (level: number, track?: string) => {
@@ -362,30 +354,66 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        {/* AI Mentor Session Recent insights */}
+        {/* GitHub Connected Live Developer Stats */}
         <div className="panel-growth">
           <div className="mentor-sessions">
             <div className="mentor-sessions__header">
-              <h4 className="mentor-sessions__title">AI Mentor Session</h4>
-              <span className="mentor-sessions__subtitle">Recent session insights</span>
+              <h4 className="mentor-sessions__title">GitHub Developer Stats</h4>
+              <span className="mentor-sessions__subtitle">
+                {ghUsername ? `@${ghUsername} live GitHub API metrics` : 'Connect your GitHub account'}
+              </span>
             </div>
-            <div className="mentor-sessions__list">
-              {mentorSessions.map((session, idx) => (
-                <div key={idx} className="session-card">
-                  <div className="session-card__header">
-                    <span className={`session-card__tag ${session.isReview ? 'session-card__tag--review' : 'session-card__tag--explain'}`}>
-                      {session.tag}
-                    </span>
-                    <span className="session-card__time">{session.time}</span>
+
+            {ghUsername ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div style={{ padding: '14px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', textAlign: 'center' }}>
+                    <span style={{ fontSize: '1.3rem', display: 'block', marginBottom: '4px' }}>📁</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff' }}>{ghLoading ? '...' : (ghStats?.public_repos ?? 0)}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600, marginTop: '2px' }}>Public Repos</span>
                   </div>
-                  <h5 className="session-card__title">{session.title}</h5>
-                  <p className="session-card__desc">{session.desc}</p>
+
+                  <div style={{ padding: '14px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', textAlign: 'center' }}>
+                    <span style={{ fontSize: '1.3rem', display: 'block', marginBottom: '4px' }}>🔀</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#34d399' }}>{ghLoading ? '...' : (ghStats?.merged_prs ?? 0)}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600, marginTop: '2px' }}>Merged PRs</span>
+                  </div>
+
+                  <div style={{ padding: '14px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', textAlign: 'center' }}>
+                    <span style={{ fontSize: '1.3rem', display: 'block', marginBottom: '4px' }}>💻</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#60a5fa' }}>{ghLoading ? '...' : (ghStats?.total_commits ?? progress.github_activities?.length ?? 0)}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600, marginTop: '2px' }}>Total Commits</span>
+                  </div>
+
+                  <div style={{ padding: '14px 10px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-md)', border: '1px solid var(--clr-border)', textAlign: 'center' }}>
+                    <span style={{ fontSize: '1.3rem', display: 'block', marginBottom: '4px' }}>👥</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#c084fc' }}>{ghLoading ? '...' : (ghStats?.followers ?? 0)}</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--clr-text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600, marginTop: '2px' }}>Followers</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <button className="btn btn--primary mentor-sessions__cta-btn" onClick={() => onNavigate?.('mentor')}>
-              Start New Session
-            </button>
+
+                <a 
+                  href={`https://github.com/${ghUsername}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="btn btn--secondary" 
+                  style={{ width: '100%', textAlign: 'center', justifyContent: 'center', fontSize: '0.8rem', padding: '8px 12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  🐱 View @{ghUsername} on GitHub ↗
+                </a>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--clr-border)', marginTop: '12px' }}>
+                <span style={{ fontSize: '1.8rem', display: 'block', marginBottom: '8px' }}>🐱</span>
+                <h5 style={{ fontSize: '0.95rem', color: 'var(--clr-text-primary)', marginBottom: '4px' }}>No GitHub Profile Linked</h5>
+                <p style={{ fontSize: '0.8rem', color: 'var(--clr-text-muted)', margin: '0 0 16px 0', lineHeight: 1.4 }}>
+                  Connect your GitHub username to automatically fetch your total commits, merged pull requests, public repos, and follower count from GitHub.
+                </p>
+                <button className="btn btn--primary" style={{ padding: '8px 16px', fontSize: '0.8rem' }} onClick={() => onNavigate?.('roadmap')}>
+                  Connect GitHub Profile
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

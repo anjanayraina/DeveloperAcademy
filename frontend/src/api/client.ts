@@ -209,6 +209,22 @@ export async function postExerciseSubmit(
 }
 
 // ─── Dashboard & Analytics ────────────────────────────────────────────────────
+export interface GitHubUserStats {
+  username: string;
+  name: string;
+  avatar_url: string;
+  public_repos: number;
+  followers: number;
+  merged_prs: number;
+  total_commits: number;
+}
+
+export async function fetchGitHubUserStats(username: string): Promise<GitHubUserStats> {
+  const res = await fetch(`${BASE}/github/stats/${username}`);
+  if (!res.ok) throw new Error(`Failed to fetch GitHub stats: ${res.status}`);
+  return res.json();
+}
+
 export async function fetchDashboardData(userId: string): Promise<DashboardData> {
   const res = await fetch(`${BASE}/dashboard/${userId}`);
   if (!res.ok) throw new Error(`Failed to fetch dashboard data: ${res.status}`);

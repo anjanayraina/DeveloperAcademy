@@ -9,6 +9,14 @@ export interface LevelProgress {
   completed_at: string | null;
 }
 
+export interface MentorChatSession {
+  session_id: string;
+  messages_count: number;
+  last_chat_at: string;
+  topic?: string;
+  summary?: string;
+}
+
 export interface UserProgress {
   user_id: string;
   xp: number;
@@ -25,6 +33,7 @@ export interface UserProgress {
   exercises_submitted?: { lesson_id: string; level_id: number; code: string; submitted_at: string }[];
   hackathons_registered?: string[];
   hackathon_submissions?: Record<string, HackathonSubmission>;
+  mentor_chat_sessions?: MentorChatSession[];
 }
 
 export interface ProgressUpdate {
