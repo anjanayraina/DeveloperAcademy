@@ -155,8 +155,12 @@
 
 @media (max-width: 500px) {
   .header__stat-label,
-  .header__subtitle {
+  .header__subtitle,
+  .header__discord-btn span {
     display: none !important;
+  }
+  .header__discord-btn {
+    padding: 6px 8px;
   }
   .header__right {
     gap: 8px;

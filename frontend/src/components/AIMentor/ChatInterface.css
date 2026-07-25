@@ -265,3 +265,25 @@
   color: var(--clr-primary-light) !important;
   border-color: rgba(168, 85, 247, 0.4) !important;
 }
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .chat {
+    height: calc(100dvh - var(--header-height) - 76px);
+  }
+  .mentor-switcher {
+    padding: 8px 12px;
+  }
+  .mentor-switcher__label {
+    font-size: 0.7rem;
+  }
+  .chat__context-bar {
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .chat__context-select {
+    max-width: 100%;
+    width: 100%;
+  }
+}

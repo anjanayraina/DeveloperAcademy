@@ -338,3 +338,36 @@
   font-weight: 700;
   color: #fff;
 }
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .roadmap {
+    gap: 20px;
+  }
+  .roadmap__hero {
+    padding: 20px;
+  }
+  .roadmap__hero-stats {
+    gap: 16px;
+  }
+  .roadmap__hero-stat-val {
+    font-size: 1.4rem;
+  }
+  .roadmap__track-switcher {
+    padding: 16px;
+  }
+  .track-switcher__grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  .track-btn {
+    padding: 8px 4px;
+  }
+  .multichain-grid {
+    grid-template-columns: 1fr;
+  }
+  .roadmap__build-mor {
+    padding: 20px;
+    margin-top: 24px;
+  }
+}
