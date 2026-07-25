@@ -425,58 +425,72 @@ def get_track_lessons(track_id: str) -> List[Lesson]:
         "ethereum": {
             "arch": "Ethereum Virtual Machine (EVM), proof-of-stake consensus (Gasper), and gas execution model.",
             "tool": "Solidity (^0.8.20), Hardhat, Foundry, and Ethers.js / Viem",
-            "p1_title": "Ethereum Starter Project 1: ERC-20 Staking Contract",
-            "p1_desc": "Build, compile, and deploy a yield-bearing ERC-20 staking contract on Ethereum Goerli/Sepolia testnet.",
-            "p2_title": "Ethereum Starter Project 2: Full-Stack DApp with OpenClaw & Hermes AI Mentors",
-            "p2_desc": "Connect a React frontend with RainbowKit wallet connection and integrate OpenClaw & Hermes AI mentor guidance."
+            "p1_title": "Ethereum Starter Project 1: OpenZeppelin Smart Contract Library",
+            "p1_desc": "Build, compile, and test secure EVM smart contracts using OpenZeppelin's official smart contract repository.",
+            "p1_repo": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+            "p2_title": "Ethereum Starter Project 2: Scaffold-ETH 2 Full-Stack DApp",
+            "p2_desc": "Deploy an interactive Web3 frontend using Scaffold-ETH 2 with RainbowKit, Wagmi, Next.js, and AI mentor support.",
+            "p2_repo": "https://github.com/scaffold-eth/scaffold-eth-2"
         },
         "arbitrum": {
             "arch": "Arbitrum Nitro execution engine, Optimistic Rollup AVM, Orbit L3 chains, and Stylus Rust execution environment.",
             "tool": "Solidity & Rust (Stylus SDK), Arbitrum Nitro testnet nodes, and Foundry",
-            "p1_title": "Arbitrum Starter Project 1: High-Frequency Stylus (Rust) Smart Contract",
-            "p1_desc": "Develop a WebAssembly-compiled Rust smart contract leveraging Arbitrum Stylus for 10x gas savings.",
-            "p2_title": "Arbitrum Starter Project 2: Orbit L3 Chain DApp with OpenClaw & Hermes AI Support",
-            "p2_desc": "Deploy an L3 Orbit chain instance and build a custom frontend with OpenClaw & Hermes engineering support."
+            "p1_title": "Arbitrum Starter Project 1: Arbitrum Stylus Rust Smart Contract",
+            "p1_desc": "Develop a WebAssembly-compiled Rust smart contract using Offchain Labs' official Stylus Rust starter repository for 10x gas savings.",
+            "p1_repo": "https://github.com/OffchainLabs/stylus-hello-world",
+            "p2_title": "Arbitrum Starter Project 2: Arbitrum Nitro & Orbit Tutorials DApp",
+            "p2_desc": "Deploy custom smart contracts and L3 Orbit chain scripts with Offchain Labs' official Arbitrum developer tutorials.",
+            "p2_repo": "https://github.com/OffchainLabs/arbitrum-tutorials"
         },
         "optimism": {
             "arch": "OP Stack infrastructure, Superchain inter-rollup messaging, and Bedrock rollup execution layer.",
             "tool": "Solidity, OP Stack Devnet CLI, Foundry, and Wagmi",
-            "p1_title": "Optimism Starter Project 1: Superchain Cross-Domain Messenger Vault",
-            "p1_desc": "Build a cross-domain message passing vault smart contract using the OP Stack CrossDomainMessenger.",
-            "p2_title": "Optimism Starter Project 2: RetroPGF Governance DApp with AI Mentors",
-            "p2_desc": "Implement a Retroactive Public Goods Funding (RetroPGF) voting portal integrated with OpenClaw AI."
+            "p1_title": "Optimism Starter Project 1: OP Stack Cross-Domain Messenger",
+            "p1_desc": "Build and execute cross-domain L1 <-> L2 message passing using the official Optimism Developer Tutorial codebase.",
+            "p1_repo": "https://github.com/ethereum-optimism/optimism-tutorial",
+            "p2_title": "Optimism Starter Project 2: OP Superchain Ecosystem DApp",
+            "p2_desc": "Construct an OP Superchain-compatible governance and voting portal using official Optimism ecosystem templates.",
+            "p2_repo": "https://github.com/ethereum-optimism/ecosystem-contributions"
         },
         "base": {
             "arch": "Base Layer-2 execution engine, Coinbase Wallet Smart Wallet standards, and Onchain app architecture.",
             "tool": "Solidity (^0.8.20), Coinbase Smart Wallet SDK, Foundry, and MOR Finance APIs",
-            "p1_title": "Base Starter Project 1: MOR Finance Yield Aggregator Contract",
-            "p1_desc": "Construct an automated yield aggregator contract on Base L2 connecting with MOR Finance compute pools.",
-            "p2_title": "Base Starter Project 2: Onchain App with OpenClaw & Hermes AI Mentors",
-            "p2_desc": "Build a zero-friction mobile Web3 dApp with Paymaster gasless transactions and AI mentor integration."
+            "p1_title": "Base Starter Project 1: Coinbase OnchainKit Developer SDK",
+            "p1_desc": "Integrate Coinbase's official OnchainKit React components and TypeScript utilities for Base L2 dApps.",
+            "p1_repo": "https://github.com/coinbase/onchainkit",
+            "p2_title": "Base Starter Project 2: Coinbase Build-Onchain-Apps Template",
+            "p2_desc": "Build a zero-friction mobile Web3 dApp with Paymaster gasless transactions using Coinbase's official Build-Onchain-Apps kit.",
+            "p2_repo": "https://github.com/coinbase/build-onchain-apps"
         },
         "polygon": {
             "arch": "Polygon PoS architecture, Polygon CDK (Chain Development Kit), and zkEVM zero-knowledge rollups.",
             "tool": "Solidity, Polygon CDK CLI, Hardhat, and Plonky2 ZK verifiers",
-            "p1_title": "Polygon Starter Project 1: zkEVM Zero-Knowledge Proof Verifier Contract",
-            "p1_desc": "Deploy a zero-knowledge proof verification smart contract on Polygon zkEVM testnet.",
-            "p2_title": "Polygon Starter Project 2: Consumer DApp & NFT Marketplace with AI Support",
-            "p2_desc": "Create a high-scale consumer NFT marketplace with OpenClaw educational walkthroughs."
+            "p1_title": "Polygon Starter Project 1: Polygon CDK Core Node Repository",
+            "p1_desc": "Explore and configure custom ZK-Rollups and Validium chains with Polygon's official Chain Development Kit (CDK).",
+            "p1_repo": "https://github.com/0xPolygon/cdk",
+            "p2_title": "Polygon Starter Project 2: Polygon Kurtosis CDK Devnet Package",
+            "p2_desc": "Deploy a private, portable, and modular Polygon CDK devnet using the official Kurtosis-CDK package.",
+            "p2_repo": "https://github.com/0xPolygon/kurtosis-cdk"
         },
         "avalanche": {
             "arch": "Avalanche Snow consensus engine, Primary Network (C-Chain, P-Chain, X-Chain), and Subnet Virtual Machines.",
             "tool": "Solidity, Avalanche CLI, Avalanche Warp Messaging (AWM), and Ethers.js",
-            "p1_title": "Avalanche Starter Project 1: Custom Avalanche Subnet & AWM Bridge",
-            "p1_desc": "Deploy a custom EVM Subnet and configure Avalanche Warp Messaging (AWM) for cross-subnet transfers.",
-            "p2_title": "Avalanche Starter Project 2: Subnet DeFi Portal with OpenClaw & Hermes AI Support",
-            "p2_desc": "Build an Avalanche Subnet liquidity portal with real-time Hermes engineering assistant streaming."
+            "p1_title": "Avalanche Starter Project 1: Ava Labs Avalanche Starter Kit",
+            "p1_desc": "Deploy custom EVM Subnets and configure inter-subnet messaging with the official Ava Labs Avalanche Starter Kit.",
+            "p1_repo": "https://github.com/ava-labs/avalanche-starter-kit",
+            "p2_title": "Avalanche Starter Project 2: Avalanche Teleporter Cross-Subnet DApp",
+            "p2_desc": "Implement cross-subnet liquidity bridges and contracts with Ava Labs' official Teleporter AWM messaging protocol.",
+            "p2_repo": "https://github.com/ava-labs/teleporter"
         },
         "solana": {
             "arch": "Solana Sealevel parallel smart contract runtime, Proof-of-History (PoH) consensus, and Accounts model.",
             "tool": "Rust, Anchor Framework, Solana CLI, and @solana/web3.js",
-            "p1_title": "Solana Starter Project 1: Anchor Framework Token Vault Program",
-            "p1_desc": "Write a high-throughput Rust program using the Anchor framework with Program Derived Addresses (PDAs).",
-            "p2_title": "Solana Starter Project 2: Web3 DApp with OpenClaw & Hermes AI Integration",
-            "p2_desc": "Develop a Solana dApp connecting Phantom wallet with OpenClaw learning recommendations."
+            "p1_title": "Solana Starter Project 1: Coral XYZ Anchor Framework Rust Program",
+            "p1_desc": "Write high-throughput Rust programs using Coral XYZ's official Anchor framework repository with Program Derived Addresses.",
+            "p1_repo": "https://github.com/coral-xyz/anchor",
+            "p2_title": "Solana Starter Project 2: Solana Foundation Next.js DApp Scaffold",
+            "p2_desc": "Build a Solana Web3 dApp with Phantom wallet connection using the official Solana Developers Next.js DApp Scaffold.",
+            "p2_repo": "https://github.com/solana-developers/solana-dapp-next"
         }
     }
     
@@ -594,10 +608,20 @@ If you encounter compiler warnings or deployment errors, switch to **Hermes (Eng
 ### Project Blueprint:
 {details['p1_desc']}
 
+### 📦 GitHub Starter Repository & Quickstart:
+- **GitHub Repository**: [{details['p1_repo']}]({details['p1_repo']})
+- **Clone Command**:
+```bash
+git clone {details['p1_repo']}.git
+cd {details['p1_repo'].split('/')[-1]}
+npm install
+```
+
 ### Hands-On Instructions:
-1. **Contract Structure**: Implement state variables, event logging, and access control modifiers.
-2. **Compilation**: Run local compilation scripts using {details['tool']}.
-3. **Testnet Deployment**: Broadcast contract bytecodes to the testnet RPC node.
+1. **Clone & Explore**: Clone the starter repository above to your local environment.
+2. **Contract Logic**: Implement state variables, event logging, and access control modifiers.
+3. **Compilation**: Run local compilation scripts using {details['tool']}.
+4. **Testnet Deployment**: Broadcast contract bytecodes to the testnet RPC node.
 """,
             quiz=[
                 QuizQuestion(
@@ -612,7 +636,7 @@ If you encounter compiler warnings or deployment errors, switch to **Hermes (Eng
             ],
             exercise=CodingExercise(
                 instruction=f"Write a contract structure comment for Starter Project 1. The code must contain `{t_id}` and `project1`.",
-                template=f"// {details['p1_title']}\n",
+                template=f"// {details['p1_title']}\n// GitHub: {details['p1_repo']}\n",
                 required_keywords=[t_id, "project1"]
             )
         ),
@@ -628,6 +652,15 @@ If you encounter compiler warnings or deployment errors, switch to **Hermes (Eng
 
 ### Project Blueprint:
 {details['p2_desc']}
+
+### 📦 GitHub Starter Repository & Quickstart:
+- **GitHub Repository**: [{details['p2_repo']}]({details['p2_repo']})
+- **Clone Command**:
+```bash
+git clone {details['p2_repo']}.git
+cd {details['p2_repo'].split('/')[-1]}
+npm install
+```
 
 ### AI Mentor Integration:
 - **OpenClaw (Education)**: Guides your users through onboarding and learning recommendations.
@@ -646,7 +679,7 @@ If you encounter compiler warnings or deployment errors, switch to **Hermes (Eng
             ],
             exercise=CodingExercise(
                 instruction=f"Write a dApp integration comment for Starter Project 2. The code must contain `{t_id}` and `project2`.",
-                template=f"// {details['p2_title']}\n",
+                template=f"// {details['p2_title']}\n// GitHub: {details['p2_repo']}\n",
                 required_keywords=[t_id, "project2"]
             )
         ),

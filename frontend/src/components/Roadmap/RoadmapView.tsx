@@ -15,13 +15,62 @@ interface RoadmapViewProps {
 }
 
 const ECOSYSTEMS = [
-  { id: 'ethereum', name: 'Ethereum', icon: '🟢', desc: 'Ethereum Architecture, ERC-20, ERC-721, ERC-1155, Account Abstraction, Security, Public Goods' },
-  { id: 'arbitrum', name: 'Arbitrum', icon: '🔵', desc: 'Arbitrum Nitro Architecture, Orbit L3s, Stylus (Rust), Arbitrum DeFi & Deployments' },
-  { id: 'optimism', name: 'Optimism', icon: '🔴', desc: 'OP Stack, Superchain, Governance, Retro Funding, Developer Tooling & Deployments' },
-  { id: 'polygon', name: 'Polygon', icon: '🟣', desc: 'Polygon PoS, CDK Framework, zkEVM, Custom Smart Contracts & Consumer dApps' },
-  { id: 'base', name: 'Base', icon: '🔷', desc: 'Base Ecosystem, Coinbase Wallet Integrations, Onchain Apps, Base Deployments & Hacks' },
-  { id: 'solana', name: 'Solana', icon: '🟠', desc: 'Solana High-Throughput Engine, Accounts Model, Anchor Framework (Rust) & Security' },
-  { id: 'avalanche', name: 'Avalanche', icon: '🟤', desc: 'Avalanche Subnet Deployments, Consensus Engine, AVM, Warp Messaging & DeFi' }
+  {
+    id: 'ethereum',
+    name: 'Ethereum',
+    icon: '🟢',
+    desc: 'Ethereum Architecture, ERC-20, ERC-721, ERC-1155, Account Abstraction, Security, Public Goods',
+    p1_repo: 'https://github.com/OpenZeppelin/openzeppelin-contracts',
+    p2_repo: 'https://github.com/scaffold-eth/scaffold-eth-2'
+  },
+  {
+    id: 'arbitrum',
+    name: 'Arbitrum',
+    icon: '🔵',
+    desc: 'Arbitrum Nitro Architecture, Orbit L3s, Stylus (Rust), Arbitrum DeFi & Deployments',
+    p1_repo: 'https://github.com/OffchainLabs/stylus-hello-world',
+    p2_repo: 'https://github.com/OffchainLabs/arbitrum-tutorials'
+  },
+  {
+    id: 'optimism',
+    name: 'Optimism',
+    icon: '🔴',
+    desc: 'OP Stack, Superchain, Governance, Retro Funding, Developer Tooling & Deployments',
+    p1_repo: 'https://github.com/ethereum-optimism/optimism-tutorial',
+    p2_repo: 'https://github.com/ethereum-optimism/ecosystem-contributions'
+  },
+  {
+    id: 'polygon',
+    name: 'Polygon',
+    icon: '🟣',
+    desc: 'Polygon PoS, CDK Framework, zkEVM, Custom Smart Contracts & Consumer dApps',
+    p1_repo: 'https://github.com/0xPolygon/cdk',
+    p2_repo: 'https://github.com/0xPolygon/kurtosis-cdk'
+  },
+  {
+    id: 'base',
+    name: 'Base',
+    icon: '🔷',
+    desc: 'Base Ecosystem, Coinbase Wallet Integrations, Onchain Apps, Base Deployments & Hacks',
+    p1_repo: 'https://github.com/coinbase/onchainkit',
+    p2_repo: 'https://github.com/coinbase/build-onchain-apps'
+  },
+  {
+    id: 'solana',
+    name: 'Solana',
+    icon: '🟠',
+    desc: 'Solana High-Throughput Engine, Accounts Model, Anchor Framework (Rust) & Security',
+    p1_repo: 'https://github.com/coral-xyz/anchor',
+    p2_repo: 'https://github.com/solana-developers/solana-dapp-next'
+  },
+  {
+    id: 'avalanche',
+    name: 'Avalanche',
+    icon: '🟤',
+    desc: 'Avalanche Subnet Deployments, Consensus Engine, AVM, Warp Messaging & DeFi',
+    p1_repo: 'https://github.com/ava-labs/avalanche-starter-kit',
+    p2_repo: 'https://github.com/ava-labs/teleporter'
+  }
 ];
 
 export const RoadmapView: React.FC<RoadmapViewProps> = ({
@@ -156,8 +205,16 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({
               <div className="multichain-card">
                 <span className="multichain-card__icon">🛠️</span>
                 <div>
-                  <h5 className="multichain-card__title">2 Starter Projects</h5>
-                  <p className="multichain-card__sub">Token Protocol & dApp Integration</p>
+                  <h5 className="multichain-card__title">2 Starter Projects (GitHub Repos)</h5>
+                  <p className="multichain-card__sub">Small coding starter repositories</p>
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                    <a href={selectedEco.p1_repo} target="_blank" rel="noopener noreferrer" className="multichain-repo-btn">
+                      🐱 Project 1 Repo ↗
+                    </a>
+                    <a href={selectedEco.p2_repo} target="_blank" rel="noopener noreferrer" className="multichain-repo-btn">
+                      🐱 Project 2 Repo ↗
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="multichain-card">
