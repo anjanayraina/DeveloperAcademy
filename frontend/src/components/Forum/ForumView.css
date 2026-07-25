@@ -574,6 +574,45 @@
   .category-select-grid {
     grid-template-columns: 1fr;
   }
+  .thread-row-card {
+    padding: 12px !important;
+    gap: 10px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .thread-row-card__avatar {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.75rem !important;
+  }
+  .thread-row-card__content {
+    min-width: 0 !important;
+    flex: 1 !important;
+    width: 100% !important;
+  }
+  .thread-row-card__title {
+    font-size: 0.9rem !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  .thread-row-card__tags {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .thread-row-card__tag-item {
+    font-size: 0.6rem !important;
+    padding: 2px 6px !important;
+  }
+  .thread-row-card__meta {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    font-size: 0.7rem !important;
+  }
+  .thread-row-card__metrics {
+    gap: 8px !important;
+    font-size: 0.7rem !important;
+  }
 }
 
 /* --- Redesigned Community Forum Mockup Layout --- */

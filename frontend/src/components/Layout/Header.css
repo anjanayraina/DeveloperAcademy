@@ -149,24 +149,51 @@
 @media (max-width: 768px) {
   .header {
     grid-column: 1;
-    padding: 0 16px;
+    padding: 0 10px;
+  }
+  .header__subtitle {
+    display: none !important;
+  }
+  .header__title {
+    font-size: 0.88rem;
+    max-width: 110px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .header-link-btn {
+    display: none !important;
+  }
+  .header__right {
+    gap: 4px;
+  }
+  .auth-profile {
+    padding: 3px 6px;
+    gap: 4px;
+  }
+  .auth-profile__name {
+    font-size: 0.75rem;
+    max-width: 70px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
 @media (max-width: 500px) {
+  .header__title {
+    max-width: 85px;
+  }
+  .auth-profile__name,
   .header__stat-label,
-  .header__subtitle,
   .header__discord-btn span {
     display: none !important;
   }
   .header__discord-btn {
-    padding: 6px 8px;
-  }
-  .header__right {
-    gap: 8px;
+    padding: 5px 6px;
   }
   .header__stat {
-    padding: 4px 8px;
+    padding: 3px 6px;
   }
 }
 

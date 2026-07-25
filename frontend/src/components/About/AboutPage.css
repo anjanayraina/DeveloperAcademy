@@ -1,13 +1,166 @@
+/* AboutPage CSS */
 .about-page {
+  padding: 32px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 11, 23, 0.45);
+  color: #fff;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
   animation: fadeIn 0.3s ease-out;
+}
+
+.about-page__title {
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.about-page__desc {
+  font-size: 0.95rem;
+  color: var(--clr-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.about-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.about-card__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.about-card__text {
+  font-size: 0.88rem;
+  color: var(--clr-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 28px 0;
+}
+
+.about-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.about-milestones {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.milestone-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.milestone-item__step {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #3b82f6;
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.milestone-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.milestone-item__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.milestone-item__desc {
+  font-size: 0.82rem;
+  color: var(--clr-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.about-discord {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  background: rgba(88, 101, 242, 0.08);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.about-discord__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #7289da;
+  margin: 0 0 4px 0;
+}
+
+.about-discord__sub {
+  font-size: 0.82rem;
+  color: var(--clr-text-secondary);
+  margin: 0;
+}
+
+.about-discord__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  background: #5865F2;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.about-discord__btn:hover {
+  background: #4752C4;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
   .about-page {
-    padding: 20px !important;
+    padding: 16px;
+    border-radius: var(--radius-lg);
   }
-  .about-page div[style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
-    gap: 24px !important;
+  .about-page__grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .about-discord {
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .about-discord__btn {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
   }
 }
