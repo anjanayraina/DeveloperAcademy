@@ -48,6 +48,62 @@
   color: var(--clr-primary-light) !important;
 }
 
+.recommendation-row__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--clr-text-primary);
+  border-color: var(--clr-border-bright);
+}
+
+/* GitHub Contribution Calendar Panel */
+.github-calendar-panel {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-card);
+  margin-top: 8px;
+}
+
+.github-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.github-calendar-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--clr-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.github-calendar-subtitle {
+  font-size: 0.8rem;
+  color: var(--clr-text-muted);
+}
+
+.github-calendar-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding: 16px 12px;
+  background: rgba(10, 11, 23, 0.6);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.github-calendar-img {
+  max-width: 100%;
+  height: auto;
+  min-height: 110px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
 /* Stat Cards */
 .dashboard__stats {
   display: grid;

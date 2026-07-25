@@ -418,6 +418,40 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
+      {/* GitHub Contribution Calendar Section */}
+      {ghUsername && (
+        <div className="github-calendar-panel glass animate-fade-in">
+          <div className="github-calendar-header">
+            <div>
+              <h4 className="github-calendar-title">📅 GitHub Contribution Calendar</h4>
+              <span className="github-calendar-subtitle">
+                Live annual contribution graph for <strong>@{ghUsername}</strong>
+              </span>
+            </div>
+            <a 
+              href={`https://github.com/${ghUsername}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn btn--secondary btn--sm"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
+            >
+              Open GitHub Profile ↗
+            </a>
+          </div>
+
+          <div className="github-calendar-wrap">
+            <img 
+              src={`https://ghchart.rshah.org/10B981/${ghUsername}`} 
+              alt={`${ghUsername}'s GitHub Contribution Calendar`} 
+              className="github-calendar-img"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = `https://github-readme-activity-graph.vercel.app/graph?username=${ghUsername}&theme=react-dark`;
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Bottom Row: Learning Recommendations */}
       <div className="recommendations-section">
         <h4 className="recommendations-section__title">Learning Recommendations</h4>
